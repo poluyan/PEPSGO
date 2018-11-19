@@ -16,7 +16,7 @@ RUNFLAGS=-mute all
 
 ##
 
-CPPFLAGS = -c -std=c++11 -Wall -Wextra -Wpedantic -ffor-scope
+CPPFLAGS = -c -std=c++11 -Wall -Wextra -Wpedantic -ffor-scope -MD
 CPPFLAGSEXTRA = -pipe -pedantic -Wno-long-long -Wno-strict-aliasing -march=core2 -mtune=generic -O3 -ffast-math -funroll-loops -finline-functions -finline-limit=20000 -s -Wno-unused-variable -Wno-unused-parameter -DBOOST_ERROR_CODE_HEADER_ONLY -DBOOST_SYSTEM_NO_DEPRECATED -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS -DPTR_STD -DNDEBUG 
 
 IS = -isystem $(MAIN)/source/external/boost_1_55_0/ -isystem $(MAIN)/source/external/ -isystem $(MAIN)/source/external/include/ -isystem $(MAIN)/source/external/dbio/
@@ -30,7 +30,13 @@ LIBS3 = -ldevel -lprotocols.8 -lprotocols.7 -lprotocols_e.6 -lprotocols_d.6 -lpr
 SRCPATH = ./src
 
 OBJDIR_RELEASE = obj/Release
-OBJ_RELEASE = $(OBJDIR_RELEASE)/main.o 
+
+OBJ_RELEASE = \
+	$(OBJDIR_RELEASE)/main.o \
+	$(OBJDIR_RELEASE)/dunbrackdata.o 
+
+HEADERS = \
+	$(SRCPATH)/dunbrackdata.hh 
 
 all: release
 
@@ -44,13 +50,19 @@ before_release:
 	chmod +x $(RUNNAME)
 	test -d $(OBJDIR_RELEASE) || mkdir -p $(OBJDIR_RELEASE)
 
-out_release: before_release $(OBJ_RELEASE)
+out_release: before_release $(OBJ_RELEASE) $(HEADERS)
 	$(CPP) -o $(TARGET) $(LIBS1) $(OBJDIR_RELEASE)/*.o $(LIBS2) $(LIBS3)
 
 clean_release:
 	rm $(OBJDIR_RELEASE)/*.o
+	rm $(OBJDIR_RELEASE)/*.d
 	rm $(TARGET)
 	rm $(RUNNAME)
 
 $(OBJDIR_RELEASE)/main.o: $(SRCPATH)/main.cc
 	$(CPP) $(CPPFLAGS) $(IS) $(CPPFLAGSEXTRA) $(INCLUDE) $(SRCPATH)/main.cc -o $(OBJDIR_RELEASE)/main.o
+
+$(OBJDIR_RELEASE)/dunbrackdata.o: $(SRCPATH)/dunbrackdata.cc
+	$(CPP) $(CPPFLAGS) $(IS) $(CPPFLAGSEXTRA) $(INCLUDE) $(SRCPATH)/dunbrackdata.cc -o $(OBJDIR_RELEASE)/dunbrackdata.o
+
+-include $(OBJ_RELEASE:.o=.d)
