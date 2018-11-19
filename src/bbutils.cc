@@ -24,17 +24,16 @@ namespace bbutils
 
 double get_1d_from_dst(const distribution_1d &dst, double value)
 {
-	size_t index = std::distance(dst.cdf.begin(), std::upper_bound(dst.cdf.begin(), dst.cdf.end(), value)) - 1;
-	double x0 = dst.grid[index], y0 = dst.cdf[index], x1 = dst.grid[index + 1], y1 = dst.cdf[index + 1];
-	return x0 + (value - y0) * (x1 - x0) / (y1 - y0);
+    size_t index = std::distance(dst.cdf.begin(), std::upper_bound(dst.cdf.begin(), dst.cdf.end(), value)) - 1;
+    double x0 = dst.grid[index], y0 = dst.cdf[index], x1 = dst.grid[index + 1], y1 = dst.cdf[index + 1];
+    return x0 + (value - y0) * (x1 - x0) / (y1 - y0);
 }
 double get_inverse_1d_from_dst(const distribution_1d &dst, double value) // here value is the degree, must be from -180 to 180
 {
-	size_t index = std::distance(dst.grid.begin(), std::upper_bound(dst.grid.begin(), dst.grid.end(), value)) - 1;
-	double x0 = dst.cdf[index], y0 = dst.grid[index], x1 = dst.cdf[index + 1], y1 = dst.grid[index + 1];
-	return x0 + (value - y0) * (x1 - x0) / (y1 - y0);
+    size_t index = std::distance(dst.grid.begin(), std::upper_bound(dst.grid.begin(), dst.grid.end(), value)) - 1;
+    double x0 = dst.cdf[index], y0 = dst.grid[index], x1 = dst.cdf[index + 1], y1 = dst.grid[index + 1];
+    return x0 + (value - y0) * (x1 - x0) / (y1 - y0);
 }
 
 }
 }
-

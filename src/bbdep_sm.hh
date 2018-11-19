@@ -96,10 +96,50 @@ public:
     BBDEP_Dunbrack_sm(std::string _path_to_dunbrack_files, size_t _cdf_grid_step);
     void load_data_em();
     void initialize_all(bool create_cdf_sum, std::string amino_acids);
+    void fill_grid_and_states_and_create_cdf_chi1(const std::vector<bbdep::Dunbrack_data> &data,
+            std::vector<std::pair<double, double>> &all_chi1_index,
+            std::vector<bbutils::distribution_1d> &all_independent,
+            std::vector<std::vector<bbutils::distribution_1d>> &all_chi1_value,
+            std::vector<std::vector<double>> &states);
+
+    void fill_grid_and_states_and_create_cdf_chi2(const std::vector<bbdep::Dunbrack_data> &data,
+            std::vector<std::pair<double, double>> &all_chi1_index,
+            std::vector<bbutils::distribution_1d> &all_independent,
+            std::vector<std::vector<bbutils::distribution_1d>> &all_chi12_value,
+            std::vector<std::vector<bbutils::distribution_1d>> &chi2_depend_chi1,
+            std::vector<std::vector<double>> &states);
+
+    void fill_grid_and_states_and_create_cdf_chi3(const std::vector<bbdep::Dunbrack_data> &data,
+            std::vector<std::pair<double, double>> &all_chi1_index,
+            std::vector<bbutils::distribution_1d> &all_independent,
+            std::vector<std::vector<bbutils::distribution_1d>> &all_chi123_value,
+            std::vector<std::vector<bbutils::distribution_1d>> &chi2_depend_chi1,
+            std::vector<std::vector<std::vector<bbutils::distribution_1d>>> &chi3_depend_chi12,
+            std::vector<std::vector<double>> &chi1_states,
+            std::vector<std::vector<std::vector<double>>> &chi2_states);
+
+    void fill_grid_and_states_and_create_cdf_chi4(const std::vector<bbdep::Dunbrack_data> &data,
+            std::vector<std::pair<double, double>> &all_chi1_index,
+            std::vector<bbutils::distribution_1d> &all_independent,
+            std::vector<std::vector<bbutils::distribution_1d>> &all_chi1234_value,
+            std::vector<std::vector<bbutils::distribution_1d>> &chi2_depend_chi1,
+            std::vector<std::vector<std::vector<bbutils::distribution_1d>>> &chi3_depend_chi12,
+            std::vector<std::vector<std::vector<std::vector<bbutils::distribution_1d>>>> &chi4_depend_chi123,
+            std::vector<std::vector<double>> &chi1_states,
+            std::vector<std::vector<std::vector<double>>> &chi2_states,
+            std::vector<std::vector<std::vector<std::vector<double>>>> &chi3_states);
+
+    void fill_impossible_conformations(std::vector<bbdep::Dunbrack_data> &data,
+                                       std::vector<std::vector<std::vector<size_t>>> &imp_conf);
+
+    bbutils::distribution_1d get_chi1_all(std::vector<bbdep::Dunbrack_data> &data) const;
+    bbutils::distribution_1d get_chi2_all(std::vector<bbdep::Dunbrack_data> &data) const;
+    bbutils::distribution_1d get_chi3_all(std::vector<bbdep::Dunbrack_data> &data) const;
+    bbutils::distribution_1d get_chi4_all(std::vector<bbdep::Dunbrack_data> &data) const;
+    bbutils::distribution_1d fill_uniformly() const;
 };
 
 }
 }
 
 #endif
-

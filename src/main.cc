@@ -49,6 +49,6 @@ int main(int argc, char *argv[])
 //        std::cout << aa << std::endl;
 //    }
 
-    pepsgo::bbdep::BBDEP_Dunbrack_sm bbdep_sm(lib_path, 360);
-    bbdep_sm.initialize_all(true, "AGRVS");
+    pepsgo::bbdep::BBDEP_Dunbrack_sm bbdep_sm(lib_path, 72);
+    bbdep_sm.initialize_all(true, "VS");
 }
