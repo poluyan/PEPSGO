@@ -41,7 +41,7 @@ std::ostream& operator<<(std::ostream& stream, const Dunbrack_data& obj)
 std::string remove_chars(const std::string is, const std::string& chars)
 {
     std::string s = is;
-    s.erase(remove_if(s.begin(), s.end(), [&chars](const char& c)
+    s.erase(std::remove_if(s.begin(), s.end(), [&chars](const char& c)
     {
         return chars.find(c) != std::string::npos;
     }), s.end());
@@ -61,7 +61,6 @@ void load_data_sm(std::string fname, std::vector<Dunbrack_data> &data, std::vect
     numbers.resize(4);
     std::string temp;
     bool flag = false;
-    std::tuple<double, double, size_t> t;
     Dunbrack_data push2data;
     while(!fIn.eof())
     {
@@ -143,9 +142,6 @@ Dunbrack_data get_probabil(std::vector<Dunbrack_data> &data, std::vector<std::ve
 
     auto q = std::equal_range(p.first, p.second, search_data, [](const Dunbrack_data& lhs, const Dunbrack_data& rhs) -> bool
     {	return lhs.Psi < rhs.Psi;});
-
-    //for (auto i = q.first; i != q.second; ++i)
-    //	std::cout << std::fixed << *i << std::endl;
 
     size_t range = std::distance(q.first, q.second) / 4;
     std::uniform_int_distribution<size_t> distribution(0, range);

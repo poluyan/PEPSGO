@@ -24,10 +24,31 @@
 #include <core/scoring/ScoreFunction.hh>
 #include <core/scoring/ScoreFunctionFactory.hh>
 
+#include <basic/options/keys/in.OptionKeys.gen.hh>
+#include <basic/options/option.hh>
+
 #include "dunbrackdata.hh"
+#include "bbdep_sm.hh"
 
 int main(int argc, char *argv[])
 {
     devel::init(argc, argv);
     std::cout << "Start..." << std::endl;
+
+    std::string lib_path = basic::options::option[basic::options::OptionKeys::in::path::database]().front();
+    lib_path += "rotamer/ExtendedOpt1-5/";
+    std::cout << lib_path << std::endl;
+//
+//    std::vector<std::vector<int>> num;
+//    std::vector<pepsgo::bbdep::Dunbrack_data> lib;
+//    pepsgo::bbdep::load_data_sm(lib_path, lib, num);
+//    std::cout << lib.size() << std::endl;
+//
+//    for(core::Size aa(1); aa <= core::chemical::num_canonical_aas; ++aa)
+//    {
+//        std::cout << aa << std::endl;
+//    }
+
+    pepsgo::bbdep::BBDEP_Dunbrack_sm bbdep_sm(lib_path, 360);
+    bbdep_sm.initialize_all(true, "AGRVS");
 }
