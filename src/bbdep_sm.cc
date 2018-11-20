@@ -22,7 +22,7 @@ namespace pepsgo
 {
 namespace bbdep
 {
-    
+
 double pdf_normal_dst(double x, double mu, double sigma)
 {
     double ps = 2 * sigma * sigma;
@@ -37,7 +37,7 @@ BBDEP_Dunbrack_sm::BBDEP_Dunbrack_sm(std::string _path_to_files, size_t _cdf_gri
 // amino acids in 1letter code format
 void BBDEP_Dunbrack_sm::initialize_all(bool create_cdf_sum, std::string amino_acids)
 {
-    load_data_em();
+    load_data_sm();
 
     if(create_cdf_sum)
     {
@@ -191,7 +191,7 @@ void BBDEP_Dunbrack_sm::initialize_all(bool create_cdf_sum, std::string amino_ac
 }
 
 
-void BBDEP_Dunbrack_sm::load_data_em()
+void BBDEP_Dunbrack_sm::load_data_sm()
 {
     aa_sm_1d.resize(4); // 0 ser, 1 val, 2 cys, 3 thr
     pepsgo::bbdep::load_data_sm(path_to_files + "ser.bbdep.rotamers.lib.gz", aa_sm_1d[0].lib, aa_sm_1d[0].libn);
@@ -742,10 +742,10 @@ void BBDEP_Dunbrack_sm::fill_grid_and_states_and_create_cdf_chi4(const std::vect
 }
 
 void BBDEP_Dunbrack_sm::fill_impossible_conformations(std::vector<bbdep::Dunbrack_data> &data,
-    std::vector<std::vector<std::vector<size_t>>> &imp_conf)
+        std::vector<std::vector<std::vector<size_t>>> &imp_conf)
 {
     std::vector<int> rot_pos = { 1, 2, 3 };
-    std::vector<std::vector<int>> pp;
+    std::vector<std::vector<size_t>> pp;
     for(size_t i = 1, m = 1; i < 4; i++)
     {
         for(size_t j = 1; j < 4; j++)
@@ -755,7 +755,7 @@ void BBDEP_Dunbrack_sm::fill_impossible_conformations(std::vector<bbdep::Dunbrac
                 for(size_t h = 1; h < 4; h++, m++)
                 {
                     // std::cout << i << '\t' << j << '\t' << k << '\t' << h << "\t\t" << m << std::endl;
-                    std::vector<int> temp;
+                    std::vector<size_t> temp;
                     temp.push_back(i);
                     temp.push_back(j);
                     temp.push_back(k);
@@ -774,19 +774,22 @@ void BBDEP_Dunbrack_sm::fill_impossible_conformations(std::vector<bbdep::Dunbrac
         search_data.Psi = i->Psi;
 
         auto p = std::equal_range(
-            i, data.end(), search_data, [](const bbdep::Dunbrack_data &lhs, const bbdep::Dunbrack_data &rhs) -> bool {
-                return lhs.Phi < rhs.Phi;
-            });
+                     i, data.end(), search_data, [](const bbdep::Dunbrack_data &lhs, const bbdep::Dunbrack_data &rhs) -> bool
+        {
+            return lhs.Phi < rhs.Phi;
+        });
 
         auto q = std::equal_range(p.first, p.second, search_data,
-            [](const bbdep::Dunbrack_data &lhs, const bbdep::Dunbrack_data &rhs) -> bool {
-                return lhs.Psi < rhs.Psi;
-            });
+                                  [](const bbdep::Dunbrack_data &lhs, const bbdep::Dunbrack_data &rhs) -> bool
+        {
+            return lhs.Psi < rhs.Psi;
+        });
 
         std::vector<std::vector<size_t>> temp;
         for(size_t i = 0; i != pp.size(); i++)
         {
-            auto a = std::find_if(q.first, q.second, [&](const bbdep::Dunbrack_data &value) -> bool {
+            auto a = std::find_if(q.first, q.second, [&](const bbdep::Dunbrack_data &value) -> bool
+            {
                 if(pp[i][0] == value.r1 && pp[i][1] == value.r2 && pp[i][2] == value.r3 && pp[i][3] == value.r4)
                     return true;
                 else
@@ -1005,6 +1008,120 @@ bbutils::distribution_1d BBDEP_Dunbrack_sm::fill_uniformly() const
     return result;
 }
 
+bool BBDEP_Dunbrack_sm::is_impossible_conformation(std::vector<size_t> conf,
+        double Phi,
+        double Psi,
+        std::vector<std::pair<double, double>> &lys_grid,
+        std::vector<std::vector<std::vector<size_t>>> &imp_conf)
+{
+    size_t i = get_index_from_phi_psi(lys_grid, Phi, Psi);
+
+    auto a = std::find_if(imp_conf[i].begin(), imp_conf[i].end(), [&](const std::vector<size_t> &value) -> bool
+    {
+        if(conf[0] == value[0] && conf[1] == value[1] && conf[2] == value[2] && conf[3] == value[3])
+            return true;
+        else
+            return false;
+        return true;
+    });
+    return (a == imp_conf[i].end()) ? false : true;
+}
+
+
+Dunbrack_data BBDEP_Dunbrack_sm::get_max(core::chemical::AA amino_acid, double Phi, double Psi)
+{
+    Dunbrack_data result;
+    switch(amino_acid)
+    {
+        // 0 ser, 1 val, 2 cys, 3 thr
+        case core::chemical::aa_ser:
+            result = get_max_prob_object(aa_sm_1d[0].lib, aa_sm_1d[0].libn, Phi, Psi);
+            break;
+        case core::chemical::aa_val:
+            result = get_max_prob_object(aa_sm_1d[1].lib, aa_sm_1d[1].libn, Phi, Psi);
+            break;
+        case core::chemical::aa_cys:
+            result = get_max_prob_object(aa_sm_1d[2].lib, aa_sm_1d[2].libn, Phi, Psi);
+            break;
+        case core::chemical::aa_thr:
+            result = get_max_prob_object(aa_sm_1d[3].lib, aa_sm_1d[3].libn, Phi, Psi);
+            break;
+
+        // 0 trp, 1 his, 2 asn, 3 asp, 4 phe, 5 tyr, 6 ile, 7 leu
+        case core::chemical::aa_trp:
+            result = get_max_prob_object(aa_sm_2d[0].lib, aa_sm_2d[0].libn, Phi, Psi);
+            break;
+        case core::chemical::aa_his:
+            result = get_max_prob_object(aa_sm_2d[1].lib, aa_sm_2d[1].libn, Phi, Psi);
+            break;
+        case core::chemical::aa_asn:
+            result = get_max_prob_object(aa_sm_2d[2].lib, aa_sm_2d[2].libn, Phi, Psi);
+            break;
+        case core::chemical::aa_asp:
+            result = get_max_prob_object(aa_sm_2d[3].lib, aa_sm_2d[3].libn, Phi, Psi);
+            break;
+        case core::chemical::aa_phe:
+            result = get_max_prob_object(aa_sm_2d[4].lib, aa_sm_2d[4].libn, Phi, Psi);
+            break;
+        case core::chemical::aa_tyr:
+            result = get_max_prob_object(aa_sm_2d[5].lib, aa_sm_2d[5].libn, Phi, Psi);
+            break;
+        case core::chemical::aa_ile:
+            result = get_max_prob_object(aa_sm_2d[6].lib, aa_sm_2d[6].libn, Phi, Psi);
+            break;
+        case core::chemical::aa_leu:
+            result = get_max_prob_object(aa_sm_2d[7].lib, aa_sm_2d[7].libn, Phi, Psi);
+            break;
+
+        // 0 met, 1 glu, 2 gln, 3 pro
+        case core::chemical::aa_met:
+            result = get_max_prob_object(aa_sm_3d[0].lib, aa_sm_3d[0].libn, Phi, Psi);
+            break;
+        case core::chemical::aa_glu:
+            result = get_max_prob_object(aa_sm_3d[1].lib, aa_sm_3d[1].libn, Phi, Psi);
+            break;
+        case core::chemical::aa_gln:
+            result = get_max_prob_object(aa_sm_3d[2].lib, aa_sm_3d[2].libn, Phi, Psi);
+            break;
+        case core::chemical::aa_pro:
+            result = get_max_prob_object(aa_sm_3d[3].lib, aa_sm_3d[3].libn, Phi, Psi);
+            break;
+
+        // 0 arg, 1 lys
+        case core::chemical::aa_arg:
+            result = get_max_prob_object(aa_sm_4d[0].lib, aa_sm_4d[0].libn, Phi, Psi);
+            break;
+        case core::chemical::aa_lys:
+            result = get_max_prob_object(aa_sm_4d[1].lib, aa_sm_4d[1].libn, Phi, Psi);
+            break;
+
+        default:
+            break;
+    }
+
+    return result;
+}
+
+size_t BBDEP_Dunbrack_sm::get_index_from_phi_psi(std::vector<std::pair<double, double>> &data, double Phi, double Psi)
+{
+    std::pair<double, double> search_data;
+    search_data.first = 10 * std::round(Phi / 10.0);
+    search_data.second = 10 * std::round(Psi / 10.0);
+
+    auto p = std::equal_range(data.begin(), data.end(), search_data,
+                              [](const std::pair<double, double> &lhs, const std::pair<double, double> &rhs) -> bool
+    {
+        return lhs.first < rhs.first;
+    });
+
+    auto q = std::equal_range(p.first, p.second, search_data,
+                              [](const std::pair<double, double> &lhs, const std::pair<double, double> &rhs) -> bool
+    {
+        return lhs.second < rhs.second;
+    });
+
+    return std::distance(data.begin(), q.first);
+}
 
 }
 }

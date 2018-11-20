@@ -74,7 +74,20 @@ void load_data_sm(std::string fname, std::vector<Dunbrack_data> &data, std::vect
             fIn >> push2data.r2;
             fIn >> push2data.r3;
             fIn >> push2data.r4;
-            fIn >> push2data.Probabil;
+
+            fIn >> temp;
+            if(has_only_zeros_or_dots(temp))
+            {
+                temp = temp + "9";
+                push2data.Probabil = std::stod(temp);
+            }
+            else
+            {
+                push2data.Probabil = std::stod(temp);
+            }
+
+
+            //fIn >> push2data.Probabil;
             fIn >> push2data.chi1Val;
             fIn >> push2data.chi2Val;
             fIn >> push2data.chi3Val;
@@ -146,6 +159,17 @@ Dunbrack_data get_probabil(std::vector<Dunbrack_data> &data, std::vector<std::ve
     size_t range = std::distance(q.first, q.second) / 4;
     std::uniform_int_distribution<size_t> distribution(0, range);
     return data[std::distance(data.begin(), q.first) + distribution(generator)];
+}
+
+bool has_only_zeros_or_dots(const std::string str)
+{
+    bool flag = true;
+    for(std::string::const_iterator it = str.begin(); it != str.end(); ++it)
+    {
+        if(*it != '0' && *it != '.')
+            flag = false;
+    }
+    return flag;
 }
 
 }

@@ -91,6 +91,8 @@ Dunbrack_data get_max_prob_object(std::vector<Dunbrack_data> &data, std::vector<
 
 Dunbrack_data get_probabil(std::vector<Dunbrack_data> &data, std::vector<std::vector<int>> &numbers, std::mt19937_64 &generator, double Phi, double Psi);
 
+bool has_only_zeros_or_dots(const std::string str);
+
 }
 }
 

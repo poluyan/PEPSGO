@@ -94,8 +94,18 @@ public:
     std::vector<sm_4d> aa_sm_4d; // 0 arg, 1 lys
 
     BBDEP_Dunbrack_sm(std::string _path_to_dunbrack_files, size_t _cdf_grid_step);
-    void load_data_em();
+    void load_data_sm();
     void initialize_all(bool create_cdf_sum, std::string amino_acids);
+
+    bbutils::distribution_1d get_chi1_all(std::vector<bbdep::Dunbrack_data> &data) const;
+    bbutils::distribution_1d get_chi2_all(std::vector<bbdep::Dunbrack_data> &data) const;
+    bbutils::distribution_1d get_chi3_all(std::vector<bbdep::Dunbrack_data> &data) const;
+    bbutils::distribution_1d get_chi4_all(std::vector<bbdep::Dunbrack_data> &data) const;
+    bbutils::distribution_1d fill_uniformly() const;
+    
+    Dunbrack_data get_max(core::chemical::AA amino_acid, double Phi, double Psi);
+    size_t get_index_from_phi_psi(std::vector<std::pair<double, double>> &data, double Phi, double Psi);
+
     void fill_grid_and_states_and_create_cdf_chi1(const std::vector<bbdep::Dunbrack_data> &data,
             std::vector<std::pair<double, double>> &all_chi1_index,
             std::vector<bbutils::distribution_1d> &all_independent,
@@ -131,12 +141,12 @@ public:
 
     void fill_impossible_conformations(std::vector<bbdep::Dunbrack_data> &data,
                                        std::vector<std::vector<std::vector<size_t>>> &imp_conf);
+    bool is_impossible_conformation(std::vector<size_t> conf,
+                                    double Phi,
+                                    double Psi,
+                                    std::vector<std::pair<double, double>> &lys_grid,
+                                    std::vector<std::vector<std::vector<size_t>>> &imp_conf);
 
-    bbutils::distribution_1d get_chi1_all(std::vector<bbdep::Dunbrack_data> &data) const;
-    bbutils::distribution_1d get_chi2_all(std::vector<bbdep::Dunbrack_data> &data) const;
-    bbutils::distribution_1d get_chi3_all(std::vector<bbdep::Dunbrack_data> &data) const;
-    bbutils::distribution_1d get_chi4_all(std::vector<bbdep::Dunbrack_data> &data) const;
-    bbutils::distribution_1d fill_uniformly() const;
 };
 
 }
