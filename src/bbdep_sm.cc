@@ -1123,5 +1123,751 @@ size_t BBDEP_Dunbrack_sm::get_index_from_phi_psi(std::vector<std::pair<double, d
     return std::distance(data.begin(), q.first);
 }
 
+size_t BBDEP_Dunbrack_sm::determine_rotamer_state_0_2pi(double degree)
+{
+    std::vector<double> rotameric_states = { 60, 180, 300 };
+    auto i = std::min_element(rotameric_states.begin(), rotameric_states.end(),
+                              [=](double x, double y)
+    {
+        return std::abs(x - degree) < std::abs(y - degree);
+    });
+
+    return std::distance(rotameric_states.begin(), i);
+}
+
+size_t BBDEP_Dunbrack_sm::determine_proline_rotamer_state_0_2pi(double degree)
+{
+    std::vector<double> rotameric_states = { 27.3, 334.9 };
+    auto i = std::min_element(rotameric_states.begin(), rotameric_states.end(),
+                              [=](double x, double y)
+    {
+        return std::abs(x - degree) < std::abs(y - degree);
+    });
+
+    return std::distance(rotameric_states.begin(), i);
+}
+
+size_t BBDEP_Dunbrack_sm::determine_rotamer_state_0_2pi_actual_chi1(size_t index, double degree, core::chemical::AA amino_acid)
+{
+    std::vector<double> rotameric_states;
+    switch(amino_acid)
+    {
+        // 0 ser, 1 val, 2 cys, 3 thr
+        case core::chemical::aa_ser:
+            rotameric_states = aa_sm_1d[0].lib_states[index];
+            break;
+        case core::chemical::aa_val:
+            rotameric_states = aa_sm_1d[1].lib_states[index];
+            break;
+        case core::chemical::aa_cys:
+            rotameric_states = aa_sm_1d[2].lib_states[index];
+            break;
+        case core::chemical::aa_thr:
+            rotameric_states = aa_sm_1d[3].lib_states[index];
+            break;
+
+        // 0 trp, 1 his, 2 asn, 3 asp, 4 phe, 5 tyr, 6 ile, 7 leu
+        case core::chemical::aa_trp:
+            rotameric_states = aa_sm_2d[0].lib_states_chi1[index];
+            break;
+        case core::chemical::aa_his:
+            rotameric_states = aa_sm_2d[1].lib_states_chi1[index];
+            break;
+        case core::chemical::aa_asn:
+            rotameric_states = aa_sm_2d[2].lib_states_chi1[index];
+            break;
+        case core::chemical::aa_asp:
+            rotameric_states = aa_sm_2d[3].lib_states_chi1[index];
+            break;
+        case core::chemical::aa_phe:
+            rotameric_states = aa_sm_2d[4].lib_states_chi1[index];
+            break;
+        case core::chemical::aa_tyr:
+            rotameric_states = aa_sm_2d[5].lib_states_chi1[index];
+            break;
+        case core::chemical::aa_ile:
+            rotameric_states = aa_sm_2d[6].lib_states_chi1[index];
+            break;
+        case core::chemical::aa_leu:
+            rotameric_states = aa_sm_2d[7].lib_states_chi1[index];
+            break;
+
+        // 0 met, 1 glu, 2 gln, 3 pro
+        case core::chemical::aa_met:
+            rotameric_states = aa_sm_3d[0].lib_states_chi1[index];
+            break;
+        case core::chemical::aa_glu:
+            rotameric_states = aa_sm_3d[1].lib_states_chi1[index];
+            break;
+        case core::chemical::aa_gln:
+            rotameric_states = aa_sm_3d[2].lib_states_chi1[index];
+            break;
+        case core::chemical::aa_pro:
+            rotameric_states = aa_sm_3d[3].lib_states_chi1[index];
+            break;
+
+        // 0 arg, 1 lys
+        case core::chemical::aa_arg:
+            rotameric_states = aa_sm_4d[0].lib_states_chi1[index];
+            break;
+        case core::chemical::aa_lys:
+            rotameric_states = aa_sm_4d[1].lib_states_chi1[index];
+            break;
+        default:
+            break;
+    }
+    auto i = std::min_element(rotameric_states.begin(), rotameric_states.end(),
+                              [=](double x, double y)
+    {
+        return std::abs(x - degree) < std::abs(y - degree);
+    });
+    return std::distance(rotameric_states.begin(), i);
+}
+
+size_t BBDEP_Dunbrack_sm::determine_rotamer_state_0_2pi_actual_chi2(size_t index, size_t chi1_state, double degree, core::chemical::AA amino_acid)
+{
+    std::vector<double> rotameric_states;
+    switch(amino_acid)
+    {
+        // 0 met, 1 glu, 2 gln, 3 pro
+        case core::chemical::aa_met:
+            rotameric_states = aa_sm_3d[0].lib_states_chi2[index][chi1_state];
+            break;
+        case core::chemical::aa_glu:
+            rotameric_states = aa_sm_3d[1].lib_states_chi2[index][chi1_state];
+            break;
+        case core::chemical::aa_gln:
+            rotameric_states = aa_sm_3d[2].lib_states_chi2[index][chi1_state];
+            break;
+        case core::chemical::aa_pro:
+            rotameric_states = aa_sm_3d[3].lib_states_chi2[index][chi1_state];
+            break;
+
+        // 0 arg, 1 lys
+        case core::chemical::aa_arg:
+            rotameric_states = aa_sm_4d[0].lib_states_chi2[index][chi1_state];
+            break;
+        case core::chemical::aa_lys:
+            rotameric_states = aa_sm_4d[1].lib_states_chi2[index][chi1_state];
+            break;
+        default:
+            break;
+    }
+    auto i = std::min_element(rotameric_states.begin(), rotameric_states.end(),
+                              [=](double x, double y)
+    {
+        return std::abs(x - degree) < std::abs(y - degree);
+    });
+    return std::distance(rotameric_states.begin(), i);
+}
+
+size_t BBDEP_Dunbrack_sm::determine_rotamer_state_0_2pi_actual_chi3(size_t index, size_t chi1_state, size_t chi2_state, double degree, core::chemical::AA amino_acid)
+{
+    std::vector<double> rotameric_states;
+    switch(amino_acid)
+    {
+        // 0 arg, 1 lys
+        case core::chemical::aa_arg:
+            rotameric_states = aa_sm_4d[0].lib_states_chi3[index][chi1_state][chi2_state];
+            break;
+        case core::chemical::aa_lys:
+            rotameric_states = aa_sm_4d[1].lib_states_chi3[index][chi1_state][chi2_state];
+            break;
+        default:
+            break;
+    }
+    auto i = std::min_element(rotameric_states.begin(), rotameric_states.end(),
+                              [=](double x, double y)
+    {
+        return std::abs(x - degree) < std::abs(y - degree);
+    });
+    return std::distance(rotameric_states.begin(), i);
+}
+
+size_t BBDEP_Dunbrack_sm::find_index_for_cdf_chi234(core::chemical::AA amino_acid, double Phi, double Psi)
+{
+    size_t index = 0;
+
+    switch(amino_acid)
+    {
+        // 0 ser, 1 val, 2 cys, 3 thr
+        case core::chemical::aa_ser:
+            index = get_index_from_phi_psi(aa_sm_1d[0].lib_grid, Phi, Psi);
+            break;
+        case core::chemical::aa_val:
+            index = get_index_from_phi_psi(aa_sm_1d[1].lib_grid, Phi, Psi);
+            break;
+        case core::chemical::aa_cys:
+            index = get_index_from_phi_psi(aa_sm_1d[2].lib_grid, Phi, Psi);
+            break;
+        case core::chemical::aa_thr:
+            index = get_index_from_phi_psi(aa_sm_1d[3].lib_grid, Phi, Psi);
+            break;
+        
+        // 0 trp, 1 his, 2 asn, 3 asp, 4 phe, 5 tyr, 6 ile, 7 leu
+        case core::chemical::aa_trp:
+            index = get_index_from_phi_psi(aa_sm_2d[0].lib_grid, Phi, Psi);
+            break;
+        case core::chemical::aa_his:
+            index = get_index_from_phi_psi(aa_sm_2d[1].lib_grid, Phi, Psi);
+            break;
+        case core::chemical::aa_asn:
+            index = get_index_from_phi_psi(aa_sm_2d[2].lib_grid, Phi, Psi);
+            break;
+        case core::chemical::aa_asp:
+            index = get_index_from_phi_psi(aa_sm_2d[3].lib_grid, Phi, Psi);
+            break;
+        case core::chemical::aa_phe:
+            index = get_index_from_phi_psi(aa_sm_2d[4].lib_grid, Phi, Psi);
+            break;
+        case core::chemical::aa_tyr:
+            index = get_index_from_phi_psi(aa_sm_2d[5].lib_grid, Phi, Psi);
+            break;
+        case core::chemical::aa_ile:
+            index = get_index_from_phi_psi(aa_sm_2d[6].lib_grid, Phi, Psi);
+            break;
+        case core::chemical::aa_leu:
+            index = get_index_from_phi_psi(aa_sm_2d[7].lib_grid, Phi, Psi);
+            break;
+    
+        // 0 met, 1 glu, 2 gln, 3 pro
+        case core::chemical::aa_met:
+            index = get_index_from_phi_psi(aa_sm_3d[0].lib_grid, Phi, Psi);
+            break;
+        case core::chemical::aa_glu:
+            index = get_index_from_phi_psi(aa_sm_3d[1].lib_grid, Phi, Psi);
+            break;
+        case core::chemical::aa_gln:
+            index = get_index_from_phi_psi(aa_sm_3d[2].lib_grid, Phi, Psi);
+            break;
+        case core::chemical::aa_pro:
+            index = get_index_from_phi_psi(aa_sm_3d[3].lib_grid, Phi, Psi);
+            break;
+        
+        // 0 arg, 1 lys
+        case core::chemical::aa_arg:
+            index = get_index_from_phi_psi(aa_sm_4d[0].lib_grid, Phi, Psi);
+            break;
+        case core::chemical::aa_lys:
+            index = get_index_from_phi_psi(aa_sm_4d[1].lib_grid, Phi, Psi);
+            break;
+            
+        default:
+            break;
+    }
+    return index;
+}
+
+double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi1_dep(size_t index,
+    core::chemical::AA amino_acid,
+    double chi1_positive_degree,
+    double x01)
+{
+    double result = 0;
+
+    size_t state = (amino_acid == core::chemical::aa_pro) ? determine_proline_rotamer_state_0_2pi(chi1_positive_degree) : determine_rotamer_state_0_2pi(chi1_positive_degree);
+
+    switch(amino_acid)
+    {
+        // 0 trp, 1 his, 2 asn, 3 asp, 4 phe, 5 tyr, 6 ile, 7 leu
+        case core::chemical::aa_trp:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[0].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_his:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[1].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_asn:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[2].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_asp:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[3].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_phe:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[4].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_tyr:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[5].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_ile:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[6].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_leu:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[7].lib_chi2_depend_chi1[state][index], x01);
+            break;
+
+        // 0 met, 1 glu, 2 gln, 3 pro
+        case core::chemical::aa_met:
+            result = bbutils::get_1d_from_dst(aa_sm_3d[0].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_glu:
+            result = bbutils::get_1d_from_dst(aa_sm_3d[1].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_gln:
+            result = bbutils::get_1d_from_dst(aa_sm_3d[2].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_pro:
+            result = bbutils::get_1d_from_dst(aa_sm_3d[3].lib_chi2_depend_chi1[state][index], x01);
+            break;
+
+        // 0 arg, 1 lys
+        case core::chemical::aa_arg:
+            result = bbutils::get_1d_from_dst(aa_sm_4d[0].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_lys:
+            result = bbutils::get_1d_from_dst(aa_sm_4d[1].lib_chi2_depend_chi1[state][index], x01);
+            break;
+            
+        default:
+            break;
+    }
+    return result;
+}
+
+double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi12_dep(size_t index,
+    core::chemical::AA amino_acid,
+    double chi1_positive_degree,
+    double chi2_positive_degree,
+    double x01)
+{
+    double result = 0;
+
+    size_t state1 = (amino_acid == core::chemical::aa_pro) ? determine_proline_rotamer_state_0_2pi(chi1_positive_degree) : determine_rotamer_state_0_2pi(chi1_positive_degree);
+    size_t state2 = (amino_acid == core::chemical::aa_pro) ? 0 : determine_rotamer_state_0_2pi(chi2_positive_degree);
+
+    switch(amino_acid)
+    {
+        case core::chemical::aa_met:
+            result = bbutils::get_1d_from_dst(aa_sm_3d[0].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+        case core::chemical::aa_glu:
+            result = bbutils::get_1d_from_dst(aa_sm_3d[1].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+        case core::chemical::aa_gln:
+            result = bbutils::get_1d_from_dst(aa_sm_3d[2].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+        case core::chemical::aa_pro:
+            result = bbutils::get_1d_from_dst(aa_sm_3d[3].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+
+        case core::chemical::aa_arg:
+            result = bbutils::get_1d_from_dst(aa_sm_4d[0].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+        case core::chemical::aa_lys:
+            result = bbutils::get_1d_from_dst(aa_sm_4d[1].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+            
+        default:
+            break;
+    }
+    return result;
+}
+
+double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi123_dep(size_t index,
+    core::chemical::AA amino_acid,
+    double chi1_positive_degree,
+    double chi2_positive_degree,
+    double chi3_positive_degree,
+    double x01)
+{
+    double result = 0;
+
+    size_t state1 = determine_rotamer_state_0_2pi(chi1_positive_degree);
+    size_t state2 = determine_rotamer_state_0_2pi(chi2_positive_degree);
+    size_t state3 = determine_rotamer_state_0_2pi(chi3_positive_degree);
+
+    switch(amino_acid)
+    {
+        case core::chemical::aa_arg:
+            result = bbutils::get_1d_from_dst(aa_sm_4d[0].lib_chi4_depend_chi123[state1][state2][state3][index], x01);
+            break;
+        case core::chemical::aa_lys:
+            result = bbutils::get_1d_from_dst(aa_sm_4d[1].lib_chi4_depend_chi123[state1][state2][state3][index], x01);
+            break;
+        default:
+            break;
+    }
+    return result;
+}
+
+double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi1_dep_actual_states(size_t index,
+    core::chemical::AA amino_acid,
+    double chi1_positive_degree,
+    double x01)
+{
+    double result = 0;
+
+    size_t state = determine_rotamer_state_0_2pi_actual_chi1(index, chi1_positive_degree, amino_acid);
+
+    switch(amino_acid)
+    {
+        case core::chemical::aa_trp:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[0].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_his:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[1].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_asn:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[2].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_asp:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[3].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_phe:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[4].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_tyr:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[5].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_ile:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[6].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_leu:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[7].lib_chi2_depend_chi1[state][index], x01);
+            break;
+
+        case core::chemical::aa_met:
+            result = bbutils::get_1d_from_dst(aa_sm_3d[0].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_glu:
+            result = bbutils::get_1d_from_dst(aa_sm_3d[1].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_gln:
+            result = bbutils::get_1d_from_dst(aa_sm_3d[2].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_pro:
+            result = bbutils::get_1d_from_dst(aa_sm_3d[3].lib_chi2_depend_chi1[state][index], x01);
+            break;
+
+        case core::chemical::aa_arg:
+            result = bbutils::get_1d_from_dst(aa_sm_4d[0].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_lys:
+            result = bbutils::get_1d_from_dst(aa_sm_4d[1].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        default:
+            break;
+    }
+    return result;
+}
+
+double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi12_dep_actual_states(size_t index,
+    core::chemical::AA amino_acid,
+    double chi1_positive_degree,
+    double chi2_positive_degree,
+    double x01)
+{
+    double result = 0;
+
+    size_t state1 = determine_rotamer_state_0_2pi_actual_chi1(index, chi1_positive_degree, amino_acid);
+    size_t state2 = determine_rotamer_state_0_2pi_actual_chi2(index, state1, chi2_positive_degree, amino_acid);
+
+    switch(amino_acid)
+    {
+        case core::chemical::aa_met:
+            result = bbutils::get_1d_from_dst(aa_sm_3d[0].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+        case core::chemical::aa_glu:
+            result = bbutils::get_1d_from_dst(aa_sm_3d[1].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+        case core::chemical::aa_gln:
+            result = bbutils::get_1d_from_dst(aa_sm_3d[2].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+        case core::chemical::aa_pro:
+            result = bbutils::get_1d_from_dst(aa_sm_3d[3].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+
+        case core::chemical::aa_arg:
+            result = bbutils::get_1d_from_dst(aa_sm_4d[0].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+        case core::chemical::aa_lys:
+            result = bbutils::get_1d_from_dst(aa_sm_4d[1].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+        default:
+            break;
+    }
+    return result;
+}
+
+double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi123_dep_actual_states(size_t index,
+    core::chemical::AA amino_acid,
+    double chi1_positive_degree,
+    double chi2_positive_degree,
+    double chi3_positive_degree,
+    double x01)
+{
+    double result = 0;
+
+    size_t state1 = determine_rotamer_state_0_2pi_actual_chi1(index, chi1_positive_degree, amino_acid);
+    size_t state2 = determine_rotamer_state_0_2pi_actual_chi2(index, state1, chi2_positive_degree, amino_acid);
+    size_t state3 = determine_rotamer_state_0_2pi_actual_chi3(index, state1, state2, chi3_positive_degree, amino_acid);
+
+    switch(amino_acid)
+    {
+        case core::chemical::aa_arg:
+            result = bbutils::get_1d_from_dst(aa_sm_4d[0].lib_chi4_depend_chi123[state1][state2][state3][index], x01);
+            break;
+        case core::chemical::aa_lys:
+            result = bbutils::get_1d_from_dst(aa_sm_4d[1].lib_chi4_depend_chi123[state1][state2][state3][index], x01);
+            break;
+        default:
+            break;
+    }
+    return result;
+}
+
+
+double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi1_dep(size_t index,
+    core::chemical::AA amino_acid,
+    double chi1_positive_degree,
+    double x01)
+{
+    double result = 0;
+
+    size_t state = determine_rotamer_state_0_2pi(chi1_positive_degree);
+
+    switch(amino_acid)
+    {
+        case core::chemical::aa_trp:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_2d[0].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_his:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_2d[1].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_asn:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_2d[2].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_asp:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_2d[3].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_phe:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_2d[4].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_tyr:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_2d[5].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_ile:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_2d[6].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_leu:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_2d[7].lib_chi2_depend_chi1[state][index], x01);
+            break;
+
+        case core::chemical::aa_met:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_3d[0].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_glu:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_3d[1].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_gln:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_3d[2].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_pro:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_3d[3].lib_chi2_depend_chi1[state][index], x01);
+            break;
+
+        case core::chemical::aa_arg:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_4d[0].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_lys:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_4d[1].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        default:
+            break;
+    }
+    return result;
+}
+
+double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi12_dep(size_t index,
+    core::chemical::AA amino_acid,
+    double chi1_positive_degree,
+    double chi2_positive_degree,
+    double x01)
+{
+    double result = 0;
+
+    size_t state1 = determine_rotamer_state_0_2pi(chi1_positive_degree);
+    size_t state2 = determine_rotamer_state_0_2pi(chi2_positive_degree);
+
+    switch(amino_acid)
+    {
+
+        case core::chemical::aa_met:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_3d[0].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+        case core::chemical::aa_glu:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_3d[1].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+        case core::chemical::aa_gln:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_3d[2].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+        case core::chemical::aa_pro:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_3d[3].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+
+        case core::chemical::aa_arg:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_4d[0].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+        case core::chemical::aa_lys:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_4d[1].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+        default:
+            break;
+    }
+    return result;
+}
+
+double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi123_dep(size_t index,
+    core::chemical::AA amino_acid,
+    double chi1_positive_degree,
+    double chi2_positive_degree,
+    double chi3_positive_degree,
+    double x01)
+{
+    double result = 0;
+
+    size_t state1 = determine_rotamer_state_0_2pi(chi1_positive_degree);
+    size_t state2 = determine_rotamer_state_0_2pi(chi2_positive_degree);
+    size_t state3 = determine_rotamer_state_0_2pi(chi3_positive_degree);
+
+    switch(amino_acid)
+    {
+        case core::chemical::aa_arg:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_4d[0].lib_chi4_depend_chi123[state1][state2][state3][index], x01);
+            break;
+        case core::chemical::aa_lys:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_4d[1].lib_chi4_depend_chi123[state1][state2][state3][index], x01);
+            break;
+        default:
+            break;
+    }
+    return result;
+}
+
+double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi1_dep_actual_states(size_t index,
+    core::chemical::AA amino_acid,
+    double chi1_positive_degree,
+    double x01)
+{
+    double result = 0;
+
+    size_t state = determine_rotamer_state_0_2pi(chi1_positive_degree);
+
+    switch(amino_acid)
+    {
+        case core::chemical::aa_trp:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_2d[0].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_his:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_2d[1].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_asn:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_2d[2].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_asp:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_2d[3].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_phe:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_2d[4].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_tyr:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_2d[5].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_ile:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_2d[6].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_leu:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_2d[7].lib_chi2_depend_chi1[state][index], x01);
+            break;
+
+        case core::chemical::aa_met:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_3d[0].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_glu:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_3d[1].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_gln:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_3d[2].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_pro:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_3d[3].lib_chi2_depend_chi1[state][index], x01);
+            break;
+
+        case core::chemical::aa_arg:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_4d[0].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        case core::chemical::aa_lys:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_4d[1].lib_chi2_depend_chi1[state][index], x01);
+            break;
+        default:
+            break;
+    }
+    return result;
+}
+
+double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi12_dep_actual_states(size_t index,
+    core::chemical::AA amino_acid,
+    double chi1_positive_degree,
+    double chi2_positive_degree,
+    double x01)
+{
+    double result = 0;
+
+    size_t state1 = determine_rotamer_state_0_2pi(chi1_positive_degree);
+    size_t state2 = determine_rotamer_state_0_2pi(chi2_positive_degree);
+
+    switch(amino_acid)
+    {
+        case core::chemical::aa_met:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_3d[0].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+        case core::chemical::aa_glu:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_3d[1].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+        case core::chemical::aa_gln:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_3d[2].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+        case core::chemical::aa_pro:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_3d[3].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+
+        case core::chemical::aa_arg:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_4d[0].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+        case core::chemical::aa_lys:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_4d[1].lib_chi3_depend_chi12[state1][state2][index], x01);
+            break;
+        default:
+            break;
+    }
+    return result;
+}
+
+double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi123_dep_actual_states(size_t index,
+    core::chemical::AA amino_acid,
+    double chi1_positive_degree,
+    double chi2_positive_degree,
+    double chi3_positive_degree,
+    double x01)
+{
+    double result = 0;
+
+    size_t state1 = determine_rotamer_state_0_2pi(chi1_positive_degree);
+    size_t state2 = determine_rotamer_state_0_2pi(chi2_positive_degree);
+    size_t state3 = determine_rotamer_state_0_2pi(chi3_positive_degree);
+
+    switch(amino_acid)
+    {
+        case core::chemical::aa_arg:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_4d[0].lib_chi4_depend_chi123[state1][state2][state3][index], x01);
+            break;
+        case core::chemical::aa_lys:
+            result = bbutils::get_inverse_1d_from_dst(aa_sm_4d[1].lib_chi4_depend_chi123[state1][state2][state3][index], x01);
+            break;
+        default:
+            break;
+    }
+    return result;
+}
+
 }
 }

@@ -102,7 +102,7 @@ public:
     bbutils::distribution_1d get_chi3_all(std::vector<bbdep::Dunbrack_data> &data) const;
     bbutils::distribution_1d get_chi4_all(std::vector<bbdep::Dunbrack_data> &data) const;
     bbutils::distribution_1d fill_uniformly() const;
-    
+
     Dunbrack_data get_max(core::chemical::AA amino_acid, double Phi, double Psi);
     size_t get_index_from_phi_psi(std::vector<std::pair<double, double>> &data, double Phi, double Psi);
 
@@ -138,6 +138,31 @@ public:
             std::vector<std::vector<double>> &chi1_states,
             std::vector<std::vector<std::vector<double>>> &chi2_states,
             std::vector<std::vector<std::vector<std::vector<double>>>> &chi3_states);
+
+    size_t determine_rotamer_state_0_2pi(double degree);
+    size_t determine_proline_rotamer_state_0_2pi(double degree);
+
+    size_t determine_rotamer_state_0_2pi_actual_chi1(size_t index, double degree, core::chemical::AA amino_acid);
+    size_t determine_rotamer_state_0_2pi_actual_chi2(size_t index, size_t chi1_state, double degree, core::chemical::AA amino_acid);
+    size_t determine_rotamer_state_0_2pi_actual_chi3(size_t index, size_t chi1_state, size_t chi2_state, double degree, core::chemical::AA amino_acid);
+
+    size_t find_index_for_cdf_chi234(core::chemical::AA amino_acid, double Phi, double Psi);
+
+    double get_degree_bbdep_from_phi_psi_x01_chi1_dep(size_t index, core::chemical::AA amino_acid, double chi1_positive_degree, double x01);
+    double get_degree_bbdep_from_phi_psi_x01_chi12_dep(size_t index, core::chemical::AA amino_acid, double chi1_positive_degree, double chi2_positive_degree, double x01);
+    double get_degree_bbdep_from_phi_psi_x01_chi123_dep(size_t index, core::chemical::AA amino_acid, double chi1_positive_degree, double chi2_positive_degree, double chi3_positive_degree, double x01);
+
+    double get_degree_bbdep_from_phi_psi_x01_chi1_dep_actual_states(size_t index, core::chemical::AA amino_acid, double chi1_positive_degree, double x01);
+    double get_degree_bbdep_from_phi_psi_x01_chi12_dep_actual_states(size_t index, core::chemical::AA amino_acid, double chi1_positive_degree, double chi2_positive_degree, double x01);
+    double get_degree_bbdep_from_phi_psi_x01_chi123_dep_actual_states(size_t index, core::chemical::AA amino_acid, double chi1_positive_degree, double chi2_positive_degree, double chi3_positive_degree, double x01);
+
+    double get_inverse_degree_bbdep_from_phi_psi_x01_chi1_dep(size_t index, core::chemical::AA amino_acid, double chi1_positive_degree, double x01);
+    double get_inverse_degree_bbdep_from_phi_psi_x01_chi12_dep(size_t index, core::chemical::AA amino_acid, double chi1_positive_degree, double chi2_positive_degree, double x01);
+    double get_inverse_degree_bbdep_from_phi_psi_x01_chi123_dep(size_t index, core::chemical::AA amino_acid, double chi1_positive_degree, double chi2_positive_degree, double chi3_positive_degree, double x01);
+
+    double get_inverse_degree_bbdep_from_phi_psi_x01_chi1_dep_actual_states(size_t index, core::chemical::AA amino_acid, double chi1_positive_degree, double x01);
+    double get_inverse_degree_bbdep_from_phi_psi_x01_chi12_dep_actual_states(size_t index, core::chemical::AA amino_acid, double chi1_positive_degree, double chi2_positive_degree, double x01);
+    double get_inverse_degree_bbdep_from_phi_psi_x01_chi123_dep_actual_states(size_t index, core::chemical::AA amino_acid, double chi1_positive_degree, double chi2_positive_degree, double chi3_positive_degree, double x01);
 
     void fill_impossible_conformations(std::vector<bbdep::Dunbrack_data> &data,
                                        std::vector<std::vector<std::vector<size_t>>> &imp_conf);

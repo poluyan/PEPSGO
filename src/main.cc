@@ -43,12 +43,8 @@ int main(int argc, char *argv[])
 //    std::vector<pepsgo::bbdep::Dunbrack_data> lib;
 //    pepsgo::bbdep::load_data_sm(lib_path, lib, num);
 //    std::cout << lib.size() << std::endl;
-//
-//    for(core::Size aa(1); aa <= core::chemical::num_canonical_aas; ++aa)
-//    {
-//        std::cout << aa << std::endl;
-//    }
+
 
     pepsgo::bbdep::BBDEP_Dunbrack_sm bbdep_sm(lib_path, 72);
-    bbdep_sm.initialize_all(true, "VS");
+    bbdep_sm.initialize_all(true, "RK");
 }
