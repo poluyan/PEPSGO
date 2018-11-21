@@ -60,14 +60,9 @@ int main(int argc, char *argv[])
     std::string lib_path = basic::options::option[basic::options::OptionKeys::in::path::database]().front();
     lib_path += "rotamer/ExtendedOpt1-5/";
     std::cout << lib_path << std::endl;
-//
-//    std::vector<std::vector<int>> num;
-//    std::vector<pepsgo::bbdep::Dunbrack_data> lib;
-//    pepsgo::bbdep::load_data_sm(lib_path, lib, num);
-//    std::cout << lib.size() << std::endl;
 
     pepsgo::bbdep::BBDEP_Dunbrack_sm bbdep_sm(lib_path, 1000);
     bbdep_sm.initialize_all(true, "SVCT");
     
-//    plot_chi1_all(bbdep_sm);
+    plot_chi1_all(bbdep_sm);
 }
