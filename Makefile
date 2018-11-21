@@ -40,7 +40,8 @@ OBJ_RELEASE = \
 HEADERS = \
 	$(SRCPATH)/dunbrackdata.hh \
 	$(SRCPATH)/bbutils.hh \
-	$(SRCPATH)/bbdep_sm.hh 
+	$(SRCPATH)/bbdep_sm.hh \
+	$(SRCPATH)/data_writing.hh 
 
 all: release
 
@@ -53,6 +54,7 @@ before_release:
 	$(file >>$(RUNNAME),./main -database $(MAIN)/database $(RUNFLAGS))
 	chmod +x $(RUNNAME)
 	test -d $(OBJDIR_RELEASE) || mkdir -p $(OBJDIR_RELEASE)
+	test -d maps || mkdir -p maps
 
 out_release: before_release $(OBJ_RELEASE) $(HEADERS)
 	$(CPP) -o $(TARGET) $(LIBS1) $(OBJDIR_RELEASE)/*.o $(LIBS2) $(LIBS3)

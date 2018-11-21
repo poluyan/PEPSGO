@@ -29,6 +29,28 @@
 
 #include "dunbrackdata.hh"
 #include "bbdep_sm.hh"
+#include "data_writing.hh"
+
+void plot_chi1_all(pepsgo::bbdep::BBDEP_Dunbrack_sm& bbdep_sm)
+{
+    auto ser = bbdep_sm.get_chi1_all(bbdep_sm.aa_sm_1d[0].lib);
+    auto val = bbdep_sm.get_chi1_all(bbdep_sm.aa_sm_1d[1].lib);
+    auto cys = bbdep_sm.get_chi1_all(bbdep_sm.aa_sm_1d[2].lib);
+    auto thr = bbdep_sm.get_chi1_all(bbdep_sm.aa_sm_1d[3].lib);
+//    std::cout << rez.pdf.size() << std::endl;
+//    std::cout << rez.grid.size() << std::endl;
+    std::vector<std::vector<double>> to_plot;
+    for(size_t i = 0; i != ser.pdf.size(); i++)
+    {
+        std::vector<double> temp = {ser.grid[i], ser.pdf[i], val.pdf[i], cys.pdf[i], thr.pdf[i]};
+        if(temp[0] < 0)
+        {
+            temp[0] += 360.0;
+        }
+        to_plot.push_back(temp);
+    }
+    write_default2d("maps/bbdep/SVCT.dat", to_plot, 4);
+}
 
 int main(int argc, char *argv[])
 {
@@ -44,7 +66,8 @@ int main(int argc, char *argv[])
 //    pepsgo::bbdep::load_data_sm(lib_path, lib, num);
 //    std::cout << lib.size() << std::endl;
 
-
-    pepsgo::bbdep::BBDEP_Dunbrack_sm bbdep_sm(lib_path, 72);
-    bbdep_sm.initialize_all(true, "RK");
+    pepsgo::bbdep::BBDEP_Dunbrack_sm bbdep_sm(lib_path, 1000);
+    bbdep_sm.initialize_all(true, "SVCT");
+    
+//    plot_chi1_all(bbdep_sm);
 }

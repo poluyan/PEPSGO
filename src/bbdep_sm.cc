@@ -850,6 +850,7 @@ bbutils::distribution_1d BBDEP_Dunbrack_sm::get_chi1_all(std::vector<bbdep::Dunb
     x.push_back(180.0);
 
     bbutils::distribution_1d result;
+    result.pdf = pdf;
     result.cdf = cdf;
     result.grid = x;
 

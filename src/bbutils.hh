@@ -30,6 +30,7 @@ namespace bbutils
 
 struct distribution_1d
 {
+    std::deque<double> pdf;
     std::deque<double> cdf;
     std::deque<double> grid;
 };

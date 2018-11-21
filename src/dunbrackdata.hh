@@ -43,7 +43,7 @@ namespace bbdep
 
 /// Dunbrack [Number of bins for each discrete chi angle]
 //1 SVCT [3] ser val cys thr
-//2 [3, 3] leu ile    [3, 6] phe asp tyr     [3, 12] trp asn his
+//2 LIFDYWNH [3, 3] leu ile    [3, 6] phe asp tyr     [3, 12] trp asn his
 //3 MEQP [3, 3, 3] met          [3, 3, 6] glu         [3, 3, 12] gln           [2, 1, 1] pro
 //4 RK [3, 3, 3, 3, 1] arg [3, 3, 3, 3] lys
 
