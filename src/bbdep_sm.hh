@@ -174,6 +174,10 @@ public:
 
 };
 
+
+double pdf_normal_dst(double x, double mu, double sigma);
+void plot_chi1_all(pepsgo::bbdep::BBDEP_Dunbrack_sm& bbdep_sm);
+
 }
 }
 

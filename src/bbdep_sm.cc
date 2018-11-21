@@ -17,6 +17,7 @@
 **************************************************************************/
 #include "bbdep_sm.hh"
 #include "bbutils.hh"
+#include "data_writing.hh"
 
 namespace pepsgo
 {
@@ -29,6 +30,27 @@ double pdf_normal_dst(double x, double mu, double sigma)
     double e = exp(-std::pow(x - mu, 2.0) / ps);
     double C = std::sqrt(2.0 * ps * numeric::NumericTraits<core::Real>::pi());
     return e / C;
+}
+
+
+void plot_chi1_all(pepsgo::bbdep::BBDEP_Dunbrack_sm& bbdep_sm)
+{
+    auto ser = bbdep_sm.get_chi1_all(bbdep_sm.aa_sm_1d[0].lib);
+    auto val = bbdep_sm.get_chi1_all(bbdep_sm.aa_sm_1d[1].lib);
+    auto cys = bbdep_sm.get_chi1_all(bbdep_sm.aa_sm_1d[2].lib);
+    auto thr = bbdep_sm.get_chi1_all(bbdep_sm.aa_sm_1d[3].lib);
+
+    std::vector<std::vector<double>> to_plot;
+    for(size_t i = 0; i != ser.pdf.size(); i++)
+    {
+        std::vector<double> temp = {ser.grid[i], ser.pdf[i], val.pdf[i], cys.pdf[i], thr.pdf[i]};
+        if(temp[0] < 0)
+        {
+            temp[0] += 360.0;
+        }
+        to_plot.push_back(temp);
+    }
+    pepsgo::write_default2d("maps/bbdep/SVCT.dat", to_plot, 4);
 }
 
 BBDEP_Dunbrack_sm::BBDEP_Dunbrack_sm(std::string _path_to_files, size_t _cdf_grid_step):
@@ -1304,7 +1326,7 @@ size_t BBDEP_Dunbrack_sm::find_index_for_cdf_chi234(core::chemical::AA amino_aci
         case core::chemical::aa_thr:
             index = get_index_from_phi_psi(aa_sm_1d[3].lib_grid, Phi, Psi);
             break;
-        
+
         // 0 trp, 1 his, 2 asn, 3 asp, 4 phe, 5 tyr, 6 ile, 7 leu
         case core::chemical::aa_trp:
             index = get_index_from_phi_psi(aa_sm_2d[0].lib_grid, Phi, Psi);
@@ -1330,7 +1352,7 @@ size_t BBDEP_Dunbrack_sm::find_index_for_cdf_chi234(core::chemical::AA amino_aci
         case core::chemical::aa_leu:
             index = get_index_from_phi_psi(aa_sm_2d[7].lib_grid, Phi, Psi);
             break;
-    
+
         // 0 met, 1 glu, 2 gln, 3 pro
         case core::chemical::aa_met:
             index = get_index_from_phi_psi(aa_sm_3d[0].lib_grid, Phi, Psi);
@@ -1344,7 +1366,7 @@ size_t BBDEP_Dunbrack_sm::find_index_for_cdf_chi234(core::chemical::AA amino_aci
         case core::chemical::aa_pro:
             index = get_index_from_phi_psi(aa_sm_3d[3].lib_grid, Phi, Psi);
             break;
-        
+
         // 0 arg, 1 lys
         case core::chemical::aa_arg:
             index = get_index_from_phi_psi(aa_sm_4d[0].lib_grid, Phi, Psi);
@@ -1352,7 +1374,7 @@ size_t BBDEP_Dunbrack_sm::find_index_for_cdf_chi234(core::chemical::AA amino_aci
         case core::chemical::aa_lys:
             index = get_index_from_phi_psi(aa_sm_4d[1].lib_grid, Phi, Psi);
             break;
-            
+
         default:
             break;
     }
@@ -1360,9 +1382,9 @@ size_t BBDEP_Dunbrack_sm::find_index_for_cdf_chi234(core::chemical::AA amino_aci
 }
 
 double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi1_dep(size_t index,
-    core::chemical::AA amino_acid,
-    double chi1_positive_degree,
-    double x01)
+        core::chemical::AA amino_acid,
+        double chi1_positive_degree,
+        double x01)
 {
     double result = 0;
 
@@ -1417,7 +1439,7 @@ double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi1_dep(size_t inde
         case core::chemical::aa_lys:
             result = bbutils::get_1d_from_dst(aa_sm_4d[1].lib_chi2_depend_chi1[state][index], x01);
             break;
-            
+
         default:
             break;
     }
@@ -1425,10 +1447,10 @@ double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi1_dep(size_t inde
 }
 
 double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi12_dep(size_t index,
-    core::chemical::AA amino_acid,
-    double chi1_positive_degree,
-    double chi2_positive_degree,
-    double x01)
+        core::chemical::AA amino_acid,
+        double chi1_positive_degree,
+        double chi2_positive_degree,
+        double x01)
 {
     double result = 0;
 
@@ -1456,7 +1478,7 @@ double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi12_dep(size_t ind
         case core::chemical::aa_lys:
             result = bbutils::get_1d_from_dst(aa_sm_4d[1].lib_chi3_depend_chi12[state1][state2][index], x01);
             break;
-            
+
         default:
             break;
     }
@@ -1464,11 +1486,11 @@ double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi12_dep(size_t ind
 }
 
 double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi123_dep(size_t index,
-    core::chemical::AA amino_acid,
-    double chi1_positive_degree,
-    double chi2_positive_degree,
-    double chi3_positive_degree,
-    double x01)
+        core::chemical::AA amino_acid,
+        double chi1_positive_degree,
+        double chi2_positive_degree,
+        double chi3_positive_degree,
+        double x01)
 {
     double result = 0;
 
@@ -1491,9 +1513,9 @@ double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi123_dep(size_t in
 }
 
 double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi1_dep_actual_states(size_t index,
-    core::chemical::AA amino_acid,
-    double chi1_positive_degree,
-    double x01)
+        core::chemical::AA amino_acid,
+        double chi1_positive_degree,
+        double x01)
 {
     double result = 0;
 
@@ -1552,10 +1574,10 @@ double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi1_dep_actual_stat
 }
 
 double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi12_dep_actual_states(size_t index,
-    core::chemical::AA amino_acid,
-    double chi1_positive_degree,
-    double chi2_positive_degree,
-    double x01)
+        core::chemical::AA amino_acid,
+        double chi1_positive_degree,
+        double chi2_positive_degree,
+        double x01)
 {
     double result = 0;
 
@@ -1590,11 +1612,11 @@ double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi12_dep_actual_sta
 }
 
 double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi123_dep_actual_states(size_t index,
-    core::chemical::AA amino_acid,
-    double chi1_positive_degree,
-    double chi2_positive_degree,
-    double chi3_positive_degree,
-    double x01)
+        core::chemical::AA amino_acid,
+        double chi1_positive_degree,
+        double chi2_positive_degree,
+        double chi3_positive_degree,
+        double x01)
 {
     double result = 0;
 
@@ -1618,9 +1640,9 @@ double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi123_dep_actual_st
 
 
 double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi1_dep(size_t index,
-    core::chemical::AA amino_acid,
-    double chi1_positive_degree,
-    double x01)
+        core::chemical::AA amino_acid,
+        double chi1_positive_degree,
+        double x01)
 {
     double result = 0;
 
@@ -1679,10 +1701,10 @@ double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi1_dep(siz
 }
 
 double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi12_dep(size_t index,
-    core::chemical::AA amino_acid,
-    double chi1_positive_degree,
-    double chi2_positive_degree,
-    double x01)
+        core::chemical::AA amino_acid,
+        double chi1_positive_degree,
+        double chi2_positive_degree,
+        double x01)
 {
     double result = 0;
 
@@ -1718,11 +1740,11 @@ double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi12_dep(si
 }
 
 double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi123_dep(size_t index,
-    core::chemical::AA amino_acid,
-    double chi1_positive_degree,
-    double chi2_positive_degree,
-    double chi3_positive_degree,
-    double x01)
+        core::chemical::AA amino_acid,
+        double chi1_positive_degree,
+        double chi2_positive_degree,
+        double chi3_positive_degree,
+        double x01)
 {
     double result = 0;
 
@@ -1745,9 +1767,9 @@ double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi123_dep(s
 }
 
 double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi1_dep_actual_states(size_t index,
-    core::chemical::AA amino_acid,
-    double chi1_positive_degree,
-    double x01)
+        core::chemical::AA amino_acid,
+        double chi1_positive_degree,
+        double x01)
 {
     double result = 0;
 
@@ -1806,10 +1828,10 @@ double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi1_dep_act
 }
 
 double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi12_dep_actual_states(size_t index,
-    core::chemical::AA amino_acid,
-    double chi1_positive_degree,
-    double chi2_positive_degree,
-    double x01)
+        core::chemical::AA amino_acid,
+        double chi1_positive_degree,
+        double chi2_positive_degree,
+        double x01)
 {
     double result = 0;
 
@@ -1844,11 +1866,11 @@ double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi12_dep_ac
 }
 
 double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi123_dep_actual_states(size_t index,
-    core::chemical::AA amino_acid,
-    double chi1_positive_degree,
-    double chi2_positive_degree,
-    double chi3_positive_degree,
-    double x01)
+        core::chemical::AA amino_acid,
+        double chi1_positive_degree,
+        double chi2_positive_degree,
+        double chi3_positive_degree,
+        double x01)
 {
     double result = 0;
 
