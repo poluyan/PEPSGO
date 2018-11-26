@@ -59,6 +59,8 @@ public:
 
     std::vector<grid_type> m_grid_list;
 
+    NDInterpolator() {}
+
     // constructors assume that [f_begin, f_end) is a contiguous array in C-order
     // non ref-counted constructor.
     template <class IterT1, class IterT2, class IterT3>
@@ -159,6 +161,8 @@ class InterpMultilinear : public NDInterpolator<N, T>
 {
 public:
     typedef NDInterpolator<N, T> super;
+
+    InterpMultilinear() {}
 
     template <class IterT1, class IterT2, class IterT3>
     InterpMultilinear(IterT1 grids_begin, IterT2 grids_len_begin, IterT3 f_begin, IterT3 f_end)

@@ -34,17 +34,38 @@ public:
     std::string path_to_files;
     std::unordered_map<core::chemical::AA, std::any> aa_data;
     std::unordered_map<core::chemical::AA, std::any> aa_dst;
-    std::unordered_map<core::chemical::AA, std::tuple<double, double, size_t>> aa_range;
+    std::unordered_map<core::chemical::AA, std::vector<std::tuple<double, double, size_t>>> aa_range;
 
     bbind_top(std::string _path_to_files);
+
+    void initialize_all(size_t chi1_step, size_t chi2_step, size_t chi3_step, size_t chi4_step, std::string amino_acids);
+
 
     bbutils::distribution_1d make_1d_cdf(const linterp::InterpMultilinear<1, double> &acid,
                                          const std::vector<std::tuple<double, double, size_t>> &range,
                                          size_t m);
 
+    void load_data(std::string fname,
+                   std::vector<std::vector<double>> &data,
+                   std::vector<std::tuple<double, double, size_t>> &range);
+
     double get_1d(double x,
                   const linterp::InterpMultilinear<1, double> &f,
                   const std::vector<std::tuple<double, double, size_t>> &range);
+
+
+    void load_1d(std::string prefix,
+                 std::string acid_name,
+                 std::vector<std::tuple<double, double, size_t>> &range,
+                 linterp::InterpMultilinear<1, double> &res);
+
+    void fill_1d(std::string name,
+                 std::vector<std::tuple<double, double, size_t>> &range,
+                 std::vector<std::vector<double>> &grids,
+                 size_t &num_elements,
+                 boost::array<int, 1> &grid_sizes,
+                 std::vector<double> &f_values);
+
 };
 
 }
