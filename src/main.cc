@@ -27,8 +27,8 @@
 #include <basic/options/keys/in.OptionKeys.gen.hh>
 #include <basic/options/option.hh>
 
-//#include "dunbrackdata.hh"
-//#include "bbdep_sm.hh"
+#include "dunbrackdata.hh"
+#include "bbdep_sm.hh"
 #include "data_io.hh"
 #include "bbind.hh"
 
@@ -38,60 +38,18 @@ int main(int argc, char *argv[])
 {
     devel::init(argc, argv);
     std::cout << "Start..." << std::endl;
-//
-//    std::string lib_path = basic::options::option[basic::options::OptionKeys::in::path::database]().front();
-//    lib_path += "rotamer/ExtendedOpt1-5/";
-//    std::cout << lib_path << std::endl;
-//
-//    pepsgo::bbdep::BBDEP_Dunbrack_sm bbdep_sm(lib_path, 1000);
-//    bbdep_sm.initialize_all(true, "SVCT");
-//
-//    plot_chi1_all(bbdep_sm);
 
-    std::unordered_map<core::chemical::AA, std::string> wordMap;
+    std::string lib_path = basic::options::option[basic::options::OptionKeys::in::path::database]().front();
+    lib_path += "rotamer/ExtendedOpt1-5/";
+    std::cout << lib_path << std::endl;
+    pepsgo::bbdep::BBDEP_Dunbrack_sm bbdep_sm(lib_path, 1000);
+    bbdep_sm.initialize_all(true, "SVCT");
 
-    wordMap.insert({ core::chemical::aa_ala, "ala" });
-    wordMap.insert({ core::chemical::aa_ser, "bbb" });
+    pepsgo::bbdep::plot_chi1_all(bbdep_sm);
 
-
-    for(auto element : wordMap)
-        std::cout << element.first << " :: " << element.second << std::endl;
-
-    pepsgo::bbind::bbind_top obj("/ssdwork/ProjectsCPP/mcmc/bbind_top500/");
-    obj.initialize_all(2,100,100,100,"S");
-
- /*   auto temp = std::any_cast<std::shared_ptr<linterp::InterpMultilinear<1, double>>>(
-                    obj.aa_data[core::chemical::aa_ser]);
-                    
-    auto dist = std::any_cast<pepsgo::bbutils::distribution_1d>(
-                    obj.aa_dst[core::chemical::aa_ser]);
-                    
-    auto pdf = dist.pdf;
+    pepsgo::bbind::BBIND_top obj("/ssdwork/ProjectsCPP/mcmc/bbind_top500/");
+    obj.initialize_all(2,100,100,100,"SVCT");
     
-    pepsgo::write_default1d("maps/bbind/ser_pdf.dat", pdf, 1, 4);
-
-
-    for(size_t i = 0; i != 360; i++)
-    {
-        boost::array<double, 1> args = { double(i) };
-//        std::cout << temp->interp(args.begin()) << std::endl;
-    }*/
-
-//    std::cout << std::get<2>(obj.aa_range[core::chemical::aa_ser].front()) << std::endl;
-
-//    std::unordered_map<core::chemical::AA, std::any> abc;
-//    std::unique_ptr<linterp::InterpMultilinear<1, double>> d;
-//    abc.insert( { core::chemical::aa_ala, d });
-
-//	// Insert Few elements in map
-//	wordMap.insert( { "First", 1 });
-//	wordMap.insert(	{ "Second", 2 });
-//	wordMap.insert(	{ "Third", 3 });
-//
-//	// Overwrite value of an element
-//	wordMap["Third"] = 8;
-//
-//    std::cout << int(core::chemical::aa_ala) << std::endl;
-//    std::cout << int(core::chemical::aa_ala) << std::endl;
+    pepsgo::bbind::plot_chi1_all(obj);
 
 }

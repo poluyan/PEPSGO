@@ -69,7 +69,6 @@ void BBDEP_Dunbrack_sm::initialize_all(bool create_cdf_sum, std::string amino_ac
                     aa_sm_1d[0].lib_independent,
                     aa_sm_1d[0].lib_cdf_sum_all,
                     aa_sm_1d[0].lib_states);
-
         if(amino_acids.find("V") != std::string::npos)
             fill_grid_and_states_and_create_cdf_chi1(aa_sm_1d[1].lib, aa_sm_1d[1].lib_grid,
                     aa_sm_1d[1].lib_independent,

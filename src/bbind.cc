@@ -25,35 +25,33 @@ namespace bbind
 {
 
 
-bbind_top::bbind_top(std::string _path_to_files)
+BBIND_top::BBIND_top(std::string _path_to_files)
     : path_to_files(_path_to_files)
 {
 }
 
-double bbind_top::get_1d(double x,
-                         const linterp::InterpMultilinear<1, double> &f,
-                         const std::vector<std::tuple<double, double, size_t>> &range)
+double BBIND_top::get_1d(double x,
+                         core::chemical::AA acid)
 {
-    if(x < std::get<0>(range[0]) || x > std::get<1>(range[0]))
+    if(x < std::get<0>(aa_range[acid].front()) || x > std::get<1>(aa_range[acid].front()))
     {
         return 0;
     }
     boost::array<double, 1> args = { x };
-    return f.interp(args.begin());
+    auto f = std::any_cast<std::shared_ptr<linterp::InterpMultilinear<1, double>>>(aa_data[acid]);
+    return f->interp(args.begin());
 }
 
-bbutils::distribution_1d bbind_top::make_1d_cdf(const linterp::InterpMultilinear<1, double> &acid,
-        const std::vector<std::tuple<double, double, size_t>> &range,
-        size_t m)
+bbutils::distribution_1d BBIND_top::make_1d_cdf(core::chemical::AA acid, size_t m)
 {
-    double start = std::get<0>(range[0]), stop = std::get<1>(range[0]), es = stop - start;
-    size_t step = m * std::get<2>(range[0]);
+    double start = std::get<0>(aa_range[acid].front()), stop = std::get<1>(aa_range[acid].front()), es = stop - start;
+    size_t step = m * std::get<2>(aa_range[acid].front());
 
     std::deque<double> pdf, x;
     for(size_t i = 0; i != step; i++)
     {
         x.push_back(start + i * es / step);
-        pdf.push_back(get_1d(start + i * es / step, acid, range));
+        pdf.push_back(get_1d(start + i * es / step, acid));
     }
     double S = std::accumulate(pdf.begin(), pdf.end(), 0.0);
     for(auto &a : pdf)
@@ -64,7 +62,7 @@ bbutils::distribution_1d bbind_top::make_1d_cdf(const linterp::InterpMultilinear
     std::deque<double> cdf(pdf.size());
     std::partial_sum(pdf.begin(), pdf.end(), cdf.begin(), std::plus<double>());
     cdf.push_front(0);
-    x.push_back(std::get<1>(range[0]));
+    x.push_back(std::get<1>(aa_range[acid].front()));
 
     bbutils::distribution_1d result;
     result.pdf = pdf;
@@ -73,7 +71,7 @@ bbutils::distribution_1d bbind_top::make_1d_cdf(const linterp::InterpMultilinear
     return result;
 }
 
-void bbind_top::initialize_all(size_t chi1_step,
+void BBIND_top::initialize_all(size_t chi1_step,
                                size_t chi2_step,
                                size_t chi3_step,
                                size_t chi4_step,
@@ -83,91 +81,60 @@ void bbind_top::initialize_all(size_t chi1_step,
 
     if(amino_acids.find("S") != std::string::npos)
     {
-        //std::unique_ptr<linterp::InterpMultilinear<1, double>> d;
-        std::vector<std::tuple<double, double, size_t>> t;
-        linterp::InterpMultilinear<1, double> data;
-        std::cout << &data << std::endl;
-        load_1d("rota500-", "ser", t, data);
-        std::cout << &data << std::endl;
-
-
-
-
-        /*    size_t num_elements;
-            std::vector<std::vector<double>> grids;
-            boost::array<int, 1> grid_sizes;
-            std::vector<double> f_values;
-            std::vector<std::tuple<double, double, size_t>> tr;
-            fill_1d(path_to_files + "rota500-" + "ser" + ".data", tr, grids, num_elements, grid_sizes, f_values);
-
-            pepsgo::write_default1d("maps/bbind/f_values.dat", f_values, 1, 10);
-
-            auto grid_iter_list = linterp::get_begins_ends(grids.begin(), grids.end());
-
-            //linterp::InterpMultilinear<1, double> dd(grid_iter_list.first.begin(), grid_sizes.begin(), f_values.data(), f_values.data() + num_elements);
-            linterp::InterpMultilinear<1, double> dd;
-            dd.init(grid_iter_list.first.begin(), grid_sizes.begin(), f_values.data(), f_values.data() + num_elements);
-
-        */
-        std::vector<double> tt;
-        for(double i = 0; i < 360; i+=0.01)
-        {
-            boost::array<double, 1> args = { i };
-            tt.push_back(data.interp(args.begin()));
-        }
-        pepsgo::write_default1d("maps/bbind/f_values3.dat", tt, 1, 10);
-
-
-
-
-
-
-        /*
-
-        bbutils::distribution_1d dst = make_1d_cdf(d, t, chi1_step);
-
+        std::vector<std::tuple<double, double, size_t>> r;
+        linterp::InterpMultilinear<1, double> d;
+        load_1d("rota500-", "ser", core::chemical::aa_ser);
+        bbutils::distribution_1d dst = make_1d_cdf(core::chemical::aa_ser, chi1_step);
         aa_dst.insert({ core::chemical::aa_ser, dst });
-        //        aa_data.insert({ core::chemical::aa_ser, d });
-        aa_range.insert({ core::chemical::aa_ser, t });
-
-        //std::cout << std::get<2>(aa_range[core::chemical::aa_ser].front()) << std::endl;
-        std::cout << dst.pdf.size() << std::endl;
-
-        std::cout << ".";*/
+        std::cout << ".";
+    }
+    if(amino_acids.find("V") != std::string::npos)
+    {
+        std::vector<std::tuple<double, double, size_t>> r;
+        linterp::InterpMultilinear<1, double> d;
+        load_1d("rota500-", "val", core::chemical::aa_val);
+        bbutils::distribution_1d dst = make_1d_cdf(core::chemical::aa_val, chi1_step);
+        aa_dst.insert({ core::chemical::aa_val, dst });
+        std::cout << ".";
+    }
+    if(amino_acids.find("C") != std::string::npos)
+    {
+        std::vector<std::tuple<double, double, size_t>> r;
+        linterp::InterpMultilinear<1, double> d;
+        load_1d("rota500-", "cys", core::chemical::aa_cys);
+        bbutils::distribution_1d dst = make_1d_cdf(core::chemical::aa_cys, chi1_step);
+        aa_dst.insert({ core::chemical::aa_cys, dst });
+        std::cout << ".";
+    }
+    if(amino_acids.find("T") != std::string::npos)
+    {
+        std::vector<std::tuple<double, double, size_t>> r;
+        linterp::InterpMultilinear<1, double> d;
+        load_1d("rota500-", "thr", core::chemical::aa_thr);
+        bbutils::distribution_1d dst = make_1d_cdf(core::chemical::aa_thr, chi1_step);
+        aa_dst.insert({ core::chemical::aa_thr, dst });
+        std::cout << ".";
     }
 
 }
 
 
-void bbind_top::load_1d(std::string prefix,
-                        std::string acid_name,
-                        std::vector<std::tuple<double, double, size_t>> &range,
-                        linterp::InterpMultilinear<1, double> &res)
+void BBIND_top::load_1d(std::string prefix,
+                        std::string acid_name, core::chemical::AA acid)
 {
     size_t num_elements;
     std::vector<std::vector<double>> grids;
     boost::array<int, 1> grid_sizes;
     std::vector<double> f_values;
-
+    std::vector<std::tuple<double, double, size_t>> range;
     fill_1d(path_to_files + prefix + acid_name + ".data", range, grids, num_elements, grid_sizes, f_values);
-
-    pepsgo::write_default1d("maps/bbind/f_values.dat", f_values, 1, 10);
-
     auto grid_iter_list = linterp::get_begins_ends(grids.begin(), grids.end());
-
-    res.init(grid_iter_list.first.begin(), grid_sizes.begin(), f_values.data(), f_values.data() + num_elements);
-
-    std::vector<double> tt;
-    for(double i = 0; i < 360; i+=0.01)
-    {
-        boost::array<double, 1> args = { i };
-        tt.push_back(res.interp(args.begin()));
-    }
-    pepsgo::write_default1d("maps/bbind/f_values2.dat", tt, 1, 10);
-    std::cout << &res << std::endl;
+    auto res =  std::make_shared<linterp::InterpMultilinear<1, double>>(grid_iter_list.first.begin(), grid_sizes.begin(), f_values.data(), f_values.data() + num_elements);
+    aa_data.insert({ acid, std::move(res) });
+    aa_range.insert({ acid, range });
 }
 
-void bbind_top::load_data(std::string fname,
+void BBIND_top::load_data(std::string fname,
                           std::vector<std::vector<double>> &data,
                           std::vector<std::tuple<double, double, size_t>> &range)
 {
@@ -240,7 +207,7 @@ void bbind_top::load_data(std::string fname,
     data.pop_back();
 }
 
-void bbind_top::fill_1d(std::string name,
+void BBIND_top::fill_1d(std::string name,
                         std::vector<std::tuple<double, double, size_t>> &range,
                         std::vector<std::vector<double>> &grids,
                         size_t &num_elements,
@@ -292,6 +259,27 @@ void bbind_top::fill_1d(std::string name,
         f_values[i + 1] = data[i].back();
     }
     f_values.back() = data.front().back();
+}
+
+
+void plot_chi1_all(pepsgo::bbind::BBIND_top& obj)
+{
+    auto s = std::any_cast<std::shared_ptr<linterp::InterpMultilinear<1, double>>>(
+                    obj.aa_data[core::chemical::aa_ser]);
+    auto v = std::any_cast<std::shared_ptr<linterp::InterpMultilinear<1, double>>>(
+                    obj.aa_data[core::chemical::aa_val]);
+    auto c = std::any_cast<std::shared_ptr<linterp::InterpMultilinear<1, double>>>(
+                    obj.aa_data[core::chemical::aa_cys]);
+    auto t = std::any_cast<std::shared_ptr<linterp::InterpMultilinear<1, double>>>(
+                    obj.aa_data[core::chemical::aa_thr]);
+
+    std::vector<std::vector<double>> tt;
+    for(double i = 0; i < 360; i+=0.1)
+    {
+        boost::array<double, 1> args = { i };
+        tt.push_back(std::vector<double>{i, s->interp(args.begin()),v->interp(args.begin()),c->interp(args.begin()),t->interp(args.begin())});
+    }
+    pepsgo::write_default2d("maps/bbind/SVCT.dat", tt, 10);
 }
 
 }

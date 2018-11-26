@@ -27,8 +27,25 @@ namespace pepsgo
 {
 namespace bbind
 {
+    
+// A   G   V   W   H   N   D   F   I   L   C   T   S   M   E   Q   P   Y   R   K
+// Ala Gly Val Trp His Asn Asp Phe Ile Leu Cys Thr Ser Met Glu Gln Pro Tyr Arg Lys
 
-class bbind_top
+// rosetta
+// 0 AG
+// 1 V
+// 2 WHNDFILCTS
+// 3 MEQPY
+// 4 RK
+
+// bbind top500
+// 0 AG ala gly
+// 1 SVCT ser val cys thr
+// 2 WHNDFYIL trp his asn asp phe tyr ile leu
+// 3 MEQP met glu gln pro
+// 4 RK arg lys
+
+class BBIND_top
 {
 public:
     std::string path_to_files;
@@ -36,28 +53,21 @@ public:
     std::unordered_map<core::chemical::AA, std::any> aa_dst;
     std::unordered_map<core::chemical::AA, std::vector<std::tuple<double, double, size_t>>> aa_range;
 
-    bbind_top(std::string _path_to_files);
+    BBIND_top(std::string _path_to_files);
 
     void initialize_all(size_t chi1_step, size_t chi2_step, size_t chi3_step, size_t chi4_step, std::string amino_acids);
 
 
-    bbutils::distribution_1d make_1d_cdf(const linterp::InterpMultilinear<1, double> &acid,
-                                         const std::vector<std::tuple<double, double, size_t>> &range,
-                                         size_t m);
+    bbutils::distribution_1d make_1d_cdf(core::chemical::AA acid, size_t m);
 
     void load_data(std::string fname,
                    std::vector<std::vector<double>> &data,
                    std::vector<std::tuple<double, double, size_t>> &range);
 
-    double get_1d(double x,
-                  const linterp::InterpMultilinear<1, double> &f,
-                  const std::vector<std::tuple<double, double, size_t>> &range);
+    double get_1d(double x, core::chemical::AA acid);
 
 
-    void load_1d(std::string prefix,
-                 std::string acid_name,
-                 std::vector<std::tuple<double, double, size_t>> &range,
-                 linterp::InterpMultilinear<1, double> &res);
+    void load_1d(std::string prefix, std::string acid_name, core::chemical::AA acid);
 
     void fill_1d(std::string name,
                  std::vector<std::tuple<double, double, size_t>> &range,
@@ -67,6 +77,10 @@ public:
                  std::vector<double> &f_values);
 
 };
+
+
+void plot_chi1_all(pepsgo::bbind::BBIND_top& obj);
+
 
 }
 }
