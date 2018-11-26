@@ -15,3 +15,37 @@
    limitations under the License.
 
 **************************************************************************/
+#include <core/chemical/AA.hh>
+
+#include "bbutils.hh"
+#include "linterp.hh"
+
+#include <unordered_map>
+#include <any>
+
+namespace pepsgo
+{
+namespace bbind
+{
+
+class bbind_top
+{
+public:
+    std::string path_to_files;
+    std::unordered_map<core::chemical::AA, std::any> aa_data;
+    std::unordered_map<core::chemical::AA, std::any> aa_dst;
+    std::unordered_map<core::chemical::AA, std::tuple<double, double, size_t>> aa_range;
+
+    bbind_top(std::string _path_to_files);
+
+    bbutils::distribution_1d make_1d_cdf(const linterp::InterpMultilinear<1, double> &acid,
+                                         const std::vector<std::tuple<double, double, size_t>> &range,
+                                         size_t m);
+
+    double get_1d(double x,
+                  const linterp::InterpMultilinear<1, double> &f,
+                  const std::vector<std::tuple<double, double, size_t>> &range);
+};
+
+}
+}

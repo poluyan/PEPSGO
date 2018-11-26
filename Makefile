@@ -16,7 +16,7 @@ RUNFLAGS=-mute all
 
 ##
 
-CPPFLAGS = -c -std=c++11 -Wall -Wextra -Wpedantic -ffor-scope -MD
+CPPFLAGS = -c -std=c++17 -Wall -Wextra -Wpedantic -ffor-scope -MD
 CPPFLAGSEXTRA = -pipe -pedantic -Wno-long-long -Wno-strict-aliasing -march=core2 -mtune=generic -O3 -ffast-math -funroll-loops -finline-functions -finline-limit=20000 -s -Wno-unused-variable -Wno-unused-parameter -DBOOST_ERROR_CODE_HEADER_ONLY -DBOOST_SYSTEM_NO_DEPRECATED -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS -DPTR_STD -DNDEBUG 
 
 IS = -isystem $(MAIN)/source/external/boost_1_55_0/ -isystem $(MAIN)/source/external/ -isystem $(MAIN)/source/external/include/ -isystem $(MAIN)/source/external/dbio/
@@ -35,13 +35,16 @@ OBJ_RELEASE = \
 	$(OBJDIR_RELEASE)/main.o \
 	$(OBJDIR_RELEASE)/dunbrackdata.o \
 	$(OBJDIR_RELEASE)/bbutils.o \
-	$(OBJDIR_RELEASE)/bbdep_sm.o 
+	$(OBJDIR_RELEASE)/bbdep_sm.o \
+	$(OBJDIR_RELEASE)/bbind.o 
 
 HEADERS = \
 	$(SRCPATH)/dunbrackdata.hh \
 	$(SRCPATH)/bbutils.hh \
 	$(SRCPATH)/bbdep_sm.hh \
-	$(SRCPATH)/data_io.hh 
+	$(SRCPATH)/data_io.hh \
+	$(SRCPATH)/linterp.hh \
+	$(SRCPATH)/bbind.hh
 
 all: release
 
@@ -76,5 +79,8 @@ $(OBJDIR_RELEASE)/bbutils.o: $(SRCPATH)/bbutils.cc
 
 $(OBJDIR_RELEASE)/bbdep_sm.o: $(SRCPATH)/bbdep_sm.cc
 	$(CPP) $(CPPFLAGS) $(IS) $(CPPFLAGSEXTRA) $(INCLUDE) $(SRCPATH)/bbdep_sm.cc -o $(OBJDIR_RELEASE)/bbdep_sm.o
+	
+$(OBJDIR_RELEASE)/bbind.o: $(SRCPATH)/bbind.cc
+	$(CPP) $(CPPFLAGS) $(IS) $(CPPFLAGSEXTRA) $(INCLUDE) $(SRCPATH)/bbind.cc -o $(OBJDIR_RELEASE)/bbind.o
 
 -include $(OBJ_RELEASE:.o=.d)

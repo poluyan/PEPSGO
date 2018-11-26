@@ -27,9 +27,10 @@
 #include <basic/options/keys/in.OptionKeys.gen.hh>
 #include <basic/options/option.hh>
 
-#include "dunbrackdata.hh"
-#include "bbdep_sm.hh"
-#include "data_io.hh"
+//#include "dunbrackdata.hh"
+//#include "bbdep_sm.hh"
+//#include "data_io.hh"
+#include "bbind.hh"
 
 #include <unordered_map>
 
@@ -46,5 +47,24 @@ int main(int argc, char *argv[])
 //    bbdep_sm.initialize_all(true, "SVCT");
 //    
 //    plot_chi1_all(bbdep_sm);
+
+    std::unordered_map<core::chemical::AA, std::string> wordMap;
+    
+//    wordMap.insert( { core::chemical::aa_ala, "ala" });
+//    wordMap.insert( { core::chemical::aa_ala, "bbb" });
+//    
+//    for (auto element : wordMap)
+//		std::cout << element.first << " :: " << element.second << std::endl;
+
+//	// Insert Few elements in map
+//	wordMap.insert( { "First", 1 });
+//	wordMap.insert(	{ "Second", 2 });
+//	wordMap.insert(	{ "Third", 3 });
+//
+//	// Overwrite value of an element
+//	wordMap["Third"] = 8;
+//    
+//    std::cout << int(core::chemical::aa_ala) << std::endl;
+//    std::cout << int(core::chemical::aa_ala) << std::endl;
     
 }
