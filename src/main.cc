@@ -29,19 +29,22 @@
 
 #include "dunbrackdata.hh"
 #include "bbdep_sm.hh"
-#include "data_writing.hh"
+#include "data_io.hh"
+
+#include <unordered_map>
 
 int main(int argc, char *argv[])
 {
     devel::init(argc, argv);
     std::cout << "Start..." << std::endl;
-
-    std::string lib_path = basic::options::option[basic::options::OptionKeys::in::path::database]().front();
-    lib_path += "rotamer/ExtendedOpt1-5/";
-    std::cout << lib_path << std::endl;
-
-    pepsgo::bbdep::BBDEP_Dunbrack_sm bbdep_sm(lib_path, 1000);
-    bbdep_sm.initialize_all(true, "SVCT");
+//
+//    std::string lib_path = basic::options::option[basic::options::OptionKeys::in::path::database]().front();
+//    lib_path += "rotamer/ExtendedOpt1-5/";
+//    std::cout << lib_path << std::endl;
+//
+//    pepsgo::bbdep::BBDEP_Dunbrack_sm bbdep_sm(lib_path, 1000);
+//    bbdep_sm.initialize_all(true, "SVCT");
+//    
+//    plot_chi1_all(bbdep_sm);
     
-    plot_chi1_all(bbdep_sm);
 }

@@ -41,7 +41,7 @@ HEADERS = \
 	$(SRCPATH)/dunbrackdata.hh \
 	$(SRCPATH)/bbutils.hh \
 	$(SRCPATH)/bbdep_sm.hh \
-	$(SRCPATH)/data_writing.hh 
+	$(SRCPATH)/data_io.hh 
 
 all: release
 

@@ -15,8 +15,8 @@
    limitations under the License.
 
 **************************************************************************/
-#ifndef INCLUDED_data_writing_hh
-#define INCLUDED_data_writing_hh
+#ifndef INCLUDED_data_io_hh
+#define INCLUDED_data_io_hh
 
 #include <fstream>
 #include <iostream>
