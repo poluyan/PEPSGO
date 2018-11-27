@@ -27,7 +27,7 @@ namespace pepsgo
 {
 namespace bbind
 {
-    
+
 // A   G   V   W   H   N   D   F   I   L   C   T   S   M   E   Q   P   Y   R   K
 // Ala Gly Val Trp His Asn Asp Phe Ile Leu Cys Thr Ser Met Glu Gln Pro Tyr Arg Lys
 
@@ -55,10 +55,13 @@ public:
 
     BBIND_top(std::string _path_to_files);
 
-    void initialize_all(size_t chi1_step, size_t chi2_step, size_t chi3_step, size_t chi4_step, std::string amino_acids);
+    void initialize(size_t chi1_step, size_t chi2_step, size_t chi3_step, size_t chi4_step, std::string amino_acids);
 
 
     bbutils::distribution_1d make_1d_cdf(core::chemical::AA acid, size_t m);
+    bbutils::distribution_2d make_2d_cdf(core::chemical::AA acid, size_t m);
+    bbutils::distribution_3d make_3d_cdf(core::chemical::AA acid, size_t m);
+    bbutils::distribution_4d make_4d_cdf(core::chemical::AA acid, size_t m);
 
     void load_data(std::string fname,
                    std::vector<std::vector<double>> &data,
@@ -66,14 +69,37 @@ public:
 
     double get_1d(double x, core::chemical::AA acid);
 
-
     void load_1d(std::string prefix, std::string acid_name, core::chemical::AA acid);
+    void load_2d(std::string prefix, std::string acid_name, core::chemical::AA acid);
+    void load_3d(std::string prefix, std::string acid_name, core::chemical::AA acid);
+    void load_4d(std::string prefix, std::string acid_name, core::chemical::AA acid);
 
     void fill_1d(std::string name,
                  std::vector<std::tuple<double, double, size_t>> &range,
                  std::vector<std::vector<double>> &grids,
                  size_t &num_elements,
                  boost::array<int, 1> &grid_sizes,
+                 std::vector<double> &f_values);
+
+    void fill_2d(std::string name,
+                 std::vector<std::tuple<double, double, size_t>> &range,
+                 std::vector<std::vector<double>> &grids,
+                 size_t &num_elements,
+                 boost::array<int, 2> &grid_sizes,
+                 std::vector<double> &f_values);
+
+    void fill_3d(std::string name,
+                 std::vector<std::tuple<double, double, size_t>> &range,
+                 std::vector<std::vector<double>> &grids,
+                 size_t &num_elements,
+                 boost::array<int, 3> &grid_sizes,
+                 std::vector<double> &f_values);
+
+    void fill_4d(std::string name,
+                 std::vector<std::tuple<double, double, size_t>> &range,
+                 std::vector<std::vector<double>> &grids,
+                 size_t &num_elements,
+                 boost::array<int, 4> &grid_sizes,
                  std::vector<double> &f_values);
 
 };
