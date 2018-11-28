@@ -1098,5 +1098,40 @@ void plot_chi1_all(pepsgo::bbind::BBIND_top& obj)
     pepsgo::write_default2d("maps/bbind/SVCT.dat", tt, 10);
 }
 
+void plot_chi2(pepsgo::bbind::BBIND_top& obj, core::chemical::AA acid)
+{
+    auto f = std::any_cast<std::shared_ptr<linterp::InterpMultilinear<2, double>>>(obj.aa_data[acid]);
+
+    std::vector<double> es;
+    std::vector<size_t> step;
+    for(size_t i = 0; i != obj.aa_range[acid].size(); i++)
+    {
+        es.push_back(std::get<1>(obj.aa_range[acid][i]) - std::get<0>(obj.aa_range[acid][i]));
+        step.push_back(15*std::get<2>(obj.aa_range[acid][i]));
+    }
+
+    std::vector<std::vector<double> > pdf;
+    std::vector<std::vector<double> > pdf_list;
+    for(size_t i = 0; i != step[0]; i++)
+    {
+        std::vector<double> temp1;
+        for(size_t j = 0; j != step[1]; j++)
+        {
+
+            boost::array<double, 2> args = { std::get<0>(obj.aa_range[acid][0]) + i*es[0]/step[0],
+                                             std::get<0>(obj.aa_range[acid][1]) + j*es[1]/step[1]
+                                           };
+
+            double value = f->interp(args.begin());
+            temp1.push_back(value);
+
+            pdf_list.push_back(std::vector<double>{args.front(), args.back(), value});
+        }
+        pdf.push_back(temp1);
+    }
+    pepsgo::write_default2d("maps/bbind/2d/" + core::chemical::name_from_aa(acid) + "top500.dat", pdf, 4);//trp his asn asp phe tyr ile leu
+    pepsgo::write_default2d("maps/bbind/2d/" + core::chemical::name_from_aa(acid) + "top500_list.dat", pdf_list, 4);//trp his asn asp phe tyr ile leu
+}
+
 }
 }

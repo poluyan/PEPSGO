@@ -48,10 +48,16 @@ int main(int argc, char *argv[])
     pepsgo::bbdep::plot_chi1_all(bbdep_sm);
 
     pepsgo::bbind::BBIND_top obj("/ssdwork/ProjectsCPP/mcmc/bbind_top500/");
-    obj.initialize(2, 2, 2, 2,"SVCT");
+//    obj.initialize(2, 2, 2, 2,"SVCT");
     obj.initialize(2, 2, 2, 2,"WHNDFYIL");
-    obj.initialize(2, 2, 2, 2,"MEQP");
-    obj.initialize(2, 2, 2, 2,"RK");
-    pepsgo::bbind::plot_chi1_all(obj);
-
+//    obj.initialize(2, 2, 2, 2,"MEQP");
+//    obj.initialize(2, 2, 2, 2,"RK");
+    pepsgo::bbind::plot_chi2(obj, core::chemical::aa_trp);
+    pepsgo::bbind::plot_chi2(obj, core::chemical::aa_asn);
+    pepsgo::bbind::plot_chi2(obj, core::chemical::aa_asp);
+    pepsgo::bbind::plot_chi2(obj, core::chemical::aa_phe);
+    pepsgo::bbind::plot_chi2(obj, core::chemical::aa_ile);
+    pepsgo::bbind::plot_chi2(obj, core::chemical::aa_his);
+    pepsgo::bbind::plot_chi2(obj, core::chemical::aa_tyr);
+    pepsgo::bbind::plot_chi2(obj, core::chemical::aa_leu);
 }

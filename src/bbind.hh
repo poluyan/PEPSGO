@@ -106,6 +106,7 @@ public:
 
 
 void plot_chi1_all(pepsgo::bbind::BBIND_top& obj);
+void plot_chi2(pepsgo::bbind::BBIND_top& obj, core::chemical::AA acid);
 
 
 }
