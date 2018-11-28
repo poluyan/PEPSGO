@@ -16,8 +16,10 @@
 
 **************************************************************************/
 #include "bbind.hh"
-#include <fstream>
 #include "data_io.hh"
+#include "linterp.hh"
+
+#include <fstream>
 
 namespace pepsgo
 {
@@ -25,9 +27,11 @@ namespace bbind
 {
 
 
-BBIND_top::BBIND_top(std::string _path_to_files)
-    : path_to_files(_path_to_files)
+BBIND_top::BBIND_top(){}
+
+void BBIND_top::set_path(std::string path_to_files)
 {
+    path = path_to_files;
 }
 
 double BBIND_top::get_1d(double x,
@@ -639,7 +643,7 @@ void BBIND_top::load_1d(std::string prefix,
     boost::array<int, 1> grid_sizes;
     std::vector<double> f_values;
     std::vector<std::tuple<double, double, size_t>> range;
-    fill_1d(path_to_files + prefix + acid_name + ".data", range, grids, num_elements, grid_sizes, f_values);
+    fill_1d(path + prefix + acid_name + ".data", range, grids, num_elements, grid_sizes, f_values);
     auto grid_iter_list = linterp::get_begins_ends(grids.begin(), grids.end());
     auto res =  std::make_shared<linterp::InterpMultilinear<1, double>>(grid_iter_list.first.begin(), grid_sizes.begin(), f_values.data(), f_values.data() + num_elements);
     aa_data.insert({ acid, std::move(res) });
@@ -654,7 +658,7 @@ void BBIND_top::load_2d(std::string prefix,
     boost::array<int, 2> grid_sizes;
     std::vector<double> f_values;
     std::vector<std::tuple<double, double, size_t>> range;
-    fill_2d(path_to_files + prefix + acid_name + ".data", range, grids, num_elements, grid_sizes, f_values);
+    fill_2d(path + prefix + acid_name + ".data", range, grids, num_elements, grid_sizes, f_values);
     auto grid_iter_list = linterp::get_begins_ends(grids.begin(), grids.end());
     auto res =  std::make_shared<linterp::InterpMultilinear<2, double>>(grid_iter_list.first.begin(), grid_sizes.begin(), f_values.data(), f_values.data() + num_elements);
     aa_data.insert({ acid, std::move(res) });
@@ -669,7 +673,7 @@ void BBIND_top::load_3d(std::string prefix,
     boost::array<int, 3> grid_sizes;
     std::vector<double> f_values;
     std::vector<std::tuple<double, double, size_t>> range;
-    fill_3d(path_to_files + prefix + acid_name + ".data", range, grids, num_elements, grid_sizes, f_values);
+    fill_3d(path + prefix + acid_name + ".data", range, grids, num_elements, grid_sizes, f_values);
     auto grid_iter_list = linterp::get_begins_ends(grids.begin(), grids.end());
     auto res =  std::make_shared<linterp::InterpMultilinear<3, double>>(grid_iter_list.first.begin(), grid_sizes.begin(), f_values.data(), f_values.data() + num_elements);
     aa_data.insert({ acid, std::move(res) });
@@ -684,7 +688,7 @@ void BBIND_top::load_4d(std::string prefix,
     boost::array<int, 4> grid_sizes;
     std::vector<double> f_values;
     std::vector<std::tuple<double, double, size_t>> range;
-    fill_4d(path_to_files + prefix + acid_name + ".data", range, grids, num_elements, grid_sizes, f_values);
+    fill_4d(path + prefix + acid_name + ".data", range, grids, num_elements, grid_sizes, f_values);
     auto grid_iter_list = linterp::get_begins_ends(grids.begin(), grids.end());
     auto res =  std::make_shared<linterp::InterpMultilinear<4, double>>(grid_iter_list.first.begin(), grid_sizes.begin(), f_values.data(), f_values.data() + num_elements);
     aa_data.insert({ acid, std::move(res) });

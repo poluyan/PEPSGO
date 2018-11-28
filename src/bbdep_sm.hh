@@ -84,7 +84,7 @@ struct sm_4d
 class BBDEP_Dunbrack_sm
 {
 private:
-    std::string path_to_files;
+    std::string path;
     size_t cdf_grid_step;
 
 public:
@@ -93,7 +93,9 @@ public:
     std::vector<sm_3d> aa_sm_3d; // 0 met, 1 glu, 2 gln, 3 pro
     std::vector<sm_4d> aa_sm_4d; // 0 arg, 1 lys
 
-    BBDEP_Dunbrack_sm(std::string _path_to_dunbrack_files, size_t _cdf_grid_step);
+    BBDEP_Dunbrack_sm();
+    void set_path(std::string path_to_files);
+    void set_step(size_t step);
     void load_data_sm();
     void initialize_all(bool create_cdf_sum, std::string amino_acids);
 

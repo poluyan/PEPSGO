@@ -15,13 +15,15 @@
    limitations under the License.
 
 **************************************************************************/
+#ifndef INCLUDED_bbind_hh
+#define INCLUDED_bbind_hh
+
 #include <core/chemical/AA.hh>
 
 #include "bbutils.hh"
-#include "linterp.hh"
-
 #include <unordered_map>
 #include <any>
+#include <boost/multi_array.hpp>
 
 namespace pepsgo
 {
@@ -48,12 +50,13 @@ namespace bbind
 class BBIND_top
 {
 public:
-    std::string path_to_files;
+    std::string path;
     std::unordered_map<core::chemical::AA, std::any> aa_data;
     std::unordered_map<core::chemical::AA, std::any> aa_dst;
     std::unordered_map<core::chemical::AA, std::vector<std::tuple<double, double, size_t>>> aa_range;
 
-    BBIND_top(std::string _path_to_files);
+    BBIND_top();
+    void set_path(std::string path_to_files);
 
     void initialize(size_t chi1_step, size_t chi2_step, size_t chi3_step, size_t chi4_step, std::string amino_acids);
 
@@ -111,3 +114,5 @@ void plot_chi2(pepsgo::bbind::BBIND_top& obj, core::chemical::AA acid);
 
 }
 }
+
+#endif

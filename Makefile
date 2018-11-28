@@ -36,7 +36,8 @@ OBJ_RELEASE = \
 	$(OBJDIR_RELEASE)/dunbrackdata.o \
 	$(OBJDIR_RELEASE)/bbutils.o \
 	$(OBJDIR_RELEASE)/bbdep_sm.o \
-	$(OBJDIR_RELEASE)/bbind.o 
+	$(OBJDIR_RELEASE)/bbind.o \
+	$(OBJDIR_RELEASE)/pepsgo.o 
 
 HEADERS = \
 	$(SRCPATH)/dunbrackdata.hh \
@@ -44,7 +45,8 @@ HEADERS = \
 	$(SRCPATH)/bbdep_sm.hh \
 	$(SRCPATH)/data_io.hh \
 	$(SRCPATH)/linterp.hh \
-	$(SRCPATH)/bbind.hh
+	$(SRCPATH)/bbind.hh \
+	$(SRCPATH)/pepsgo.hh 
 
 all: release
 
@@ -79,8 +81,11 @@ $(OBJDIR_RELEASE)/bbutils.o: $(SRCPATH)/bbutils.cc
 
 $(OBJDIR_RELEASE)/bbdep_sm.o: $(SRCPATH)/bbdep_sm.cc
 	$(CPP) $(CPPFLAGS) $(IS) $(CPPFLAGSEXTRA) $(INCLUDE) $(SRCPATH)/bbdep_sm.cc -o $(OBJDIR_RELEASE)/bbdep_sm.o
-	
+
 $(OBJDIR_RELEASE)/bbind.o: $(SRCPATH)/bbind.cc
 	$(CPP) $(CPPFLAGS) $(IS) $(CPPFLAGSEXTRA) $(INCLUDE) $(SRCPATH)/bbind.cc -o $(OBJDIR_RELEASE)/bbind.o
+
+$(OBJDIR_RELEASE)/pepsgo.o: $(SRCPATH)/pepsgo.cc
+	$(CPP) $(CPPFLAGS) $(IS) $(CPPFLAGSEXTRA) $(INCLUDE) $(SRCPATH)/pepsgo.cc -o $(OBJDIR_RELEASE)/pepsgo.o
 
 -include $(OBJ_RELEASE:.o=.d)

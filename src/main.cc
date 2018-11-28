@@ -24,7 +24,7 @@
 #include <core/scoring/ScoreFunction.hh>
 #include <core/scoring/ScoreFunctionFactory.hh>
 
-#include <basic/options/keys/in.OptionKeys.gen.hh>
+#include <basic/options/keys/in.OptionKeys.gen.hh> // Dunbrack lib path
 #include <basic/options/option.hh>
 
 #include "dunbrackdata.hh"
@@ -32,32 +32,30 @@
 #include "data_io.hh"
 #include "bbind.hh"
 
-#include <unordered_map>
+core::Real objective_fucntion(const std::vector<double> &x)
+{
+    return 0.0;    
+}
 
 int main(int argc, char *argv[])
 {
     devel::init(argc, argv);
     std::cout << "Start..." << std::endl;
 
-    std::string lib_path = basic::options::option[basic::options::OptionKeys::in::path::database]().front();
-    lib_path += "rotamer/ExtendedOpt1-5/";
+    std::string lib_path = basic::options::option[basic::options::OptionKeys::in::path::database].value_string() + "rotamer/ExtendedOpt1-5/";
     std::cout << lib_path << std::endl;
-    pepsgo::bbdep::BBDEP_Dunbrack_sm bbdep_sm(lib_path, 1000);
+    pepsgo::bbdep::BBDEP_Dunbrack_sm bbdep_sm;
+    bbdep_sm.set_path(lib_path);
+    bbdep_sm.set_step(1000);
     bbdep_sm.initialize_all(true, "SVCT");
 
     pepsgo::bbdep::plot_chi1_all(bbdep_sm);
 
-    pepsgo::bbind::BBIND_top obj("/ssdwork/ProjectsCPP/mcmc/bbind_top500/");
+    pepsgo::bbind::BBIND_top obj;
+    obj.set_path("/ssdwork/ProjectsCPP/mcmc/bbind_top500/");
 //    obj.initialize(2, 2, 2, 2,"SVCT");
-    obj.initialize(2, 2, 2, 2,"WHNDFYIL");
+//    obj.initialize(2, 2, 2, 2,"WHNDFYIL");
 //    obj.initialize(2, 2, 2, 2,"MEQP");
 //    obj.initialize(2, 2, 2, 2,"RK");
-    pepsgo::bbind::plot_chi2(obj, core::chemical::aa_trp);
-    pepsgo::bbind::plot_chi2(obj, core::chemical::aa_asn);
-    pepsgo::bbind::plot_chi2(obj, core::chemical::aa_asp);
-    pepsgo::bbind::plot_chi2(obj, core::chemical::aa_phe);
-    pepsgo::bbind::plot_chi2(obj, core::chemical::aa_ile);
-    pepsgo::bbind::plot_chi2(obj, core::chemical::aa_his);
-    pepsgo::bbind::plot_chi2(obj, core::chemical::aa_tyr);
-    pepsgo::bbind::plot_chi2(obj, core::chemical::aa_leu);
+
 }
