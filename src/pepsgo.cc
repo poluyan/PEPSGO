@@ -17,3 +17,51 @@
 **************************************************************************/
 #include "pepsgo.hh"
 
+#include <core/conformation/Residue.hh>
+#include <core/scoring/ScoreFunctionFactory.hh>
+
+namespace pepsgo
+{
+    
+PEPSGO::PEPSGO()
+{
+    //score_fn = core::scoring::ScoreFunctionFactory::create_score_function("ref2015");
+    score_fn = core::scoring::get_score_function();
+    std::cout << "score function: " << score_fn->get_name() << std::endl;
+}
+void PEPSGO::set_peptide(std::string _peptide_sequence)
+{
+    peptide_sequence = _peptide_sequence;
+
+    core::pose::make_pose_from_sequence(peptide, peptide_sequence,
+                                        *core::chemical::ChemicalManager::get_instance()->residue_type_set(core::chemical::FA_STANDARD));
+
+    for(core::Size i = 1; i <= peptide.total_residue(); i++)
+    {
+        peptide.set_phi(i, -135.0);
+        peptide.set_psi(i, 135.0);
+        peptide.set_omega(i, 179.8);
+
+        if(peptide.residue(i).type().aa() == core::chemical::aa_pro)
+            continue;
+
+        for(core::Size j = 1; j <= peptide.residue(i).nchi(); j++)
+        {
+            peptide.set_chi(j, i, 90.0);
+        }
+    }
+    peptide.dump_pdb("output_pdb/peptide.pdb");
+    
+    ideal_peptide = peptide;
+
+}
+void PEPSGO::set_bbdep(std::string _bbdep_path)
+{
+    bbdep_path = _bbdep_path;
+}
+void PEPSGO::set_bbind(std::string _bbind_path)
+{
+    bbind_path = _bbind_path;
+}
+
+}

@@ -18,6 +18,13 @@
 #ifndef INCLUDED_pepsgo_hh
 #define INCLUDED_pepsgo_hh
 
+#include <core/pose/Pose.hh>
+#include <core/pose/annotated_sequence.hh>
+#include <core/chemical/ChemicalManager.hh>
+
+#include <core/scoring/ScoreFunction.hh>
+
+
 #include <string>
 
 namespace pepsgo
@@ -28,25 +35,22 @@ class PEPSGO
 private:
     std::string bbdep_path;
     std::string bbind_path;
-    
+
     std::string peptide_sequence;
+
+    core::scoring::ScoreFunctionOP score_fn;
+
+    core::pose::Pose peptide;
+    core::pose::Pose ideal_peptide;
+
+    core::pose::Pose abs_min_peptide;
+    core::pose::Pose ideal_abs_min_peptide;
+    core::pose::Pose all_superposed;
 public:
-    PEPSGO()
-    {
-        
-    }
-    void set_peptide_sequence(std::string _peptide_sequence)
-    {
-        peptide_sequence = _peptide_sequence;
-    }
-    void set_bbdep(std::string _bbdep_path)
-    {
-        bbdep_path = _bbdep_path;
-    }
-    void set_bbind(std::string _bbind_path)
-    {
-        bbind_path = _bbind_path;
-    }
+    PEPSGO();
+    void set_peptide(std::string _peptide_sequence);
+    void set_bbdep(std::string _bbdep_path);
+    void set_bbind(std::string _bbind_path);
 };
 
 }
