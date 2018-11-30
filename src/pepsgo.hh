@@ -26,6 +26,7 @@
 
 
 #include <string>
+#include <vector>
 
 namespace pepsgo
 {
@@ -51,6 +52,7 @@ public:
     void set_peptide(std::string _peptide_sequence);
     void set_bbdep(std::string _bbdep_path);
     void set_bbind(std::string _bbind_path);
+    core::Real objective(const std::vector<double> &x);
 };
 
 }

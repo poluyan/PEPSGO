@@ -34,23 +34,7 @@ int main(int argc, char *argv[])
     
     pepsgo::PEPSGO obj;
     obj.set_peptide("KTWNPATGKWTE");
-
-    /*std::string lib_path = basic::options::option[basic::options::OptionKeys::in::path::database].value_string() + "rotamer/ExtendedOpt1-5/";
-    std::cout << lib_path << std::endl;
-    pepsgo::bbdep::BBDEP_Dunbrack_sm bbdep_sm;
-    bbdep_sm.set_path(lib_path);
-    bbdep_sm.set_step(1000);
-    bbdep_sm.initialize_all(true, "SVCT");
-
-    pepsgo::bbdep::plot_chi1_all(bbdep_sm);
-
-    pepsgo::bbind::BBIND_top obj;
-    obj.set_path("/ssdwork/ProjectsCPP/mcmc/bbind_top500/");*/
     
-//    obj.initialize(2, 2, 2, 2,"SVCT");
-//    obj.initialize(2, 2, 2, 2,"WHNDFYIL");
-//    obj.initialize(2, 2, 2, 2,"MEQP");
-//    obj.initialize(2, 2, 2, 2,"RK");
-
+    //std::function<core::Real(const std::vector<double>&)> f_display = obj.objective;
     
 }
