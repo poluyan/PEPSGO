@@ -24,9 +24,10 @@
 
 #include <core/scoring/ScoreFunction.hh>
 
-
 #include <string>
 #include <vector>
+
+#include "quantile.h"
 
 namespace pepsgo
 {
@@ -47,12 +48,27 @@ private:
     core::pose::Pose abs_min_peptide;
     core::pose::Pose ideal_abs_min_peptide;
     core::pose::Pose all_superposed;
+    
+    
+    /// 
+    std::vector<std::shared_ptr<trie_based::TrieBased<trie_based::NodeCount<int>,int>>> phipsi_rama2_sample;
+    std::vector<std::shared_ptr<empirical_quantile::ImplicitQuantileSorted<int, double>>> phipsi_rama2_quantile;
+    
+    ///
+    int threads_number;
 public:
     PEPSGO();
+    void set_number_of_threads(size_t n);
+    
     void set_peptide(std::string _peptide_sequence);
     void set_bbdep(std::string _bbdep_path);
     void set_bbind(std::string _bbind_path);
     core::Real objective(const std::vector<double> &x);
+    
+    // creating rama2 from second to next-to-last residue
+    void fill_rama2_residue(core::pose::Pose &pep, core::scoring::ScoreFunctionOP &scorefn_rama2b, size_t ind, size_t step);
+    void fill_rama2_sample();
+    void fill_rama2_quantile();
 };
 
 }

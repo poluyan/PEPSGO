@@ -27,14 +27,17 @@
 
 #include "pepsgo.hh"
 
+#include <map>
+
 int main(int argc, char *argv[])
 {
     devel::init(argc, argv);
     std::cout << "Start..." << std::endl;
-    
+
     pepsgo::PEPSGO obj;
+    obj.set_number_of_threads(4);
     obj.set_peptide("KTWNPATGKWTE");
-    
+    obj.fill_rama2_sample();
+
     //std::function<core::Real(const std::vector<double>&)> f_display = obj.objective;
-    
 }
