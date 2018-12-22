@@ -50,7 +50,9 @@ HEADERS = \
 	$(SRCPATH)/data_io.hh \
 	$(SRCPATH)/linterp.hh \
 	$(SRCPATH)/bbind.hh \
-	$(SRCPATH)/pepsgo.hh 
+	$(SRCPATH)/pepsgo.hh \
+	$(SRCPATH)/quantile.hh \
+	$(SRCPATH)/trie_based.hh 
 
 all: release
 

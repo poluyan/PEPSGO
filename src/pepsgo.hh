@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-#include "quantile.h"
+#include "quantile.hh"
 
 namespace pepsgo
 {
