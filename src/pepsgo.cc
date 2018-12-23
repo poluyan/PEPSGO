@@ -198,8 +198,14 @@ void PEPSGO::fill_rama2_residue(core::pose::Pose &pep, core::scoring::ScoreFunct
     }
 }
 
-void PEPSGO::fill_rama2_sample()
+void PEPSGO::fill_rama2_quantile(size_t step)
 {
+    // explicit zero in grid points must be avoided
+    if(step % 2)
+    {
+        --step;
+    }
+    
     std::set<std::string> phipsi_set;
     for(size_t i = 0, n = peptide.total_residue() - 2; i < n; i++)
     {
@@ -230,7 +236,6 @@ void PEPSGO::fill_rama2_sample()
     {
         i = scorefn_rama2b1;
     }
-    size_t step = 1440;
     int n = phipsi_set.size();
     omp_set_dynamic(0);
     omp_set_num_threads(threads_number);
@@ -254,35 +259,40 @@ void PEPSGO::fill_rama2_sample()
         phipsi_rama2_quantile[i]->set_sample_shared(phipsi_rama2_sample[std::distance(phipsi.begin(), lower)]);
 
         // check
-        std::mt19937_64 generator;
-        generator.seed(1);
-        std::uniform_real_distribution<double> ureal01(0.0,1.0);
-
-        std::vector<std::vector<double> > values01;
-        std::vector<std::vector<double> > sampled;
-        std::vector<double> temp1(grid_number.size());
-        std::vector<double> temp2(temp1.size());
-        for(size_t i = 0; i != 1e+6; ++i)
-        {
-            for(size_t j = 0; j != temp1.size(); j++)
-            {
-                temp1[j] = ureal01(generator);
-            }
-            values01.push_back(temp1);
-            sampled.push_back(temp2);
-        }
-        for(size_t j = 0; j != values01.size(); j++)
-            phipsi_rama2_quantile[i]->transform(values01[j], sampled[j]);
-        pepsgo::write_default2d("maps/" + std::to_string(i) + ".dat", sampled, 5);
+//        std::mt19937_64 generator;
+//        generator.seed(1);
+//        std::uniform_real_distribution<double> ureal01(0.0,1.0);
+//
+//        std::vector<std::vector<double> > values01;
+//        std::vector<std::vector<double> > sampled;
+//        std::vector<double> temp1(grid_number.size());
+//        std::vector<double> temp2(temp1.size());
+//        for(size_t i = 0; i != 1e+6; ++i)
+//        {
+//            for(size_t j = 0; j != temp1.size(); j++)
+//            {
+//                temp1[j] = ureal01(generator);
+//            }
+//            values01.push_back(temp1);
+//            sampled.push_back(temp2);
+//        }
+//        for(size_t j = 0; j != values01.size(); j++)
+//            phipsi_rama2_quantile[i]->transform(values01[j], sampled[j]);
+//        pepsgo::write_default2d("maps/" + std::to_string(i) + ".dat", sampled, 5);
     }
 }
 
-void PEPSGO::fill_rama2_quantile()
+
+void PEPSGO::fill_opt_vector()
 {
-//    for(size_t i = 2; i < peptide.total_residue(); i++)
-//    {
-//        peptide_phipsi_2d[i - 2] = make_2d_aa_cdf(peptide, i, phi_psi_grid_step, true);
-//    }
+    opt_vector.clear();
+    // std::string arguments = "phipsi omega allchiexceptpro sctheta12 bbtheta12 mctheta scd12 bbd12 mcd scp12 bbp12 frp12 lrp12 12chi";
+    std::string arguments = "phipsi omega allchi";
+    pepsgo::insert_to_opt_vector(opt_vector, peptide, arguments, peptide_ranges);
+    std::cout << std::get<1>(peptide_ranges.phipsi) << ' ' << std::get<2>(peptide_ranges.phipsi) << '\t';
+    std::cout << std::get<1>(peptide_ranges.omega) << ' ' << std::get<2>(peptide_ranges.omega) << '\t';
+    std::cout << std::get<1>(peptide_ranges.chi) << ' ' << std::get<2>(peptide_ranges.chi) << std::endl;
+
 }
 
 }

@@ -38,7 +38,9 @@ OBJ_RELEASE = \
 	$(OBJDIR_RELEASE)/bbutils.o \
 	$(OBJDIR_RELEASE)/bbdep_sm.o \
 	$(OBJDIR_RELEASE)/bbind.o \
-	$(OBJDIR_RELEASE)/pepsgo.o 
+	$(OBJDIR_RELEASE)/pepsgo.o \
+	$(OBJDIR_RELEASE)/get_dof.o \
+	$(OBJDIR_RELEASE)/transform.o 
 	
 OBJ_RELEASE_MAIN = $(OBJDIR_RELEASE)/main.o
 SHAREDLIB = $(filter-out $(OBJ_RELEASE_MAIN), $(OBJ_RELEASE))
@@ -52,7 +54,9 @@ HEADERS = \
 	$(SRCPATH)/bbind.hh \
 	$(SRCPATH)/pepsgo.hh \
 	$(SRCPATH)/quantile.hh \
-	$(SRCPATH)/trie_based.hh 
+	$(SRCPATH)/trie_based.hh \
+	$(SRCPATH)/get_dof.hh \
+	$(SRCPATH)/transform.hh
 
 all: release
 
@@ -95,5 +99,11 @@ $(OBJDIR_RELEASE)/bbind.o: $(SRCPATH)/bbind.cc
 
 $(OBJDIR_RELEASE)/pepsgo.o: $(SRCPATH)/pepsgo.cc
 	$(CPP) $(CPPFLAGSLIB) $(CPPFLAGS) $(IS) $(CPPFLAGSEXTRA) $(INCLUDE) $(SRCPATH)/pepsgo.cc -o $(OBJDIR_RELEASE)/pepsgo.o
+
+$(OBJDIR_RELEASE)/get_dof.o: $(SRCPATH)/get_dof.cc
+	$(CPP) $(CPPFLAGSLIB) $(CPPFLAGS) $(IS) $(CPPFLAGSEXTRA) $(INCLUDE) $(SRCPATH)/get_dof.cc -o $(OBJDIR_RELEASE)/get_dof.o
+
+$(OBJDIR_RELEASE)/transform.o: $(SRCPATH)/transform.cc
+	$(CPP) $(CPPFLAGSLIB) $(CPPFLAGS) $(IS) $(CPPFLAGSEXTRA) $(INCLUDE) $(SRCPATH)/transform.cc -o $(OBJDIR_RELEASE)/transform.o
 
 -include $(OBJ_RELEASE:.o=.d)

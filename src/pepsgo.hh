@@ -28,6 +28,8 @@
 #include <vector>
 
 #include "quantile.hh"
+#include "get_dof.hh"
+#include "transform.hh"
 
 namespace pepsgo
 {
@@ -49,7 +51,9 @@ private:
     core::pose::Pose ideal_abs_min_peptide;
     core::pose::Pose all_superposed;
     
-    
+    ///
+    std::vector<pepsgo::opt_element> opt_vector;
+    pepsgo::transform::ranges peptide_ranges;    
     /// 
     std::vector<std::shared_ptr<trie_based::TrieBased<trie_based::NodeCount<int>,int>>> phipsi_rama2_sample;
     std::vector<std::shared_ptr<empirical_quantile::ImplicitQuantileSorted<int, double>>> phipsi_rama2_quantile;
@@ -67,8 +71,9 @@ public:
     
     // creating rama2 from second to next-to-last residue
     void fill_rama2_residue(core::pose::Pose &pep, core::scoring::ScoreFunctionOP &scorefn_rama2b, size_t ind, size_t step);
-    void fill_rama2_sample();
-    void fill_rama2_quantile();
+    void fill_rama2_quantile(size_t step);
+    
+    void fill_opt_vector();
 };
 
 }

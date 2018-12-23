@@ -15,28 +15,29 @@
    limitations under the License.
 
 **************************************************************************/
-#include <devel/init.hh>
+#ifndef INCLUDED_transform_hh
+#define INCLUDED_transform_hh
 
-#include <basic/options/keys/in.OptionKeys.gen.hh> // Dunbrack lib path
-#include <basic/options/option.hh>
+#include <tuple>
 
-//#include "dunbrackdata.hh"
-//#include "bbdep_sm.hh"
-//#include "data_io.hh"
-//#include "bbind.hh"
-
-#include "pepsgo.hh"
-
-int main(int argc, char *argv[])
+namespace pepsgo
 {
-    devel::init(argc, argv);
-    std::cout << "Start..." << std::endl;
+    
+namespace transform
+{
 
-    pepsgo::PEPSGO obj;
-    obj.set_number_of_threads(4);
-    obj.set_peptide("KTWNPATGKWTE");
-    obj.fill_rama2_quantile(10);
-    obj.fill_opt_vector();
+struct ranges
+{
+    std::tuple<bool, size_t, size_t> phipsi;
+    std::tuple<bool, size_t, size_t> omega;
+    std::tuple<bool, size_t, size_t> chi;
 
-    //std::function<core::Real(const std::vector<double>&)> f_display = obj.objective;
+    bool do_phipsi;
+    bool do_omega;
+    bool do_chi;
+};
+
 }
+}
+
+#endif
