@@ -45,11 +45,11 @@ private:
     core::scoring::ScoreFunctionOP score_fn;
 
     core::pose::Pose peptide;
-    core::pose::Pose ideal_peptide;
+//    core::pose::Pose ideal_peptide;
 
-    core::pose::Pose abs_min_peptide;
-    core::pose::Pose ideal_abs_min_peptide;
-    core::pose::Pose all_superposed;
+//    core::pose::Pose abs_min_peptide;
+//    core::pose::Pose ideal_abs_min_peptide;
+//    core::pose::Pose all_superposed;
     
     ///
     std::vector<pepsgo::opt_element> opt_vector;

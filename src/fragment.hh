@@ -15,30 +15,26 @@
    limitations under the License.
 
 **************************************************************************/
-#include <devel/init.hh>
+#ifndef INCLUDED_fragment_hh
+#define INCLUDED_fragment_hh
 
-#include <basic/options/keys/in.OptionKeys.gen.hh> // Dunbrack lib path
-#include <basic/options/option.hh>
+#include <iostream>
 
-//#include "dunbrackdata.hh"
-//#include "bbdep_sm.hh"
-//#include "data_io.hh"
-//#include "bbind.hh"
-
-#include "pepsgo.hh"
-
-int main(int argc, char *argv[])
+namespace pepsgo
 {
-    devel::init(argc, argv);
-    std::cout << "Start..." << std::endl;
+namespace fragment
+{
 
-    pepsgo::PEPSGO obj;
-    obj.set_number_of_threads(4);
-    //obj.set_peptide("KTWNPATGKWTE");
-    obj.set_peptide("DPCYEVCLQQHGNVKECEEACKHPVE");
-    obj.fill_rama2_quantile(10);
-    obj.fill_opt_vector();
+struct Frag
+{
+    std::size_t id;
+    char aa;
+//    core::Real phi;
+//    core::Real psi;
+//    core::Real omg;
+    Frag();
+};
 
-    std::function<core::Real(const std::vector<double>&)> f = std::bind(&pepsgo::PEPSGO::objective, obj, std::placeholders::_1);
-    std::cout << f(std::vector<core::Real>(134,1.0)) << std::endl;
 }
+}
+#endif

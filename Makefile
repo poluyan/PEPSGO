@@ -40,7 +40,8 @@ OBJ_RELEASE = \
 	$(OBJDIR_RELEASE)/bbind.o \
 	$(OBJDIR_RELEASE)/pepsgo.o \
 	$(OBJDIR_RELEASE)/get_dof.o \
-	$(OBJDIR_RELEASE)/transform.o 
+	$(OBJDIR_RELEASE)/transform.o \
+	$(OBJDIR_RELEASE)/fragment.o 
 	
 OBJ_RELEASE_MAIN = $(OBJDIR_RELEASE)/main.o
 SHAREDLIB = $(filter-out $(OBJ_RELEASE_MAIN), $(OBJ_RELEASE))
@@ -56,7 +57,8 @@ HEADERS = \
 	$(SRCPATH)/quantile.hh \
 	$(SRCPATH)/trie_based.hh \
 	$(SRCPATH)/get_dof.hh \
-	$(SRCPATH)/transform.hh
+	$(SRCPATH)/transform.hh \
+	$(SRCPATH)/fragment.hh 
 
 all: release
 
@@ -105,5 +107,8 @@ $(OBJDIR_RELEASE)/get_dof.o: $(SRCPATH)/get_dof.cc
 
 $(OBJDIR_RELEASE)/transform.o: $(SRCPATH)/transform.cc
 	$(CPP) $(CPPFLAGSLIB) $(CPPFLAGS) $(IS) $(CPPFLAGSEXTRA) $(INCLUDE) $(SRCPATH)/transform.cc -o $(OBJDIR_RELEASE)/transform.o
+
+$(OBJDIR_RELEASE)/fragment.o: $(SRCPATH)/fragment.cc
+	$(CPP) $(CPPFLAGSLIB) $(CPPFLAGS) $(IS) $(CPPFLAGSEXTRA) $(INCLUDE) $(SRCPATH)/fragment.cc -o $(OBJDIR_RELEASE)/fragment.o
 
 -include $(OBJ_RELEASE:.o=.d)

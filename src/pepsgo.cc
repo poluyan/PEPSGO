@@ -76,7 +76,7 @@ void PEPSGO::set_peptide(std::string _peptide_sequence)
     }
     peptide.dump_pdb("output_pdb/peptide.pdb");
 
-    ideal_peptide = peptide;
+//    ideal_peptide = peptide;
 }
 void PEPSGO::set_bbdep(std::string _bbdep_path)
 {
@@ -105,7 +105,11 @@ void PEPSGO::set_bbind(std::string _bbind_path)
 }
 core::Real PEPSGO::objective(const std::vector<double> &x)
 {
-//    (*score_fn)(peptide);
+    for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
+    {
+        peptide.set_dof(opt_vector[i].dofid, x[i]);
+    }
+    (*score_fn)(peptide);
     return peptide.energies().total_energy();
 }
 
@@ -292,7 +296,8 @@ void PEPSGO::fill_opt_vector()
     std::cout << std::get<1>(peptide_ranges.phipsi) << ' ' << std::get<2>(peptide_ranges.phipsi) << '\t';
     std::cout << std::get<1>(peptide_ranges.omega) << ' ' << std::get<2>(peptide_ranges.omega) << '\t';
     std::cout << std::get<1>(peptide_ranges.chi) << ' ' << std::get<2>(peptide_ranges.chi) << std::endl;
-
+    
+    
 }
 
 }
