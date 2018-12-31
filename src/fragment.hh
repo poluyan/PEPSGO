@@ -18,7 +18,14 @@
 #ifndef INCLUDED_fragment_hh
 #define INCLUDED_fragment_hh
 
-#include <iostream>
+#include <basic/options/keys/in.OptionKeys.gen.hh>
+#include <basic/options/keys/frags.OptionKeys.gen.hh>
+#include <basic/options/option.hh>
+
+#include <core/sequence/util.hh>
+
+#include <string>
+#include <vector>
 
 namespace pepsgo
 {
@@ -27,12 +34,22 @@ namespace fragment
 
 struct Frag
 {
-    std::size_t id;
     char aa;
-//    core::Real phi;
-//    core::Real psi;
-//    core::Real omg;
+    core::Real phi;
+    core::Real psi;
+    core::Real omg;
+    
     Frag();
+    Frag(char _aa, core::Real _phi, core::Real _psi, core::Real _omg);
+};
+
+class FragPick
+{
+private:
+    //std::string psipred_fname;
+    std::string fragmet_file;
+    std::string fasta;
+    std::string peptide_seq;
 };
 
 }

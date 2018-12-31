@@ -22,18 +22,17 @@ namespace pepsgo
 namespace fragment
 {
 
-Frag::Frag(): id(-1)
+Frag::Frag(): aa(' ')
 {
     
 }
-//Frag::Frag(size_t _id, char _aa, core::Real _phi, core::Real _psi, core::Real _omg)
-//{
-//    id = _id;
-//    aa = _aa;
-//    phi = _phi;
-//    psi = _psi;
-//    omg = _omg;
-//}
+Frag::Frag(char _aa, core::Real _phi, core::Real _psi, core::Real _omg)
+{
+    aa = _aa;
+    phi = _phi;
+    psi = _psi;
+    omg = _omg;
+}
 
 }
 }
