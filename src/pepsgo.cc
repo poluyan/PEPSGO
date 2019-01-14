@@ -103,7 +103,7 @@ void PEPSGO::set_peptide_from_file()
     {
         std::cout << "fatal" << std::endl;
     }
-    
+
     core::pose::make_pose_from_sequence(peptide, peptide_sequence,
                                         *core::chemical::ChemicalManager::get_instance()->residue_type_set(core::chemical::FA_STANDARD));
     extend_peptide();
@@ -135,6 +135,7 @@ void PEPSGO::set_bbind(std::string _bbind_path)
 }
 core::Real PEPSGO::objective(const std::vector<double> &x)
 {
+    // transform here
     for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
     {
         peptide.set_dof(opt_vector[i].dofid, x[i]);
@@ -326,8 +327,16 @@ void PEPSGO::fill_opt_vector()
     std::cout << std::get<1>(peptide_ranges.phipsi) << ' ' << std::get<2>(peptide_ranges.phipsi) << '\t';
     std::cout << std::get<1>(peptide_ranges.omega) << ' ' << std::get<2>(peptide_ranges.omega) << '\t';
     std::cout << std::get<1>(peptide_ranges.chi) << ' ' << std::get<2>(peptide_ranges.chi) << std::endl;
+}
 
-
+void PEPSGO::create_space_frag()
+{
+    fragments = std::make_shared<frag_type>();
+    frags.set_file();
+    frags.fill_grids(72, 144);
+    frags.set_storage_shared(fragments);
+    frags.load_frag_file();
+    frags.make_permutations();
 }
 
 }

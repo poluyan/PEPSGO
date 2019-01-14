@@ -30,6 +30,7 @@
 #include "quantile.hh"
 #include "get_dof.hh"
 #include "transform.hh"
+#include "fragment.hh"
 
 namespace pepsgo
 {
@@ -60,12 +61,19 @@ private:
     
     ///
     int threads_number;
+    
+    pepsgo::fragment::FragPick frags;
+    typedef trie_based::TrieBased<trie_based::NodeCount<std::uint8_t>,std::uint8_t> frag_type;
+    std::shared_ptr<frag_type> fragments;
+    std::shared_ptr<empirical_quantile::ImplicitQuantileSorted<int, double>> frag_quant;
 public:
     PEPSGO();
     void set_number_of_threads(size_t n);
     
     void set_peptide(std::string _peptide_sequence);
     void set_peptide_from_file();
+    
+    void create_space_frag();
     
     void set_bbdep(std::string _bbdep_path);
     void set_bbind(std::string _bbind_path);

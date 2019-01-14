@@ -12,7 +12,7 @@ RUNLIBS1=$(MAIN)/source/build/src/release/linux/$(LINUXVER)/64/x86/gcc/$(GCCVER)
 # libcifparse.so libcppdb.so libsqlite3.so libxml2.so libzmq.so
 RUNLIBS2=$(MAIN)/source/build/external/release/linux/$(LINUXVER)/64/x86/gcc/$(GCCVER)/default
 # rosetta options
-RUNFLAGS=-mute all
+RUNFLAGS=-in::file::fasta input.fasta -frags::frag_sizes 3 -in::file::frag_files fragments.Nmers -mute all
 
 ##
 

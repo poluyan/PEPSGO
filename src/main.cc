@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
     obj.set_peptide_from_file();
     obj.fill_rama2_quantile(10);
     obj.fill_opt_vector();
+    obj.create_space_frag();
 
     std::function<core::Real(const std::vector<double>&)> f = std::bind(&pepsgo::PEPSGO::objective, obj, std::placeholders::_1);
     std::cout << f(std::vector<core::Real>(134,1.0)) << std::endl;
