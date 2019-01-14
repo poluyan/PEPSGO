@@ -34,8 +34,9 @@ int main(int argc, char *argv[])
 
     pepsgo::PEPSGO obj;
     obj.set_number_of_threads(4);
-    //obj.set_peptide("KTWNPATGKWTE");
-    obj.set_peptide("DPCYEVCLQQHGNVKECEEACKHPVE");
+//    obj.set_peptide("KTWNPATGKWTE");
+//    obj.set_peptide("DPCYEVCLQQHGNVKECEEACKHPVE");
+    obj.set_peptide_from_file();
     obj.fill_rama2_quantile(10);
     obj.fill_opt_vector();
 

@@ -28,6 +28,11 @@
 #include <core/pose/util.hh>
 #include <core/pose/Pose.hh>
 
+#include <basic/options/keys/in.OptionKeys.gen.hh>
+#include <basic/options/keys/frags.OptionKeys.gen.hh>
+#include <basic/options/option.hh>
+#include <core/sequence/util.hh>
+
 #include "data_io.hh"
 
 #include <random>
@@ -53,13 +58,8 @@ void PEPSGO::set_number_of_threads(size_t n)
     }
     std::cout << "number_of_threads: " << threads_number << std::endl;
 }
-void PEPSGO::set_peptide(std::string _peptide_sequence)
+void PEPSGO::extend_peptide()
 {
-    peptide_sequence = _peptide_sequence;
-
-    core::pose::make_pose_from_sequence(peptide, peptide_sequence,
-                                        *core::chemical::ChemicalManager::get_instance()->residue_type_set(core::chemical::FA_STANDARD));
-
     for(core::Size i = 1; i <= peptide.total_residue(); i++)
     {
         peptide.set_phi(i, -135.0);
@@ -77,6 +77,36 @@ void PEPSGO::set_peptide(std::string _peptide_sequence)
     peptide.dump_pdb("output_pdb/peptide.pdb");
 
 //    ideal_peptide = peptide;
+}
+void PEPSGO::set_peptide(std::string _peptide_sequence)
+{
+    peptide_sequence = _peptide_sequence;
+    core::pose::make_pose_from_sequence(peptide, peptide_sequence,
+                                        *core::chemical::ChemicalManager::get_instance()->residue_type_set(core::chemical::FA_STANDARD));
+    extend_peptide();
+}
+void PEPSGO::set_peptide_from_file()
+{
+    if(basic::options::option[basic::options::OptionKeys::in::file::fasta].user())
+    {
+        std::string fasta = basic::options::option[basic::options::OptionKeys::in::file::fasta]()[1];
+        std::cout << "reading " << fasta << std::endl;
+        peptide_sequence = core::sequence::read_fasta_file_return_str(fasta);
+        std::cout << "loaded sequence " << peptide_sequence << std::endl;
+    }
+    else
+    {
+        std::cout << "fatal" << std::endl;
+    }
+
+    if(peptide_sequence.find("X") != std::string::npos)
+    {
+        std::cout << "fatal" << std::endl;
+    }
+    
+    core::pose::make_pose_from_sequence(peptide, peptide_sequence,
+                                        *core::chemical::ChemicalManager::get_instance()->residue_type_set(core::chemical::FA_STANDARD));
+    extend_peptide();
 }
 void PEPSGO::set_bbdep(std::string _bbdep_path)
 {
@@ -209,7 +239,7 @@ void PEPSGO::fill_rama2_quantile(size_t step)
     {
         --step;
     }
-    
+
     std::set<std::string> phipsi_set;
     for(size_t i = 0, n = peptide.total_residue() - 2; i < n; i++)
     {
@@ -296,8 +326,8 @@ void PEPSGO::fill_opt_vector()
     std::cout << std::get<1>(peptide_ranges.phipsi) << ' ' << std::get<2>(peptide_ranges.phipsi) << '\t';
     std::cout << std::get<1>(peptide_ranges.omega) << ' ' << std::get<2>(peptide_ranges.omega) << '\t';
     std::cout << std::get<1>(peptide_ranges.chi) << ' ' << std::get<2>(peptide_ranges.chi) << std::endl;
-    
-    
+
+
 }
 
 }

@@ -65,6 +65,8 @@ public:
     void set_number_of_threads(size_t n);
     
     void set_peptide(std::string _peptide_sequence);
+    void set_peptide_from_file();
+    
     void set_bbdep(std::string _bbdep_path);
     void set_bbind(std::string _bbind_path);
     core::Real objective(const std::vector<double> &x);
@@ -74,6 +76,8 @@ public:
     void fill_rama2_quantile(size_t step);
     
     void fill_opt_vector();
+    
+    void extend_peptide();
 };
 
 }
