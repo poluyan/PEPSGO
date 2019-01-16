@@ -34,6 +34,7 @@
 #include <core/sequence/util.hh>
 
 #include "data_io.hh"
+#include "transform.hh"
 
 #include <random>
 #include <omp.h>
@@ -108,22 +109,22 @@ void PEPSGO::set_peptide_from_file()
                                         *core::chemical::ChemicalManager::get_instance()->residue_type_set(core::chemical::FA_STANDARD));
     extend_peptide();
 }
-void PEPSGO::set_bbdep(std::string _bbdep_path)
+void PEPSGO::set_bbdep(/*std::string _bbdep_path*/)
 {
-    bbdep_path = _bbdep_path;
+    //bbdep_path = _bbdep_path;
 
-    /*std::string lib_path = basic::options::option[basic::options::OptionKeys::in::path::database].value_string() + "rotamer/ExtendedOpt1-5/";
+    std::string lib_path = basic::options::option[basic::options::OptionKeys::in::path::database].value_string() + "rotamer/ExtendedOpt1-5/";
     std::cout << lib_path << std::endl;
-    pepsgo::bbdep::BBDEP_Dunbrack_sm bbdep_sm;
+
     bbdep_sm.set_path(lib_path);
-    bbdep_sm.set_step(1000);
-    bbdep_sm.initialize_all(true, "SVCT");
+    //bbdep_sm.set_step(1000);
+    bbdep_sm.set_step(100);
+    bbdep_sm.initialize_all(true, peptide_sequence);
 
-    pepsgo::bbdep::plot_chi1_all(bbdep_sm);
+//    pepsgo::bbdep::plot_chi1_all(bbdep_sm);
 
-    pepsgo::bbind::BBIND_top obj;
-    obj.set_path("/ssdwork/ProjectsCPP/mcmc/bbind_top500/");*/
-
+//    pepsgo::bbind::BBIND_top obj;
+//    obj.set_path("/ssdwork/ProjectsCPP/mcmc/bbind_top500/");
 //    obj.initialize(2, 2, 2, 2,"SVCT");
 //    obj.initialize(2, 2, 2, 2,"WHNDFYIL");
 //    obj.initialize(2, 2, 2, 2,"MEQP");
@@ -135,12 +136,37 @@ void PEPSGO::set_bbind(std::string _bbind_path)
 }
 core::Real PEPSGO::objective(const std::vector<double> &x)
 {
+    std::vector<double> xx = x;
     // transform here
+    std::vector<double> frag_vector(std::get<1>(peptide_ranges.chi));
+    std::vector<double> x_temp(std::get<1>(peptide_ranges.chi));
+
+    for(size_t i = 0; i != x_temp.size(); i++)
+    {
+        x_temp[i] = x[i];
+    }
+
+    structures_quant->transform(x_temp, frag_vector);
+
+    for(size_t i = 0; i != frag_vector.size(); i++)
+    {
+        xx[i] = frag_vector[i];
+    }
+
+    std::vector<double> vt = pepsgo::transform::bbdep_experiment_actual_states(
+                                 xx, opt_vector, peptide_ranges, bbdep_sm, phipsi_rama2_quantile.size());
+                                 
     for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
     {
-        peptide.set_dof(opt_vector[i].dofid, x[i]);
+        std::cout << vt[i] << '\t' << i << std::endl;
+    }
+
+    for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
+    {
+        peptide.set_dof(opt_vector[i].dofid, vt[i]);
     }
     (*score_fn)(peptide);
+    peptide.dump_pdb("output_pdb/peptide.pdb");
     return peptide.energies().total_energy();
 }
 
@@ -327,16 +353,31 @@ void PEPSGO::fill_opt_vector()
     std::cout << std::get<1>(peptide_ranges.phipsi) << ' ' << std::get<2>(peptide_ranges.phipsi) << '\t';
     std::cout << std::get<1>(peptide_ranges.omega) << ' ' << std::get<2>(peptide_ranges.omega) << '\t';
     std::cout << std::get<1>(peptide_ranges.chi) << ' ' << std::get<2>(peptide_ranges.chi) << std::endl;
+
+    peptide_ranges.do_chi = true;
 }
 
 void PEPSGO::create_space_frag()
 {
-    fragments = std::make_shared<frag_type>();
+    structures_triebased = std::make_shared<frag_type>();
+    frags.set_peptide(peptide);
     frags.set_file();
     frags.fill_grids(72, 144);
-    frags.set_storage_shared(fragments);
+    frags.set_storage_shared(structures_triebased);
     frags.load_frag_file();
     frags.make_permutations();
+
+    auto bonds = frags.get_bounds();
+    structures_quant = std::make_shared<empirical_quantile::ImplicitQuantile<std::uint8_t, double>>(
+                           std::vector<double>(bonds.size(), -numeric::NumericTraits<core::Real>::pi()),
+                           std::vector<double>(bonds.size(), numeric::NumericTraits<core::Real>::pi()),
+                           bonds);
+    structures_quant->set_sample_shared(structures_triebased);
+}
+
+size_t PEPSGO::get_opt_vector_size()
+{
+    return opt_vector.size();
 }
 
 }

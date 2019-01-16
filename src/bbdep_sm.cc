@@ -1900,5 +1900,224 @@ double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi123_dep_a
     return result;
 }
 
+
+bbdep::Dunbrack_data BBDEP_Dunbrack_sm::get_first_line(core::chemical::AA amino_acid)
+{    
+    pepsgo::bbdep::Dunbrack_data result;
+    switch(amino_acid)
+    {
+        case core::chemical::aa_ser:
+            result = aa_sm_1d.front().lib.front();
+            break;
+        case core::chemical::aa_val:
+            result = aa_sm_1d[1].lib.front();
+            break;
+        case core::chemical::aa_cys:
+            result = aa_sm_1d[2].lib.front();
+            break;
+        case core::chemical::aa_thr:
+            result = aa_sm_1d.back().lib.front();
+            break;
+
+        case core::chemical::aa_trp:
+            result = aa_sm_2d.front().lib.front();
+            break;
+        case core::chemical::aa_his:
+            result = aa_sm_2d[1].lib.front();
+            break;
+        case core::chemical::aa_asn:
+            result = aa_sm_2d[2].lib.front();
+            break;
+        case core::chemical::aa_asp:
+            result = aa_sm_2d[3].lib.front();
+            break;
+        case core::chemical::aa_phe:
+            result = aa_sm_2d[4].lib.front();
+            break;
+        case core::chemical::aa_tyr:
+            result = aa_sm_2d[5].lib.front();
+            break;
+        case core::chemical::aa_ile:
+            result = aa_sm_2d[6].lib.front();
+            break;
+        case core::chemical::aa_leu:
+            result = aa_sm_2d.back().lib.front();
+            break;
+
+        case core::chemical::aa_met:
+            result = aa_sm_3d.front().lib.front();
+            break;
+        case core::chemical::aa_glu:
+            result = aa_sm_3d[1].lib.front();
+            break;
+        case core::chemical::aa_gln:
+            result = aa_sm_3d[2].lib.front();
+            break;
+        case core::chemical::aa_pro:
+            result = aa_sm_3d.back().lib.front();
+            break;
+
+        case core::chemical::aa_arg:
+            result = aa_sm_4d.front().lib.front();
+            break;
+        case core::chemical::aa_lys:
+            result = aa_sm_4d.back().lib.front();
+            break;
+        
+        default:
+            break;
+    }
+
+    return result;
+}
+
+double BBDEP_Dunbrack_sm::get_degree_bbind(core::chemical::AA amino_acid, double x01, size_t chinumber)
+{
+    double result = 0;
+    
+    switch(amino_acid)
+    {
+        case core::chemical::aa_ser:
+            result = bbutils::get_1d_from_dst(aa_sm_1d.front().lib_independent[chinumber], x01);
+            break;
+        case core::chemical::aa_val:
+            result = bbutils::get_1d_from_dst(aa_sm_1d[1].lib_independent[chinumber], x01);
+            break;
+        case core::chemical::aa_cys:
+            result = bbutils::get_1d_from_dst(aa_sm_1d[2].lib_independent[chinumber], x01);
+            break;
+        case core::chemical::aa_thr:
+            result = bbutils::get_1d_from_dst(aa_sm_1d.back().lib_independent[chinumber], x01);
+            break;
+
+        case core::chemical::aa_trp:
+            result = bbutils::get_1d_from_dst(aa_sm_2d.front().lib_independent[chinumber], x01);
+            break;
+        case core::chemical::aa_his:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[1].lib_independent[chinumber], x01);
+            break;
+        case core::chemical::aa_asn:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[2].lib_independent[chinumber], x01);
+            break;
+        case core::chemical::aa_asp:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[3].lib_independent[chinumber], x01);
+            break;
+        case core::chemical::aa_phe:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[4].lib_independent[chinumber], x01);
+            break;
+        case core::chemical::aa_tyr:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[5].lib_independent[chinumber], x01);
+            break;
+        case core::chemical::aa_ile:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[6].lib_independent[chinumber], x01);
+            break;
+        case core::chemical::aa_leu:
+            result = bbutils::get_1d_from_dst(aa_sm_2d.back().lib_independent[chinumber], x01);
+            break;
+
+        case core::chemical::aa_met:
+            result = bbutils::get_1d_from_dst(aa_sm_3d.front().lib_independent[chinumber], x01);
+            break;
+        case core::chemical::aa_glu:
+            result = bbutils::get_1d_from_dst(aa_sm_3d[1].lib_independent[chinumber], x01);
+            break;
+        case core::chemical::aa_gln:
+            result = bbutils::get_1d_from_dst(aa_sm_3d[2].lib_independent[chinumber], x01);
+            break;
+        case core::chemical::aa_pro:
+            result = bbutils::get_1d_from_dst(aa_sm_3d.back().lib_independent[chinumber], x01);
+            break;
+
+        case core::chemical::aa_arg:
+            result = bbutils::get_1d_from_dst(aa_sm_4d.front().lib_independent[chinumber], x01);
+            break;
+        case core::chemical::aa_lys:
+            result = bbutils::get_1d_from_dst(aa_sm_4d.back().lib_independent[chinumber], x01);
+            break;
+            
+        default:
+            break;
+    }
+    return result;
+}
+
+//    std::vector<sm_1d> aa_sm_1d; // 0 ser, 1 val, 2 cys, 3 thr
+//    std::vector<sm_2d> aa_sm_2d; // 0 trp, 1 his, 2 asn, 3 asp, 4 phe, 5 tyr, 6 ile, 7 leu
+//    std::vector<sm_3d> aa_sm_3d; // 0 met, 1 glu, 2 gln, 3 pro
+//    std::vector<sm_4d> aa_sm_4d; // 0 arg, 1 lys
+
+double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chinumber(size_t index,
+    core::chemical::AA amino_acid,
+    double x01,
+    size_t chinumber)
+{
+    double result = 0;
+
+    switch(amino_acid)
+    {
+        case core::chemical::aa_ser:
+            result = bbutils::get_1d_from_dst(aa_sm_1d.front().lib_cdf_sum_all[index][chinumber], x01);
+            break;
+        case core::chemical::aa_val:
+            result = bbutils::get_1d_from_dst(aa_sm_1d[1].lib_cdf_sum_all[index][chinumber], x01);
+            break;
+        case core::chemical::aa_cys:
+            result = bbutils::get_1d_from_dst(aa_sm_1d[2].lib_cdf_sum_all[index][chinumber], x01);
+            break;
+        case core::chemical::aa_thr:
+            result = bbutils::get_1d_from_dst(aa_sm_1d.back().lib_cdf_sum_all[index][chinumber], x01);
+            break;
+
+        case core::chemical::aa_trp:
+            result = bbutils::get_1d_from_dst(aa_sm_2d.front().lib_cdf_sum_all[index][chinumber], x01);
+            break;
+        case core::chemical::aa_his:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[1].lib_cdf_sum_all[index][chinumber], x01);
+            break;
+        case core::chemical::aa_asn:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[2].lib_cdf_sum_all[index][chinumber], x01);
+            break;
+        case core::chemical::aa_asp:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[3].lib_cdf_sum_all[index][chinumber], x01);
+            break;
+        case core::chemical::aa_phe:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[4].lib_cdf_sum_all[index][chinumber], x01);
+            break;
+        case core::chemical::aa_tyr:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[5].lib_cdf_sum_all[index][chinumber], x01);
+            break;
+        case core::chemical::aa_ile:
+            result = bbutils::get_1d_from_dst(aa_sm_2d[6].lib_cdf_sum_all[index][chinumber], x01);
+            break;
+        case core::chemical::aa_leu:
+            result = bbutils::get_1d_from_dst(aa_sm_2d.back().lib_cdf_sum_all[index][chinumber], x01);
+            break;
+
+        case core::chemical::aa_met:
+            result = bbutils::get_1d_from_dst(aa_sm_3d.front().lib_cdf_sum_all[index][chinumber], x01);
+            break;
+        case core::chemical::aa_glu:
+            result = bbutils::get_1d_from_dst(aa_sm_3d[1].lib_cdf_sum_all[index][chinumber], x01);
+            break;
+        case core::chemical::aa_gln:
+            result = bbutils::get_1d_from_dst(aa_sm_3d[2].lib_cdf_sum_all[index][chinumber], x01);
+            break;
+        case core::chemical::aa_pro:
+            result = bbutils::get_1d_from_dst(aa_sm_3d.back().lib_cdf_sum_all[index][chinumber], x01);
+            break;
+
+        case core::chemical::aa_arg:
+            result = bbutils::get_1d_from_dst(aa_sm_4d.front().lib_cdf_sum_all[index][chinumber], x01);
+            break;
+        case core::chemical::aa_lys:
+            result = bbutils::get_1d_from_dst(aa_sm_4d.back().lib_cdf_sum_all[index][chinumber], x01);
+            break;
+            
+        default:
+            break;
+    }
+    return result;
+}
+
 }
 }

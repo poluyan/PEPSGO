@@ -15,39 +15,35 @@
    limitations under the License.
 
 **************************************************************************/
-#ifndef INCLUDED_transform_hh
-#define INCLUDED_transform_hh
 
 #include "opt.hh"
-#include "bbdep_sm.hh"
-
-#include <tuple>
 
 namespace pepsgo
 {
 
-namespace transform
+opt_element::opt_element()
 {
 
-//struct ranges
-//{
-//    std::tuple<bool, size_t, size_t> phipsi;
-//    std::tuple<bool, size_t, size_t> omega;
-//    std::tuple<bool, size_t, size_t> chi;
-//
-//    bool do_phipsi;
-//    bool do_omega;
-//    bool do_chi;
-//};
-
-std::vector<double> bbdep_experiment_actual_states(
-    std::vector<double> x,
-    std::vector<pepsgo::opt_element> opt_vect,
-    pepsgo::ranges range,
-    pepsgo::bbdep::BBDEP_Dunbrack_sm &bbdep_obj_sm,
-    size_t peptide_phipsi_2d_size);
-
-}
 }
 
-#endif
+opt_element::opt_element(core::id::DOF_ID _dofid,
+                         std::pair<core::Real, core::Real> _bounds,
+                         core::chemical::AA _amino_acid,
+                         std::string _torsion_name,
+                         core::Size _chainid,
+                         core::Size _seqpos,
+                         core::Size _nchi,
+                         core::Size _ichi)
+{
+    dofid = _dofid;
+    bounds = _bounds;
+    amino_acid = _amino_acid;
+    torsion_name = _torsion_name;
+    chainid = _chainid;
+    seqpos = _seqpos;
+    nchi = _nchi;
+    ichi = _ichi;
+}
+
+
+}

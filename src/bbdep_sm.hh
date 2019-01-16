@@ -174,6 +174,13 @@ public:
                                     std::vector<std::pair<double, double>> &lys_grid,
                                     std::vector<std::vector<std::vector<size_t>>> &imp_conf);
 
+    bbdep::Dunbrack_data get_first_line(core::chemical::AA amino_acid);
+    double get_degree_bbind(core::chemical::AA amino_acid, double x01, size_t chinumber);
+    double get_degree_bbdep_from_phi_psi_x01_chinumber(size_t index,
+            core::chemical::AA amino_acid,
+            double x01,
+            size_t chinumber);
+
 };
 
 

@@ -15,37 +15,20 @@
    limitations under the License.
 
 **************************************************************************/
-#ifndef INCLUDED_transform_hh
-#define INCLUDED_transform_hh
+#ifndef INCLUDED_bbtools_hh
+#define INCLUDED_bbtools_hh
 
-#include "opt.hh"
-#include "bbdep_sm.hh"
-
-#include <tuple>
+#include <core/pose/util.hh>
+#include <core/pose/Pose.hh>
 
 namespace pepsgo
 {
-
-namespace transform
+namespace bbtools
 {
 
-//struct ranges
-//{
-//    std::tuple<bool, size_t, size_t> phipsi;
-//    std::tuple<bool, size_t, size_t> omega;
-//    std::tuple<bool, size_t, size_t> chi;
-//
-//    bool do_phipsi;
-//    bool do_omega;
-//    bool do_chi;
-//};
-
-std::vector<double> bbdep_experiment_actual_states(
-    std::vector<double> x,
-    std::vector<pepsgo::opt_element> opt_vect,
-    pepsgo::ranges range,
-    pepsgo::bbdep::BBDEP_Dunbrack_sm &bbdep_obj_sm,
-    size_t peptide_phipsi_2d_size);
+core::Real to_positive_radians(core::Real radian);
+core::Real to_negative_radians(core::Real radian);
+core::Real normalize_to_mpi_to_ppi(core::Real radian);
 
 }
 }

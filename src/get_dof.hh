@@ -27,35 +27,36 @@
 #include <vector>
 #include <string>
 
+#include "opt.hh"
 #include "transform.hh"
 
 namespace pepsgo
 {
 
-struct opt_element
-{
-    core::id::DOF_ID dofid;
-    std::pair<core::Real, core::Real> bounds;
-    core::chemical::AA amino_acid;
-    std::string torsion_name;
-    core::Size chainid;
-    core::Size seqpos;
-    core::Size nchi;
-    core::Size ichi;
-
-    opt_element();
-
-    opt_element(core::id::DOF_ID _dofid, std::pair<core::Real, core::Real> _bounds, core::chemical::AA _amino_acid, std::string _torsion_name, core::Size _chainid,
-                core::Size _seqpos,
-                core::Size _nchi,
-                core::Size _ichi);
-
-    friend std::ostream& operator<<(std::ostream& stream, const opt_element& obj)
-    {
-        stream << obj.chainid << ' ' << obj.amino_acid << ' ' << obj.torsion_name << ' ' << obj.seqpos << ' ' << obj.nchi << ' ' << obj.ichi << ' ' << obj.bounds.first << ' ' << obj.bounds.second;
-        return stream;
-    }
-};
+//struct opt_element
+//{
+//    core::id::DOF_ID dofid;
+//    std::pair<core::Real, core::Real> bounds;
+//    core::chemical::AA amino_acid;
+//    std::string torsion_name;
+//    core::Size chainid;
+//    core::Size seqpos;
+//    core::Size nchi;
+//    core::Size ichi;
+//
+//    opt_element();
+//
+//    opt_element(core::id::DOF_ID _dofid, std::pair<core::Real, core::Real> _bounds, core::chemical::AA _amino_acid, std::string _torsion_name, core::Size _chainid,
+//                core::Size _seqpos,
+//                core::Size _nchi,
+//                core::Size _ichi);
+//
+//    friend std::ostream& operator<<(std::ostream& stream, const opt_element& obj)
+//    {
+//        stream << obj.chainid << ' ' << obj.amino_acid << ' ' << obj.torsion_name << ' ' << obj.seqpos << ' ' << obj.nchi << ' ' << obj.ichi << ' ' << obj.bounds.first << ' ' << obj.bounds.second;
+//        return stream;
+//    }
+//};
 
 std::vector<core::id::DOF_ID> get_peptide_sc_dof_THETA(core::pose::Pose& pose, size_t start_ind, size_t stop_ind, int atom_type);
 std::vector<opt_element> get_peptide_sc_dof_THETA_with_info(core::pose::Pose& pose, size_t start_ind, size_t stop_ind, int atom_type);
@@ -130,7 +131,7 @@ std::vector<opt_element> get_peptide_all_chi_dof_with_info(core::pose::Pose& pos
 void insert_to_opt_vector(std::vector<opt_element> &opt_vector,
                           core::pose::Pose &pose,
                           std::string arguments,
-                          transform::ranges &range);
+                          pepsgo::ranges &range);
 
 }
 

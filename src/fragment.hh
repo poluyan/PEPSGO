@@ -95,6 +95,7 @@ public:
 //    void fill_sample(std::shared_ptr<trie_based::TrieBased<trie_based::NodeCount<std::uint8_t>,std::uint8_t>> sample);
 //    
     void set_storage_shared(std::shared_ptr<sample_type> in_sample);
+    std::vector<size_t> get_bounds();
 //    void test();
 };
 

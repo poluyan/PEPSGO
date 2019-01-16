@@ -27,24 +27,6 @@
 namespace pepsgo
 {
 
-opt_element::opt_element()
-{
-
-}
-
-opt_element::opt_element(core::id::DOF_ID _dofid, std::pair<core::Real, core::Real> _bounds, core::chemical::AA _amino_acid, std::string _torsion_name,
-                         core::Size _chainid, core::Size _seqpos, core::Size _nchi, core::Size _ichi)
-{
-    dofid = _dofid;
-    bounds = _bounds;
-    amino_acid = _amino_acid;
-    torsion_name = _torsion_name;
-    chainid = _chainid;
-    seqpos = _seqpos;
-    nchi = _nchi;
-    ichi = _ichi;
-}
-
 std::vector<core::id::DOF_ID> get_phi_psi(core::pose::Pose& pose)
 {
     std::vector < core::id::DOF_ID > peptide_dof_BB;
@@ -1367,7 +1349,7 @@ std::vector<opt_element> get_peptide_all_chi_dof_with_info(core::pose::Pose& pos
 void insert_to_opt_vector(std::vector<opt_element> &opt_vect_with_info,
                           core::pose::Pose &pose,
                           std::string arguments,
-                          transform::ranges &range)
+                          pepsgo::ranges &range)
 {
     if(arguments.find("phipsi") != std::string::npos)
     {

@@ -245,6 +245,15 @@ void FragPick::set_peptide(const core::pose::Pose &_peptide)
 
 void FragPick::set_file()
 {
+    if(basic::options::option[basic::options::OptionKeys::in::file::frag_files].user())
+    {
+        fragmet_file = basic::options::option[basic::options::OptionKeys::in::file::frag_files]()[1];
+    }
+    else
+    {
+        std::cout << "fatal" << std::endl;
+    }
+
     frag_size = basic::options::option[basic::options::OptionKeys::frags::frag_sizes]()[1];
     std::cout << "frag_sizes " << frag_size << std::endl;
     std::cout << "fragmet_file " << fragmet_file << std::endl;
@@ -542,6 +551,18 @@ void FragPick::make_permutations()
         std::cout << permut.size() << std::endl;
 //        std::cout << structures.size() << std::endl;
     }
+}
+
+std::vector<size_t> FragPick::get_bounds()
+{
+    std::cout << "get_total_count " <<  structures_trie->get_total_count() << std::endl;
+    std::vector<size_t> phipsiomg_grid_number;
+
+    phipsiomg_grid_number.insert(phipsiomg_grid_number.end(), phipsi_grid_number.begin(), phipsi_grid_number.end());
+    phipsiomg_grid_number.insert(phipsiomg_grid_number.end(), omega_grid_number.begin(), omega_grid_number.end());
+
+    std::cout << phipsiomg_grid_number.size() << std::endl;
+    return phipsiomg_grid_number;
 }
 
 }

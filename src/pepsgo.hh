@@ -54,18 +54,20 @@ private:
     
     ///
     std::vector<pepsgo::opt_element> opt_vector;
-    pepsgo::transform::ranges peptide_ranges;    
+    pepsgo::ranges peptide_ranges;    
     /// 
     std::vector<std::shared_ptr<trie_based::TrieBased<trie_based::NodeCount<int>,int>>> phipsi_rama2_sample;
-    std::vector<std::shared_ptr<empirical_quantile::ImplicitQuantileSorted<int, double>>> phipsi_rama2_quantile;
+    std::vector<std::shared_ptr<empirical_quantile::ImplicitQuantile<int, double>>> phipsi_rama2_quantile;
     
     ///
     int threads_number;
     
     pepsgo::fragment::FragPick frags;
     typedef trie_based::TrieBased<trie_based::NodeCount<std::uint8_t>,std::uint8_t> frag_type;
-    std::shared_ptr<frag_type> fragments;
-    std::shared_ptr<empirical_quantile::ImplicitQuantileSorted<int, double>> frag_quant;
+    std::shared_ptr<frag_type> structures_triebased;
+    std::shared_ptr<empirical_quantile::ImplicitQuantile<std::uint8_t, double>> structures_quant;
+    
+    pepsgo::bbdep::BBDEP_Dunbrack_sm bbdep_sm;
 public:
     PEPSGO();
     void set_number_of_threads(size_t n);
@@ -75,7 +77,7 @@ public:
     
     void create_space_frag();
     
-    void set_bbdep(std::string _bbdep_path);
+    void set_bbdep(/*std::string _bbdep_path*/);
     void set_bbind(std::string _bbind_path);
     core::Real objective(const std::vector<double> &x);
     
@@ -85,7 +87,11 @@ public:
     
     void fill_opt_vector();
     
+    size_t get_opt_vector_size();
+    
     void extend_peptide();
+    
+    void set_quantile();
 };
 
 }
