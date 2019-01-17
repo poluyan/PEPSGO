@@ -96,8 +96,10 @@ public:
     BBDEP_Dunbrack_sm();
     void set_path(std::string path_to_files);
     void set_step(size_t step);
-    void load_data_sm();
-    void initialize_all(bool create_cdf_sum, std::string amino_acids);
+    void load_data_sm(std::string amino_acids);
+    void initialize_all(bool create_cdf_sum, std::string amino_acids, int threads_number);
+    
+    void create_cdf_sums(core::chemical::AA amino_acid);
 
     bbutils::distribution_1d get_chi1_all(std::vector<bbdep::Dunbrack_data> &data) const;
     bbutils::distribution_1d get_chi2_all(std::vector<bbdep::Dunbrack_data> &data) const;

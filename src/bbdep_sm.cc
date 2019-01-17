@@ -15,6 +15,8 @@
    limitations under the License.
 
 **************************************************************************/
+#include <omp.h>
+
 #include "bbdep_sm.hh"
 #include "bbutils.hh"
 #include "data_io.hh"
@@ -65,87 +67,97 @@ void BBDEP_Dunbrack_sm::set_step(size_t step)
     cdf_grid_step = step;
 }
 
-// amino acids in 1letter code format
-void BBDEP_Dunbrack_sm::initialize_all(bool create_cdf_sum, std::string amino_acids)
+void BBDEP_Dunbrack_sm::create_cdf_sums(core::chemical::AA amino_acid)
 {
-    load_data_sm();
-
-    if(create_cdf_sum)
+    switch(amino_acid)
     {
         // 0 ser, 1 val, 2 cys, 3 thr
-        if(amino_acids.find("S") != std::string::npos)
+        case core::chemical::aa_ser:
             fill_grid_and_states_and_create_cdf_chi1(aa_sm_1d[0].lib, aa_sm_1d[0].lib_grid,
                     aa_sm_1d[0].lib_independent,
                     aa_sm_1d[0].lib_cdf_sum_all,
                     aa_sm_1d[0].lib_states);
-        if(amino_acids.find("V") != std::string::npos)
+            break;
+        case core::chemical::aa_val:
             fill_grid_and_states_and_create_cdf_chi1(aa_sm_1d[1].lib, aa_sm_1d[1].lib_grid,
                     aa_sm_1d[1].lib_independent,
                     aa_sm_1d[1].lib_cdf_sum_all,
                     aa_sm_1d[1].lib_states);
-        if(amino_acids.find("C") != std::string::npos)
+            break;
+        case core::chemical::aa_cys:
             fill_grid_and_states_and_create_cdf_chi1(aa_sm_1d[2].lib, aa_sm_1d[2].lib_grid,
                     aa_sm_1d[2].lib_independent,
                     aa_sm_1d[2].lib_cdf_sum_all,
                     aa_sm_1d[2].lib_states);
-        if(amino_acids.find("T") != std::string::npos)
+            break;
+        case core::chemical::aa_thr:
             fill_grid_and_states_and_create_cdf_chi1(aa_sm_1d[3].lib, aa_sm_1d[3].lib_grid,
                     aa_sm_1d[3].lib_independent,
                     aa_sm_1d[3].lib_cdf_sum_all,
                     aa_sm_1d[3].lib_states);
+            break;
+
 
         // 0 trp, 1 his, 2 asn, 3 asp, 4 phe, 5 tyr, 6 ile, 7 leu
-        if(amino_acids.find("W") != std::string::npos)
+        case core::chemical::aa_trp:
             fill_grid_and_states_and_create_cdf_chi2(aa_sm_2d[0].lib, aa_sm_2d[0].lib_grid,
                     aa_sm_2d[0].lib_independent,
                     aa_sm_2d[0].lib_cdf_sum_all,
                     aa_sm_2d[0].lib_chi2_depend_chi1,
                     aa_sm_2d[0].lib_states_chi1);
-        if(amino_acids.find("H") != std::string::npos)
+            break;
+        case core::chemical::aa_his:
             fill_grid_and_states_and_create_cdf_chi2(aa_sm_2d[1].lib, aa_sm_2d[1].lib_grid,
                     aa_sm_2d[1].lib_independent,
                     aa_sm_2d[1].lib_cdf_sum_all,
                     aa_sm_2d[1].lib_chi2_depend_chi1,
                     aa_sm_2d[1].lib_states_chi1);
-        if(amino_acids.find("N") != std::string::npos)
+            break;
+        case core::chemical::aa_asn:
             fill_grid_and_states_and_create_cdf_chi2(aa_sm_2d[2].lib, aa_sm_2d[2].lib_grid,
                     aa_sm_2d[2].lib_independent,
                     aa_sm_2d[2].lib_cdf_sum_all,
                     aa_sm_2d[2].lib_chi2_depend_chi1,
                     aa_sm_2d[2].lib_states_chi1);
-        if(amino_acids.find("D") != std::string::npos)
+            break;
+        case core::chemical::aa_asp:
             fill_grid_and_states_and_create_cdf_chi2(aa_sm_2d[3].lib, aa_sm_2d[3].lib_grid,
                     aa_sm_2d[3].lib_independent,
                     aa_sm_2d[3].lib_cdf_sum_all,
                     aa_sm_2d[3].lib_chi2_depend_chi1,
                     aa_sm_2d[3].lib_states_chi1);
-        if(amino_acids.find("F") != std::string::npos)
+            break;
+        case core::chemical::aa_phe:
             fill_grid_and_states_and_create_cdf_chi2(aa_sm_2d[4].lib, aa_sm_2d[4].lib_grid,
                     aa_sm_2d[4].lib_independent,
                     aa_sm_2d[4].lib_cdf_sum_all,
                     aa_sm_2d[4].lib_chi2_depend_chi1,
                     aa_sm_2d[4].lib_states_chi1);
-        if(amino_acids.find("Y") != std::string::npos)
+            break;
+        case core::chemical::aa_tyr:
             fill_grid_and_states_and_create_cdf_chi2(aa_sm_2d[5].lib, aa_sm_2d[5].lib_grid,
                     aa_sm_2d[5].lib_independent,
                     aa_sm_2d[5].lib_cdf_sum_all,
                     aa_sm_2d[5].lib_chi2_depend_chi1,
                     aa_sm_2d[5].lib_states_chi1);
-        if(amino_acids.find("I") != std::string::npos)
+            break;
+        case core::chemical::aa_ile:
             fill_grid_and_states_and_create_cdf_chi2(aa_sm_2d[6].lib, aa_sm_2d[6].lib_grid,
                     aa_sm_2d[6].lib_independent,
                     aa_sm_2d[6].lib_cdf_sum_all,
                     aa_sm_2d[6].lib_chi2_depend_chi1,
                     aa_sm_2d[6].lib_states_chi1);
-        if(amino_acids.find("L") != std::string::npos)
+            break;
+        case core::chemical::aa_leu:
             fill_grid_and_states_and_create_cdf_chi2(aa_sm_2d[7].lib, aa_sm_2d[7].lib_grid,
                     aa_sm_2d[7].lib_independent,
                     aa_sm_2d[7].lib_cdf_sum_all,
                     aa_sm_2d[7].lib_chi2_depend_chi1,
                     aa_sm_2d[7].lib_states_chi1);
+            break;
 
         // 0 met, 1 glu, 2 gln, 3 pro
-        if(amino_acids.find("M") != std::string::npos)
+        case core::chemical::aa_met:
             fill_grid_and_states_and_create_cdf_chi3(
                 aa_sm_3d[0].lib,
                 aa_sm_3d[0].lib_grid,
@@ -155,7 +167,9 @@ void BBDEP_Dunbrack_sm::initialize_all(bool create_cdf_sum, std::string amino_ac
                 aa_sm_3d[0].lib_chi3_depend_chi12,
                 aa_sm_3d[0].lib_states_chi1,
                 aa_sm_3d[0].lib_states_chi2);
-        if(amino_acids.find("E") != std::string::npos)
+            break;
+
+        case core::chemical::aa_glu:
             fill_grid_and_states_and_create_cdf_chi3(
                 aa_sm_3d[1].lib,
                 aa_sm_3d[1].lib_grid,
@@ -165,7 +179,9 @@ void BBDEP_Dunbrack_sm::initialize_all(bool create_cdf_sum, std::string amino_ac
                 aa_sm_3d[1].lib_chi3_depend_chi12,
                 aa_sm_3d[1].lib_states_chi1,
                 aa_sm_3d[1].lib_states_chi2);
-        if(amino_acids.find("Q") != std::string::npos)
+            break;
+
+        case core::chemical::aa_gln:
             fill_grid_and_states_and_create_cdf_chi3(
                 aa_sm_3d[2].lib,
                 aa_sm_3d[2].lib_grid,
@@ -175,7 +191,10 @@ void BBDEP_Dunbrack_sm::initialize_all(bool create_cdf_sum, std::string amino_ac
                 aa_sm_3d[2].lib_chi3_depend_chi12,
                 aa_sm_3d[2].lib_states_chi1,
                 aa_sm_3d[2].lib_states_chi2);
-        if(amino_acids.find("P") != std::string::npos)
+            break;
+
+
+        case core::chemical::aa_pro:
             fill_grid_and_states_and_create_cdf_chi3(
                 aa_sm_3d[3].lib,
                 aa_sm_3d[3].lib_grid,
@@ -185,9 +204,10 @@ void BBDEP_Dunbrack_sm::initialize_all(bool create_cdf_sum, std::string amino_ac
                 aa_sm_3d[3].lib_chi3_depend_chi12,
                 aa_sm_3d[3].lib_states_chi1,
                 aa_sm_3d[3].lib_states_chi2);
+            break;
 
         // 0 arg, 1 lys
-        if(amino_acids.find("R") != std::string::npos)
+        case core::chemical::aa_arg:
         {
             fill_grid_and_states_and_create_cdf_chi4(
                 aa_sm_4d[0].lib,
@@ -201,8 +221,9 @@ void BBDEP_Dunbrack_sm::initialize_all(bool create_cdf_sum, std::string amino_ac
                 aa_sm_4d[0].lib_states_chi2,
                 aa_sm_4d[0].lib_states_chi3);
             fill_impossible_conformations(aa_sm_4d[0].lib, aa_sm_4d[0].lib_impossible_conformations);
+            break;
         }
-        if(amino_acids.find("K") != std::string::npos)
+        case core::chemical::aa_lys:
         {
             fill_grid_and_states_and_create_cdf_chi4(
                 aa_sm_4d[1].lib,
@@ -216,37 +237,232 @@ void BBDEP_Dunbrack_sm::initialize_all(bool create_cdf_sum, std::string amino_ac
                 aa_sm_4d[1].lib_states_chi2,
                 aa_sm_4d[1].lib_states_chi3);
             fill_impossible_conformations(aa_sm_4d[1].lib, aa_sm_4d[1].lib_impossible_conformations);
+            break;
+
         }
+        default:
+            break;
+    }
+}
+
+// amino acids in 1letter code format
+void BBDEP_Dunbrack_sm::initialize_all(bool create_cdf_sum, std::string amino_acids, int threads_number)
+{
+    amino_acids.erase(std::remove(amino_acids.begin(), amino_acids.end(), 'A'), amino_acids.end());
+    amino_acids.erase(std::remove(amino_acids.begin(), amino_acids.end(), 'G'), amino_acids.end());
+
+    load_data_sm(amino_acids);
+
+    if(create_cdf_sum)
+    {
+        int n = amino_acids.size();
+        omp_set_dynamic(0);
+        omp_set_num_threads(threads_number);
+        #pragma omp parallel for
+        for(int i = 0; i < n; ++i)
+        {
+            create_cdf_sums(core::chemical::aa_from_oneletter_code(amino_acids[i]));
+        }      
+
+//        // 0 ser, 1 val, 2 cys, 3 thr
+//        if(amino_acids.find("S") != std::string::npos)
+//            fill_grid_and_states_and_create_cdf_chi1(aa_sm_1d[0].lib, aa_sm_1d[0].lib_grid,
+//                    aa_sm_1d[0].lib_independent,
+//                    aa_sm_1d[0].lib_cdf_sum_all,
+//                    aa_sm_1d[0].lib_states);
+//        if(amino_acids.find("V") != std::string::npos)
+//            fill_grid_and_states_and_create_cdf_chi1(aa_sm_1d[1].lib, aa_sm_1d[1].lib_grid,
+//                    aa_sm_1d[1].lib_independent,
+//                    aa_sm_1d[1].lib_cdf_sum_all,
+//                    aa_sm_1d[1].lib_states);
+//        if(amino_acids.find("C") != std::string::npos)
+//            fill_grid_and_states_and_create_cdf_chi1(aa_sm_1d[2].lib, aa_sm_1d[2].lib_grid,
+//                    aa_sm_1d[2].lib_independent,
+//                    aa_sm_1d[2].lib_cdf_sum_all,
+//                    aa_sm_1d[2].lib_states);
+//        if(amino_acids.find("T") != std::string::npos)
+//            fill_grid_and_states_and_create_cdf_chi1(aa_sm_1d[3].lib, aa_sm_1d[3].lib_grid,
+//                    aa_sm_1d[3].lib_independent,
+//                    aa_sm_1d[3].lib_cdf_sum_all,
+//                    aa_sm_1d[3].lib_states);
+//
+//        // 0 trp, 1 his, 2 asn, 3 asp, 4 phe, 5 tyr, 6 ile, 7 leu
+//        if(amino_acids.find("W") != std::string::npos)
+//            fill_grid_and_states_and_create_cdf_chi2(aa_sm_2d[0].lib, aa_sm_2d[0].lib_grid,
+//                    aa_sm_2d[0].lib_independent,
+//                    aa_sm_2d[0].lib_cdf_sum_all,
+//                    aa_sm_2d[0].lib_chi2_depend_chi1,
+//                    aa_sm_2d[0].lib_states_chi1);
+//        if(amino_acids.find("H") != std::string::npos)
+//            fill_grid_and_states_and_create_cdf_chi2(aa_sm_2d[1].lib, aa_sm_2d[1].lib_grid,
+//                    aa_sm_2d[1].lib_independent,
+//                    aa_sm_2d[1].lib_cdf_sum_all,
+//                    aa_sm_2d[1].lib_chi2_depend_chi1,
+//                    aa_sm_2d[1].lib_states_chi1);
+//        if(amino_acids.find("N") != std::string::npos)
+//            fill_grid_and_states_and_create_cdf_chi2(aa_sm_2d[2].lib, aa_sm_2d[2].lib_grid,
+//                    aa_sm_2d[2].lib_independent,
+//                    aa_sm_2d[2].lib_cdf_sum_all,
+//                    aa_sm_2d[2].lib_chi2_depend_chi1,
+//                    aa_sm_2d[2].lib_states_chi1);
+//        if(amino_acids.find("D") != std::string::npos)
+//            fill_grid_and_states_and_create_cdf_chi2(aa_sm_2d[3].lib, aa_sm_2d[3].lib_grid,
+//                    aa_sm_2d[3].lib_independent,
+//                    aa_sm_2d[3].lib_cdf_sum_all,
+//                    aa_sm_2d[3].lib_chi2_depend_chi1,
+//                    aa_sm_2d[3].lib_states_chi1);
+//        if(amino_acids.find("F") != std::string::npos)
+//            fill_grid_and_states_and_create_cdf_chi2(aa_sm_2d[4].lib, aa_sm_2d[4].lib_grid,
+//                    aa_sm_2d[4].lib_independent,
+//                    aa_sm_2d[4].lib_cdf_sum_all,
+//                    aa_sm_2d[4].lib_chi2_depend_chi1,
+//                    aa_sm_2d[4].lib_states_chi1);
+//        if(amino_acids.find("Y") != std::string::npos)
+//            fill_grid_and_states_and_create_cdf_chi2(aa_sm_2d[5].lib, aa_sm_2d[5].lib_grid,
+//                    aa_sm_2d[5].lib_independent,
+//                    aa_sm_2d[5].lib_cdf_sum_all,
+//                    aa_sm_2d[5].lib_chi2_depend_chi1,
+//                    aa_sm_2d[5].lib_states_chi1);
+//        if(amino_acids.find("I") != std::string::npos)
+//            fill_grid_and_states_and_create_cdf_chi2(aa_sm_2d[6].lib, aa_sm_2d[6].lib_grid,
+//                    aa_sm_2d[6].lib_independent,
+//                    aa_sm_2d[6].lib_cdf_sum_all,
+//                    aa_sm_2d[6].lib_chi2_depend_chi1,
+//                    aa_sm_2d[6].lib_states_chi1);
+//        if(amino_acids.find("L") != std::string::npos)
+//            fill_grid_and_states_and_create_cdf_chi2(aa_sm_2d[7].lib, aa_sm_2d[7].lib_grid,
+//                    aa_sm_2d[7].lib_independent,
+//                    aa_sm_2d[7].lib_cdf_sum_all,
+//                    aa_sm_2d[7].lib_chi2_depend_chi1,
+//                    aa_sm_2d[7].lib_states_chi1);
+//
+//        // 0 met, 1 glu, 2 gln, 3 pro
+//        if(amino_acids.find("M") != std::string::npos)
+//            fill_grid_and_states_and_create_cdf_chi3(
+//                aa_sm_3d[0].lib,
+//                aa_sm_3d[0].lib_grid,
+//                aa_sm_3d[0].lib_independent,
+//                aa_sm_3d[0].lib_cdf_sum_all,
+//                aa_sm_3d[0].lib_chi2_depend_chi1,
+//                aa_sm_3d[0].lib_chi3_depend_chi12,
+//                aa_sm_3d[0].lib_states_chi1,
+//                aa_sm_3d[0].lib_states_chi2);
+//        if(amino_acids.find("E") != std::string::npos)
+//            fill_grid_and_states_and_create_cdf_chi3(
+//                aa_sm_3d[1].lib,
+//                aa_sm_3d[1].lib_grid,
+//                aa_sm_3d[1].lib_independent,
+//                aa_sm_3d[1].lib_cdf_sum_all,
+//                aa_sm_3d[1].lib_chi2_depend_chi1,
+//                aa_sm_3d[1].lib_chi3_depend_chi12,
+//                aa_sm_3d[1].lib_states_chi1,
+//                aa_sm_3d[1].lib_states_chi2);
+//        if(amino_acids.find("Q") != std::string::npos)
+//            fill_grid_and_states_and_create_cdf_chi3(
+//                aa_sm_3d[2].lib,
+//                aa_sm_3d[2].lib_grid,
+//                aa_sm_3d[2].lib_independent,
+//                aa_sm_3d[2].lib_cdf_sum_all,
+//                aa_sm_3d[2].lib_chi2_depend_chi1,
+//                aa_sm_3d[2].lib_chi3_depend_chi12,
+//                aa_sm_3d[2].lib_states_chi1,
+//                aa_sm_3d[2].lib_states_chi2);
+//        if(amino_acids.find("P") != std::string::npos)
+//            fill_grid_and_states_and_create_cdf_chi3(
+//                aa_sm_3d[3].lib,
+//                aa_sm_3d[3].lib_grid,
+//                aa_sm_3d[3].lib_independent,
+//                aa_sm_3d[3].lib_cdf_sum_all,
+//                aa_sm_3d[3].lib_chi2_depend_chi1,
+//                aa_sm_3d[3].lib_chi3_depend_chi12,
+//                aa_sm_3d[3].lib_states_chi1,
+//                aa_sm_3d[3].lib_states_chi2);
+//
+//        // 0 arg, 1 lys
+//        if(amino_acids.find("R") != std::string::npos)
+//        {
+//            fill_grid_and_states_and_create_cdf_chi4(
+//                aa_sm_4d[0].lib,
+//                aa_sm_4d[0].lib_grid,
+//                aa_sm_4d[0].lib_independent,
+//                aa_sm_4d[0].lib_cdf_sum_all,
+//                aa_sm_4d[0].lib_chi2_depend_chi1,
+//                aa_sm_4d[0].lib_chi3_depend_chi12,
+//                aa_sm_4d[0].lib_chi4_depend_chi123,
+//                aa_sm_4d[0].lib_states_chi1,
+//                aa_sm_4d[0].lib_states_chi2,
+//                aa_sm_4d[0].lib_states_chi3);
+//            fill_impossible_conformations(aa_sm_4d[0].lib, aa_sm_4d[0].lib_impossible_conformations);
+//        }
+//        if(amino_acids.find("K") != std::string::npos)
+//        {
+//            fill_grid_and_states_and_create_cdf_chi4(
+//                aa_sm_4d[1].lib,
+//                aa_sm_4d[1].lib_grid,
+//                aa_sm_4d[1].lib_independent,
+//                aa_sm_4d[1].lib_cdf_sum_all,
+//                aa_sm_4d[1].lib_chi2_depend_chi1,
+//                aa_sm_4d[1].lib_chi3_depend_chi12,
+//                aa_sm_4d[1].lib_chi4_depend_chi123,
+//                aa_sm_4d[1].lib_states_chi1,
+//                aa_sm_4d[1].lib_states_chi2,
+//                aa_sm_4d[1].lib_states_chi3);
+//            fill_impossible_conformations(aa_sm_4d[1].lib, aa_sm_4d[1].lib_impossible_conformations);
+//        }
     }
 }
 
 
-void BBDEP_Dunbrack_sm::load_data_sm()
+void BBDEP_Dunbrack_sm::load_data_sm(std::string amino_acids)
 {
     aa_sm_1d.resize(4); // 0 ser, 1 val, 2 cys, 3 thr
-    pepsgo::bbdep::load_data_sm(path + "ser.bbdep.rotamers.lib.gz", aa_sm_1d[0].lib, aa_sm_1d[0].libn);
-    pepsgo::bbdep::load_data_sm(path + "val.bbdep.rotamers.lib.gz", aa_sm_1d[1].lib, aa_sm_1d[1].libn);
-    pepsgo::bbdep::load_data_sm(path + "cys.bbdep.rotamers.lib.gz", aa_sm_1d[2].lib, aa_sm_1d[2].libn);
-    pepsgo::bbdep::load_data_sm(path + "thr.bbdep.rotamers.lib.gz", aa_sm_1d[3].lib, aa_sm_1d[3].libn);
-
     aa_sm_2d.resize(8); // 0 trp, 1 his, 2 asn, 3 asp, 4 phe, 5 tyr, 6 ile, 7 leu
-    pepsgo::bbdep::load_data_sm(path + "trp.bbdep.rotamers.lib.gz", aa_sm_2d[0].lib, aa_sm_2d[0].libn);
-    pepsgo::bbdep::load_data_sm(path + "his.bbdep.rotamers.lib.gz", aa_sm_2d[1].lib, aa_sm_2d[1].libn);
-    pepsgo::bbdep::load_data_sm(path + "asn.bbdep.rotamers.lib.gz", aa_sm_2d[2].lib, aa_sm_2d[2].libn);
-    pepsgo::bbdep::load_data_sm(path + "asp.bbdep.rotamers.lib.gz", aa_sm_2d[3].lib, aa_sm_2d[3].libn);
-    pepsgo::bbdep::load_data_sm(path + "phe.bbdep.rotamers.lib.gz", aa_sm_2d[4].lib, aa_sm_2d[4].libn);
-    pepsgo::bbdep::load_data_sm(path + "tyr.bbdep.rotamers.lib.gz", aa_sm_2d[5].lib, aa_sm_2d[5].libn);
-    pepsgo::bbdep::load_data_sm(path + "ile.bbdep.rotamers.lib.gz", aa_sm_2d[6].lib, aa_sm_2d[6].libn);
-    pepsgo::bbdep::load_data_sm(path + "leu.bbdep.rotamers.lib.gz", aa_sm_2d[7].lib, aa_sm_2d[7].libn);
-
-    aa_sm_3d.resize(3); // 0 met, 1 glu, 2 gln, 3 pro
-    pepsgo::bbdep::load_data_sm(path + "met.bbdep.rotamers.lib.gz", aa_sm_3d[0].lib, aa_sm_3d[0].libn);
-    pepsgo::bbdep::load_data_sm(path + "glu.bbdep.rotamers.lib.gz", aa_sm_3d[1].lib, aa_sm_3d[1].libn);
-    pepsgo::bbdep::load_data_sm(path + "pro.bbdep.rotamers.lib.gz", aa_sm_3d[2].lib, aa_sm_3d[2].libn);
-
+    aa_sm_3d.resize(4); // 0 met, 1 glu, 2 gln, 3 pro
     aa_sm_4d.resize(2); // 0 arg, 1 lys
-    pepsgo::bbdep::load_data_sm(path + "arg.bbdep.rotamers.lib.gz", aa_sm_4d[0].lib, aa_sm_4d[0].libn);
-    pepsgo::bbdep::load_data_sm(path + "lys.bbdep.rotamers.lib.gz", aa_sm_4d[1].lib, aa_sm_4d[1].libn);
+
+    // 0 ser, 1 val, 2 cys, 3 thr
+    if(amino_acids.find("S") != std::string::npos)
+        pepsgo::bbdep::load_data_sm(path + "ser.bbdep.rotamers.lib", aa_sm_1d[0].lib, aa_sm_1d[0].libn);
+    if(amino_acids.find("V") != std::string::npos)
+        pepsgo::bbdep::load_data_sm(path + "val.bbdep.rotamers.lib", aa_sm_1d[1].lib, aa_sm_1d[1].libn);
+    if(amino_acids.find("C") != std::string::npos)
+        pepsgo::bbdep::load_data_sm(path + "cys.bbdep.rotamers.lib", aa_sm_1d[2].lib, aa_sm_1d[2].libn);
+    if(amino_acids.find("T") != std::string::npos)
+        pepsgo::bbdep::load_data_sm(path + "thr.bbdep.rotamers.lib", aa_sm_1d[3].lib, aa_sm_1d[3].libn);
+
+    // 0 trp, 1 his, 2 asn, 3 asp, 4 phe, 5 tyr, 6 ile, 7 leu
+    if(amino_acids.find("W") != std::string::npos)
+        pepsgo::bbdep::load_data_sm(path + "trp.bbdep.rotamers.lib", aa_sm_2d[0].lib, aa_sm_2d[0].libn);
+    if(amino_acids.find("H") != std::string::npos)
+        pepsgo::bbdep::load_data_sm(path + "his.bbdep.rotamers.lib", aa_sm_2d[1].lib, aa_sm_2d[1].libn);
+    if(amino_acids.find("N") != std::string::npos)
+        pepsgo::bbdep::load_data_sm(path + "asn.bbdep.rotamers.lib", aa_sm_2d[2].lib, aa_sm_2d[2].libn);
+    if(amino_acids.find("D") != std::string::npos)
+        pepsgo::bbdep::load_data_sm(path + "asp.bbdep.rotamers.lib", aa_sm_2d[3].lib, aa_sm_2d[3].libn);
+    if(amino_acids.find("F") != std::string::npos)
+        pepsgo::bbdep::load_data_sm(path + "phe.bbdep.rotamers.lib", aa_sm_2d[4].lib, aa_sm_2d[4].libn);
+    if(amino_acids.find("Y") != std::string::npos)
+        pepsgo::bbdep::load_data_sm(path + "tyr.bbdep.rotamers.lib", aa_sm_2d[5].lib, aa_sm_2d[5].libn);
+    if(amino_acids.find("I") != std::string::npos)
+        pepsgo::bbdep::load_data_sm(path + "ile.bbdep.rotamers.lib", aa_sm_2d[6].lib, aa_sm_2d[6].libn);
+    if(amino_acids.find("L") != std::string::npos)
+        pepsgo::bbdep::load_data_sm(path + "leu.bbdep.rotamers.lib", aa_sm_2d[7].lib, aa_sm_2d[7].libn);
+
+    // 0 met, 1 glu, 2 gln, 3 pro
+    if(amino_acids.find("M") != std::string::npos)
+        pepsgo::bbdep::load_data_sm(path + "met.bbdep.rotamers.lib", aa_sm_3d[0].lib, aa_sm_3d[0].libn);
+    if(amino_acids.find("E") != std::string::npos)
+        pepsgo::bbdep::load_data_sm(path + "glu.bbdep.rotamers.lib", aa_sm_3d[1].lib, aa_sm_3d[1].libn);
+    if(amino_acids.find("Q") != std::string::npos)
+        pepsgo::bbdep::load_data_sm(path + "gln.bbdep.rotamers.lib", aa_sm_3d[2].lib, aa_sm_3d[2].libn);
+    if(amino_acids.find("P") != std::string::npos)
+        pepsgo::bbdep::load_data_sm(path + "pro.bbdep.rotamers.lib", aa_sm_3d[3].lib, aa_sm_3d[3].libn);
+
+    // 0 arg, 1 lys
+    if(amino_acids.find("R") != std::string::npos)
+        pepsgo::bbdep::load_data_sm(path + "arg.bbdep.rotamers.lib", aa_sm_4d[0].lib, aa_sm_4d[0].libn);
+    if(amino_acids.find("K") != std::string::npos)
+        pepsgo::bbdep::load_data_sm(path + "lys.bbdep.rotamers.lib", aa_sm_4d[1].lib, aa_sm_4d[1].libn);
 }
 
 void BBDEP_Dunbrack_sm::fill_grid_and_states_and_create_cdf_chi1(const std::vector<bbdep::Dunbrack_data> &data,
@@ -1902,7 +2118,7 @@ double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi123_dep_a
 
 
 bbdep::Dunbrack_data BBDEP_Dunbrack_sm::get_first_line(core::chemical::AA amino_acid)
-{    
+{
     pepsgo::bbdep::Dunbrack_data result;
     switch(amino_acid)
     {
@@ -1963,7 +2179,7 @@ bbdep::Dunbrack_data BBDEP_Dunbrack_sm::get_first_line(core::chemical::AA amino_
         case core::chemical::aa_lys:
             result = aa_sm_4d.back().lib.front();
             break;
-        
+
         default:
             break;
     }
@@ -1974,7 +2190,7 @@ bbdep::Dunbrack_data BBDEP_Dunbrack_sm::get_first_line(core::chemical::AA amino_
 double BBDEP_Dunbrack_sm::get_degree_bbind(core::chemical::AA amino_acid, double x01, size_t chinumber)
 {
     double result = 0;
-    
+
     switch(amino_acid)
     {
         case core::chemical::aa_ser:
@@ -2034,7 +2250,7 @@ double BBDEP_Dunbrack_sm::get_degree_bbind(core::chemical::AA amino_acid, double
         case core::chemical::aa_lys:
             result = bbutils::get_1d_from_dst(aa_sm_4d.back().lib_independent[chinumber], x01);
             break;
-            
+
         default:
             break;
     }
@@ -2047,9 +2263,9 @@ double BBDEP_Dunbrack_sm::get_degree_bbind(core::chemical::AA amino_acid, double
 //    std::vector<sm_4d> aa_sm_4d; // 0 arg, 1 lys
 
 double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chinumber(size_t index,
-    core::chemical::AA amino_acid,
-    double x01,
-    size_t chinumber)
+        core::chemical::AA amino_acid,
+        double x01,
+        size_t chinumber)
 {
     double result = 0;
 
@@ -2112,7 +2328,7 @@ double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chinumber(size_t ind
         case core::chemical::aa_lys:
             result = bbutils::get_1d_from_dst(aa_sm_4d.back().lib_cdf_sum_all[index][chinumber], x01);
             break;
-            
+
         default:
             break;
     }

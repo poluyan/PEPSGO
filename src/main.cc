@@ -27,6 +27,8 @@
 
 #include "pepsgo.hh"
 
+#include <random>
+
 int main(int argc, char *argv[])
 {
     devel::init(argc, argv);
@@ -37,7 +39,7 @@ int main(int argc, char *argv[])
 //    obj.set_peptide("KTWNPATGKWTE");
 //    obj.set_peptide("DPCYEVCLQQHGNVKECEEACKHPVE");
     obj.set_peptide_from_file();
-    obj.fill_rama2_quantile(10);
+    obj.fill_rama2_quantile(4);
     obj.set_bbdep();
     obj.fill_opt_vector();
     obj.create_space_frag();

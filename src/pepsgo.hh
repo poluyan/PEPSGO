@@ -42,6 +42,7 @@ private:
     std::string bbind_path;
 
     std::string peptide_sequence;
+    std::string peptide_amino_acids;
 
     core::scoring::ScoreFunctionOP score_fn;
 
@@ -77,9 +78,12 @@ public:
     
     void create_space_frag();
     
+    void unique_aa();
+    
     void set_bbdep(/*std::string _bbdep_path*/);
     void set_bbind(std::string _bbind_path);
     core::Real objective(const std::vector<double> &x);
+    void write(const std::vector<double> &x);
     
     // creating rama2 from second to next-to-last residue
     void fill_rama2_residue(core::pose::Pose &pep, core::scoring::ScoreFunctionOP &scorefn_rama2b, size_t ind, size_t step);

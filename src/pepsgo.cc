@@ -82,6 +82,7 @@ void PEPSGO::extend_peptide()
 void PEPSGO::set_peptide(std::string _peptide_sequence)
 {
     peptide_sequence = _peptide_sequence;
+    unique_aa();
     core::pose::make_pose_from_sequence(peptide, peptide_sequence,
                                         *core::chemical::ChemicalManager::get_instance()->residue_type_set(core::chemical::FA_STANDARD));
     extend_peptide();
@@ -93,7 +94,9 @@ void PEPSGO::set_peptide_from_file()
         std::string fasta = basic::options::option[basic::options::OptionKeys::in::file::fasta]()[1];
         std::cout << "reading " << fasta << std::endl;
         peptide_sequence = core::sequence::read_fasta_file_return_str(fasta);
+        unique_aa();
         std::cout << "loaded sequence " << peptide_sequence << std::endl;
+        std::cout << "unique aa " << peptide_amino_acids << std::endl;
     }
     else
     {
@@ -118,8 +121,8 @@ void PEPSGO::set_bbdep(/*std::string _bbdep_path*/)
 
     bbdep_sm.set_path(lib_path);
     //bbdep_sm.set_step(1000);
-    bbdep_sm.set_step(100);
-    bbdep_sm.initialize_all(true, peptide_sequence);
+    bbdep_sm.set_step(360);
+    bbdep_sm.initialize_all(true, peptide_amino_acids, threads_number);
 
 //    pepsgo::bbdep::plot_chi1_all(bbdep_sm);
 
@@ -155,11 +158,47 @@ core::Real PEPSGO::objective(const std::vector<double> &x)
 
     std::vector<double> vt = pepsgo::transform::bbdep_experiment_actual_states(
                                  xx, opt_vector, peptide_ranges, bbdep_sm, phipsi_rama2_quantile.size());
-                                 
+
+//    for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
+//    {
+//        std::cout << vt[i] << '\t' << i << std::endl;
+//    }
+
     for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
     {
-        std::cout << vt[i] << '\t' << i << std::endl;
+        peptide.set_dof(opt_vector[i].dofid, vt[i]);
     }
+    (*score_fn)(peptide);
+//    peptide.dump_pdb("output_pdb/peptide.pdb");
+    return peptide.energies().total_energy();
+}
+
+void PEPSGO::write(const std::vector<double> &x)
+{
+    std::vector<double> xx = x;
+    // transform here
+    std::vector<double> frag_vector(std::get<1>(peptide_ranges.chi));
+    std::vector<double> x_temp(std::get<1>(peptide_ranges.chi));
+
+    for(size_t i = 0; i != x_temp.size(); i++)
+    {
+        x_temp[i] = x[i];
+    }
+
+    structures_quant->transform(x_temp, frag_vector);
+
+    for(size_t i = 0; i != frag_vector.size(); i++)
+    {
+        xx[i] = frag_vector[i];
+    }
+
+    std::vector<double> vt = pepsgo::transform::bbdep_experiment_actual_states(
+                                 xx, opt_vector, peptide_ranges, bbdep_sm, phipsi_rama2_quantile.size());
+
+//    for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
+//    {
+//        std::cout << vt[i] << '\t' << i << std::endl;
+//    }
 
     for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
     {
@@ -167,7 +206,6 @@ core::Real PEPSGO::objective(const std::vector<double> &x)
     }
     (*score_fn)(peptide);
     peptide.dump_pdb("output_pdb/peptide.pdb");
-    return peptide.energies().total_energy();
 }
 
 void PEPSGO::fill_rama2_residue(core::pose::Pose &pep, core::scoring::ScoreFunctionOP &scorefn_rama2b, size_t ind, size_t step)
@@ -378,6 +416,20 @@ void PEPSGO::create_space_frag()
 size_t PEPSGO::get_opt_vector_size()
 {
     return opt_vector.size();
+}
+
+void PEPSGO::unique_aa()
+{
+    std::set<char> aa_set;
+    for(size_t i = 0; i != peptide_sequence.size(); i++)
+    {
+        if(aa_set.find(peptide_sequence[i]) == aa_set.end())
+            aa_set.insert(peptide_sequence[i]);
+    }
+    for(const auto &i : aa_set)
+    {
+        peptide_amino_acids.push_back(i);
+    }
 }
 
 }
