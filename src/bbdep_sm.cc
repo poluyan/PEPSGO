@@ -1349,7 +1349,7 @@ Dunbrack_data BBDEP_Dunbrack_sm::get_max(core::chemical::AA amino_acid, double P
     return result;
 }
 
-size_t BBDEP_Dunbrack_sm::get_index_from_phi_psi(std::vector<std::pair<double, double>> &data, double Phi, double Psi)
+size_t BBDEP_Dunbrack_sm::get_index_from_phi_psi(const std::vector<std::pair<double, double>> &data, double Phi, double Psi) const
 {
     std::pair<double, double> search_data;
     search_data.first = 10 * std::round(Phi / 10.0);
@@ -1370,7 +1370,7 @@ size_t BBDEP_Dunbrack_sm::get_index_from_phi_psi(std::vector<std::pair<double, d
     return std::distance(data.begin(), q.first);
 }
 
-size_t BBDEP_Dunbrack_sm::determine_rotamer_state_0_2pi(double degree)
+size_t BBDEP_Dunbrack_sm::determine_rotamer_state_0_2pi(double degree) const
 {
     std::vector<double> rotameric_states = { 60, 180, 300 };
     auto i = std::min_element(rotameric_states.begin(), rotameric_states.end(),
@@ -1382,7 +1382,7 @@ size_t BBDEP_Dunbrack_sm::determine_rotamer_state_0_2pi(double degree)
     return std::distance(rotameric_states.begin(), i);
 }
 
-size_t BBDEP_Dunbrack_sm::determine_proline_rotamer_state_0_2pi(double degree)
+size_t BBDEP_Dunbrack_sm::determine_proline_rotamer_state_0_2pi(double degree) const
 {
     std::vector<double> rotameric_states = { 27.3, 334.9 };
     auto i = std::min_element(rotameric_states.begin(), rotameric_states.end(),
@@ -1394,7 +1394,7 @@ size_t BBDEP_Dunbrack_sm::determine_proline_rotamer_state_0_2pi(double degree)
     return std::distance(rotameric_states.begin(), i);
 }
 
-size_t BBDEP_Dunbrack_sm::determine_rotamer_state_0_2pi_actual_chi1(size_t index, double degree, core::chemical::AA amino_acid)
+size_t BBDEP_Dunbrack_sm::determine_rotamer_state_0_2pi_actual_chi1(size_t index, double degree, core::chemical::AA amino_acid) const
 {
     std::vector<double> rotameric_states;
     switch(amino_acid)
@@ -1471,7 +1471,7 @@ size_t BBDEP_Dunbrack_sm::determine_rotamer_state_0_2pi_actual_chi1(size_t index
     return std::distance(rotameric_states.begin(), i);
 }
 
-size_t BBDEP_Dunbrack_sm::determine_rotamer_state_0_2pi_actual_chi2(size_t index, size_t chi1_state, double degree, core::chemical::AA amino_acid)
+size_t BBDEP_Dunbrack_sm::determine_rotamer_state_0_2pi_actual_chi2(size_t index, size_t chi1_state, double degree, core::chemical::AA amino_acid) const
 {
     std::vector<double> rotameric_states;
     switch(amino_acid)
@@ -1508,7 +1508,7 @@ size_t BBDEP_Dunbrack_sm::determine_rotamer_state_0_2pi_actual_chi2(size_t index
     return std::distance(rotameric_states.begin(), i);
 }
 
-size_t BBDEP_Dunbrack_sm::determine_rotamer_state_0_2pi_actual_chi3(size_t index, size_t chi1_state, size_t chi2_state, double degree, core::chemical::AA amino_acid)
+size_t BBDEP_Dunbrack_sm::determine_rotamer_state_0_2pi_actual_chi3(size_t index, size_t chi1_state, size_t chi2_state, double degree, core::chemical::AA amino_acid) const
 {
     std::vector<double> rotameric_states;
     switch(amino_acid)
@@ -1531,7 +1531,7 @@ size_t BBDEP_Dunbrack_sm::determine_rotamer_state_0_2pi_actual_chi3(size_t index
     return std::distance(rotameric_states.begin(), i);
 }
 
-size_t BBDEP_Dunbrack_sm::find_index_for_cdf_chi234(core::chemical::AA amino_acid, double Phi, double Psi)
+size_t BBDEP_Dunbrack_sm::find_index_for_cdf_chi234(core::chemical::AA amino_acid, double Phi, double Psi) const
 {
     size_t index = 0;
 
@@ -1608,7 +1608,7 @@ size_t BBDEP_Dunbrack_sm::find_index_for_cdf_chi234(core::chemical::AA amino_aci
 double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi1_dep(size_t index,
         core::chemical::AA amino_acid,
         double chi1_positive_degree,
-        double x01)
+        double x01) const
 {
     double result = 0;
 
@@ -1674,7 +1674,7 @@ double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi12_dep(size_t ind
         core::chemical::AA amino_acid,
         double chi1_positive_degree,
         double chi2_positive_degree,
-        double x01)
+        double x01) const
 {
     double result = 0;
 
@@ -1714,7 +1714,7 @@ double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi123_dep(size_t in
         double chi1_positive_degree,
         double chi2_positive_degree,
         double chi3_positive_degree,
-        double x01)
+        double x01) const
 {
     double result = 0;
 
@@ -1739,7 +1739,7 @@ double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi123_dep(size_t in
 double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi1_dep_actual_states(size_t index,
         core::chemical::AA amino_acid,
         double chi1_positive_degree,
-        double x01)
+        double x01) const
 {
     double result = 0;
 
@@ -1801,7 +1801,7 @@ double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi12_dep_actual_sta
         core::chemical::AA amino_acid,
         double chi1_positive_degree,
         double chi2_positive_degree,
-        double x01)
+        double x01) const
 {
     double result = 0;
 
@@ -1840,7 +1840,7 @@ double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi123_dep_actual_st
         double chi1_positive_degree,
         double chi2_positive_degree,
         double chi3_positive_degree,
-        double x01)
+        double x01) const
 {
     double result = 0;
 
@@ -1866,7 +1866,7 @@ double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chi123_dep_actual_st
 double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi1_dep(size_t index,
         core::chemical::AA amino_acid,
         double chi1_positive_degree,
-        double x01)
+        double x01) const
 {
     double result = 0;
 
@@ -1928,7 +1928,7 @@ double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi12_dep(si
         core::chemical::AA amino_acid,
         double chi1_positive_degree,
         double chi2_positive_degree,
-        double x01)
+        double x01) const
 {
     double result = 0;
 
@@ -1968,7 +1968,7 @@ double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi123_dep(s
         double chi1_positive_degree,
         double chi2_positive_degree,
         double chi3_positive_degree,
-        double x01)
+        double x01) const
 {
     double result = 0;
 
@@ -1993,7 +1993,7 @@ double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi123_dep(s
 double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi1_dep_actual_states(size_t index,
         core::chemical::AA amino_acid,
         double chi1_positive_degree,
-        double x01)
+        double x01) const
 {
     double result = 0;
 
@@ -2055,7 +2055,7 @@ double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi12_dep_ac
         core::chemical::AA amino_acid,
         double chi1_positive_degree,
         double chi2_positive_degree,
-        double x01)
+        double x01) const
 {
     double result = 0;
 
@@ -2094,7 +2094,7 @@ double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi123_dep_a
         double chi1_positive_degree,
         double chi2_positive_degree,
         double chi3_positive_degree,
-        double x01)
+        double x01) const
 {
     double result = 0;
 
@@ -2117,7 +2117,7 @@ double BBDEP_Dunbrack_sm::get_inverse_degree_bbdep_from_phi_psi_x01_chi123_dep_a
 }
 
 
-bbdep::Dunbrack_data BBDEP_Dunbrack_sm::get_first_line(core::chemical::AA amino_acid)
+bbdep::Dunbrack_data BBDEP_Dunbrack_sm::get_first_line(core::chemical::AA amino_acid) const
 {
     pepsgo::bbdep::Dunbrack_data result;
     switch(amino_acid)
@@ -2187,7 +2187,7 @@ bbdep::Dunbrack_data BBDEP_Dunbrack_sm::get_first_line(core::chemical::AA amino_
     return result;
 }
 
-double BBDEP_Dunbrack_sm::get_degree_bbind(core::chemical::AA amino_acid, double x01, size_t chinumber)
+double BBDEP_Dunbrack_sm::get_degree_bbind(core::chemical::AA amino_acid, double x01, size_t chinumber) const
 {
     double result = 0;
 
@@ -2265,7 +2265,7 @@ double BBDEP_Dunbrack_sm::get_degree_bbind(core::chemical::AA amino_acid, double
 double BBDEP_Dunbrack_sm::get_degree_bbdep_from_phi_psi_x01_chinumber(size_t index,
         core::chemical::AA amino_acid,
         double x01,
-        size_t chinumber)
+        size_t chinumber) const
 {
     double result = 0;
 

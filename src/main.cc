@@ -43,8 +43,11 @@ int main(int argc, char *argv[])
     obj.set_bbdep();
     obj.fill_opt_vector();
     obj.create_space_frag();
+    obj.set_multithread();
 
     std::cout << obj.get_opt_vector_size() << std::endl;
     std::function<core::Real(const std::vector<double>&)> f = std::bind(&pepsgo::PEPSGO::objective, obj, std::placeholders::_1);
+    std::function<core::Real(const std::vector<double>&, int)> f_mt = std::bind(&pepsgo::PEPSGO::objective_mt, obj, std::placeholders::_1, std::placeholders::_2);
     std::cout << f(std::vector<core::Real>(obj.get_opt_vector_size(),0.4)) << std::endl;
+    std::cout << f_mt(std::vector<core::Real>(obj.get_opt_vector_size(),0.4),3) << std::endl;
 }

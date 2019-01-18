@@ -57,7 +57,20 @@ void PEPSGO::set_number_of_threads(size_t n)
     {
         threads_number = omp_get_num_procs();
     }
-    std::cout << "number_of_threads: " << threads_number << std::endl;
+    std::cout << "number_of_threads: " << threads_number << std::endl;    
+}
+void PEPSGO::set_multithread()
+{
+    mt_peptide.resize(threads_number);
+    for(size_t i = 0; i != mt_peptide.size(); i++)
+    {
+        mt_peptide[i] = peptide;
+    }
+    mt_score_fn.resize(threads_number);
+    for(size_t i = 0; i != mt_score_fn.size(); i++)
+    {
+        mt_score_fn[i] = score_fn;
+    }
 }
 void PEPSGO::extend_peptide()
 {
@@ -171,6 +184,42 @@ core::Real PEPSGO::objective(const std::vector<double> &x)
     (*score_fn)(peptide);
 //    peptide.dump_pdb("output_pdb/peptide.pdb");
     return peptide.energies().total_energy();
+}
+
+core::Real PEPSGO::objective_mt(const std::vector<double> &x, int th_id)
+{
+    std::vector<double> xx = x;
+    // transform here
+    std::vector<double> frag_vector(std::get<1>(peptide_ranges.chi));
+    std::vector<double> x_temp(std::get<1>(peptide_ranges.chi));
+
+    for(size_t i = 0; i != x_temp.size(); i++)
+    {
+        x_temp[i] = x[i];
+    }
+
+    structures_quant->transform(x_temp, frag_vector);
+
+    for(size_t i = 0; i != frag_vector.size(); i++)
+    {
+        xx[i] = frag_vector[i];
+    }
+
+    std::vector<double> vt = pepsgo::transform::bbdep_experiment_actual_states(
+                                 xx, opt_vector, peptide_ranges, bbdep_sm, phipsi_rama2_quantile.size());
+
+//    for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
+//    {
+//        std::cout << vt[i] << '\t' << i << std::endl;
+//    }
+
+    for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
+    {
+        mt_peptide[th_id].set_dof(opt_vector[i].dofid, vt[i]);
+    }
+    (*mt_score_fn[th_id])(mt_peptide[th_id]);
+//    peptide.dump_pdb("output_pdb/peptide.pdb");
+    return mt_peptide[th_id].energies().total_energy();
 }
 
 void PEPSGO::write(const std::vector<double> &x)

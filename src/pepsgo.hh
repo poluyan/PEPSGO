@@ -45,10 +45,12 @@ private:
     std::string peptide_amino_acids;
 
     core::scoring::ScoreFunctionOP score_fn;
-
+    std::vector<core::scoring::ScoreFunctionOP> mt_score_fn;
+    
     core::pose::Pose peptide;
+    std::vector<core::pose::Pose> mt_peptide;
+    
 //    core::pose::Pose ideal_peptide;
-
 //    core::pose::Pose abs_min_peptide;
 //    core::pose::Pose ideal_abs_min_peptide;
 //    core::pose::Pose all_superposed;
@@ -72,6 +74,7 @@ private:
 public:
     PEPSGO();
     void set_number_of_threads(size_t n);
+    void set_multithread();
     
     void set_peptide(std::string _peptide_sequence);
     void set_peptide_from_file();
@@ -83,6 +86,7 @@ public:
     void set_bbdep(/*std::string _bbdep_path*/);
     void set_bbind(std::string _bbind_path);
     core::Real objective(const std::vector<double> &x);
+    core::Real objective_mt(const std::vector<double> &x, int th_id);
     void write(const std::vector<double> &x);
     
     // creating rama2 from second to next-to-last residue
