@@ -79,7 +79,7 @@ public:
     void set_peptide(std::string _peptide_sequence);
     void set_peptide_from_file();
     
-    void create_space_frag();
+    void create_space_frag(size_t phipsi_step, size_t omega_step);
     
     void unique_aa();
     

@@ -27,27 +27,31 @@
 
 #include "pepsgo.hh"
 
+
 #include <random>
+#include <omp.h>
 
 int main(int argc, char *argv[])
 {
     devel::init(argc, argv);
     std::cout << "Start..." << std::endl;
 
+    size_t thread_num = 4;
+
     pepsgo::PEPSGO obj;
-    obj.set_number_of_threads(4);
+    obj.set_number_of_threads(thread_num);
 //    obj.set_peptide("KTWNPATGKWTE");
 //    obj.set_peptide("DPCYEVCLQQHGNVKECEEACKHPVE");
     obj.set_peptide_from_file();
+    obj.fill_opt_vector();
+    obj.create_space_frag(144, 144);
     obj.fill_rama2_quantile(4);
     obj.set_bbdep();
-    obj.fill_opt_vector();
-    obj.create_space_frag();
     obj.set_multithread();
 
     std::cout << obj.get_opt_vector_size() << std::endl;
     std::function<core::Real(const std::vector<double>&)> f = std::bind(&pepsgo::PEPSGO::objective, obj, std::placeholders::_1);
     std::function<core::Real(const std::vector<double>&, int)> f_mt = std::bind(&pepsgo::PEPSGO::objective_mt, obj, std::placeholders::_1, std::placeholders::_2);
     std::cout << f(std::vector<core::Real>(obj.get_opt_vector_size(),0.4)) << std::endl;
-    std::cout << f_mt(std::vector<core::Real>(obj.get_opt_vector_size(),0.4),3) << std::endl;
+    std::cout << f_mt(std::vector<core::Real>(obj.get_opt_vector_size(),0.4),thread_num-1) << std::endl;
 }

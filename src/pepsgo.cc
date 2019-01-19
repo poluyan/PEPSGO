@@ -444,12 +444,12 @@ void PEPSGO::fill_opt_vector()
     peptide_ranges.do_chi = true;
 }
 
-void PEPSGO::create_space_frag()
+void PEPSGO::create_space_frag(size_t phipsi_step, size_t omega_step)
 {
     structures_triebased = std::make_shared<frag_type>();
     frags.set_peptide(peptide);
     frags.set_file();
-    frags.fill_grids(72, 144);
+    frags.fill_grids(phipsi_step, omega_step);// 72, 144
     frags.set_storage_shared(structures_triebased);
     frags.load_frag_file();
     frags.make_permutations();

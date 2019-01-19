@@ -27,9 +27,9 @@ namespace transform
 
 std::vector<double> bbdep_experiment_actual_states(
     std::vector<double> x,
-    std::vector<pepsgo::opt_element> opt_vect,
-    pepsgo::ranges range,
-    pepsgo::bbdep::BBDEP_Dunbrack_sm &bbdep_obj_sm,
+    const std::vector<pepsgo::opt_element> &opt_vect,
+    const pepsgo::ranges &range,
+    const pepsgo::bbdep::BBDEP_Dunbrack_sm &bbdep_obj_sm,
     size_t peptide_phipsi_2d_size)
 {
     if(range.do_chi) // bbdep_experiment
