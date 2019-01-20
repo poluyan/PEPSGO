@@ -15,8 +15,6 @@
    limitations under the License.
 
 **************************************************************************/
-#include "pepsgo.hh"
-
 #include <core/conformation/Residue.hh>
 #include <core/scoring/ScoreFunctionFactory.hh>
 #include <core/scoring/Energies.hh>
@@ -27,14 +25,20 @@
 
 #include <core/pose/util.hh>
 #include <core/pose/Pose.hh>
+#include <core/import_pose/import_pose.hh>
 
 #include <basic/options/keys/in.OptionKeys.gen.hh>
 #include <basic/options/keys/frags.OptionKeys.gen.hh>
 #include <basic/options/option.hh>
 #include <core/sequence/util.hh>
 
+#include <core/kinematics/MoveMap.hh>
+#include <protocols/minimization_packing/MinMover.hh>
+
+#include "pepsgo.hh"
 #include "data_io.hh"
 #include "transform.hh"
+#include "bbtools.hh"
 
 #include <random>
 #include <omp.h>
@@ -57,7 +61,7 @@ void PEPSGO::set_number_of_threads(size_t n)
     {
         threads_number = omp_get_num_procs();
     }
-    std::cout << "number_of_threads: " << threads_number << std::endl;    
+    std::cout << "number_of_threads: " << threads_number << std::endl;
 }
 void PEPSGO::set_multithread()
 {
@@ -88,7 +92,7 @@ void PEPSGO::extend_peptide()
             peptide.set_chi(j, i, 90.0);
         }
     }
-    peptide.dump_pdb("output_pdb/peptide.pdb");
+    peptide.dump_pdb("output/pdb/extended.pdb");
 
 //    ideal_peptide = peptide;
 }
@@ -118,12 +122,29 @@ void PEPSGO::set_peptide_from_file()
 
     if(peptide_sequence.find("X") != std::string::npos)
     {
-        std::cout << "fatal" << std::endl;
+        std::cout << "X in sequence!" << std::endl;
     }
 
     core::pose::make_pose_from_sequence(peptide, peptide_sequence,
                                         *core::chemical::ChemicalManager::get_instance()->residue_type_set(core::chemical::FA_STANDARD));
     extend_peptide();
+
+    if(basic::options::option[basic::options::OptionKeys::in::file::native].user())
+    {
+        std::string fname = basic::options::option[basic::options::OptionKeys::in::file::native].value_string();
+        std::cout << "native peptide " << fname << std::endl;
+        core::import_pose::pose_from_file(peptide_native, fname);
+        peptide_native.dump_pdb("output/pdb/peptide_native.pdb");
+    }
+    else
+    {
+        std::cout << "native peptide from sequence" << std::endl;
+        core::pose::make_pose_from_sequence(peptide_native, peptide_sequence,
+                                            *core::chemical::ChemicalManager::get_instance()->residue_type_set(core::chemical::FA_STANDARD));
+    }
+    pepsgo::bbtools::make_ideal_peptide(peptide_native_ideal, peptide_native);
+    peptide_native_ideal_optimized = peptide_native_ideal;
+    peptide_native_ideal.dump_pdb("output/pdb/peptide_native_ideal.pdb");
 }
 void PEPSGO::set_bbdep(/*std::string _bbdep_path*/)
 {
@@ -145,6 +166,39 @@ void PEPSGO::set_bbdep(/*std::string _bbdep_path*/)
 //    obj.initialize(2, 2, 2, 2,"WHNDFYIL");
 //    obj.initialize(2, 2, 2, 2,"MEQP");
 //    obj.initialize(2, 2, 2, 2,"RK");
+}
+void PEPSGO::optimize_native()
+{    
+    core::kinematics::MoveMapOP movemap_minimizer_ = core::kinematics::MoveMapOP(new core::kinematics::MoveMap());
+    for(const auto &i : opt_vector_native)
+        movemap_minimizer_->set(i.dofid, true);
+
+//    movemap_minimizer_->set_bb(true);
+//    movemap_minimizer_->set_chi(true);
+    
+    protocols::minimization_packing::MinMover minimizer(movemap_minimizer_, score_fn, "lbfgs", 1e-20, true);
+    minimizer.max_iter(5000);
+    minimizer.apply(peptide_native_ideal_optimized);
+    (*score_fn)(peptide_native_ideal_optimized);
+    std::cout << "peptide native ideal optimized score " << peptide_native_ideal_optimized.energies().total_energy() << std::endl;
+    peptide_native_ideal_optimized.dump_pdb("output/pdb/peptide_native_ideal_optimized.pdb");
+}
+void PEPSGO::find_native_in_frag_space()
+{
+    std::vector<std::uint8_t> native_state(std::get<2>(peptide_ranges_native.omega) + 1);
+    for(size_t i = 0; i != std::get<2>(peptide_ranges_native.phipsi) + 1; i++)
+    {
+        native_state[i] = frags.get_index_phipsi(peptide_native_ideal_optimized.dof(opt_vector_native[i].dofid), i);
+    }
+    for(size_t i = std::get<1>(peptide_ranges_native.omega), k = 0; i != std::get<2>(peptide_ranges_native.omega) + 1; i++, k++)
+    {
+        native_state[i] = frags.get_index_omega(peptide_native_ideal_optimized.dof(opt_vector_native[i].dofid), k);
+    }
+//    for(size_t i = 0; i != native_state.size(); i++)
+//    {
+//        std::cout << int(native_state[i]) << std::endl;
+//    }
+    std::cout << "is presented? " << structures_triebased->search(native_state) << std::endl;
 }
 void PEPSGO::set_bbind(std::string _bbind_path)
 {
@@ -182,7 +236,7 @@ core::Real PEPSGO::objective(const std::vector<double> &x)
         peptide.set_dof(opt_vector[i].dofid, vt[i]);
     }
     (*score_fn)(peptide);
-//    peptide.dump_pdb("output_pdb/peptide.pdb");
+//    peptide.dump_pdb("output/pdb/peptide.pdb");
     return peptide.energies().total_energy();
 }
 
@@ -218,7 +272,7 @@ core::Real PEPSGO::objective_mt(const std::vector<double> &x, int th_id)
         mt_peptide[th_id].set_dof(opt_vector[i].dofid, vt[i]);
     }
     (*mt_score_fn[th_id])(mt_peptide[th_id]);
-//    peptide.dump_pdb("output_pdb/peptide.pdb");
+//    peptide.dump_pdb("output/pdb/peptide.pdb");
     return mt_peptide[th_id].energies().total_energy();
 }
 
@@ -254,7 +308,7 @@ void PEPSGO::write(const std::vector<double> &x)
         peptide.set_dof(opt_vector[i].dofid, vt[i]);
     }
     (*score_fn)(peptide);
-    peptide.dump_pdb("output_pdb/peptide.pdb");
+    peptide.dump_pdb("output/pdb/peptide.pdb");
 }
 
 void PEPSGO::fill_rama2_residue(core::pose::Pose &pep, core::scoring::ScoreFunctionOP &scorefn_rama2b, size_t ind, size_t step)
@@ -442,6 +496,9 @@ void PEPSGO::fill_opt_vector()
     std::cout << std::get<1>(peptide_ranges.chi) << ' ' << std::get<2>(peptide_ranges.chi) << std::endl;
 
     peptide_ranges.do_chi = true;
+    
+    // native
+    pepsgo::insert_to_opt_vector(opt_vector_native, peptide_native_ideal_optimized, arguments, peptide_ranges_native);
 }
 
 void PEPSGO::create_space_frag(size_t phipsi_step, size_t omega_step)

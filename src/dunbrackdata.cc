@@ -50,8 +50,8 @@ std::string remove_chars(const std::string is, const std::string& chars)
 
 void load_data_sm(std::string fname, std::vector<Dunbrack_data> &data, std::vector<std::vector<int>> &numbers)
 {
-//    utility::io::izstream fIn(fname.c_str());
-    std::ifstream fIn(fname.c_str());
+    utility::io::izstream fIn(fname.c_str());
+//    std::ifstream fIn(fname.c_str());
     if(!fIn.good())
     {
         std::cout << "Error opening file." << std::endl;

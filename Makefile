@@ -12,7 +12,7 @@ RUNLIBS1=$(MAIN)/source/build/src/release/linux/$(LINUXVER)/64/x86/gcc/$(GCCVER)
 # libcifparse.so libcppdb.so libsqlite3.so libxml2.so libzmq.so
 RUNLIBS2=$(MAIN)/source/build/external/release/linux/$(LINUXVER)/64/x86/gcc/$(GCCVER)/default
 # rosetta options
-RUNFLAGS=-in::file::fasta input.fasta -frags::frag_sizes $$fragsize -in::file::frag_files fragments.Nmers -mute all
+RUNFLAGS=-in::file::fasta input.fasta -in::file::native input/pdb/1wqc.pdb -frags::frag_sizes $$fragsize -in::file::frag_files fragments.Nmers -mute all
 
 ##
 
@@ -77,6 +77,10 @@ before_release:
 	chmod +x $(RUNNAME)
 	test -d $(OBJDIR_RELEASE) || mkdir -p $(OBJDIR_RELEASE)
 	test -d maps || mkdir -p maps
+	test -d output || mkdir -p output
+	test -d output/pdb || mkdir -p output/pdb 
+	test -d input || mkdir -p input 
+	test -d input/pdb || mkdir -p input/pdb 
 
 out_release: before_release $(OBJ_RELEASE) $(HEADERS)
 	$(CPP) -shared -o libpepsgo.so $(LIBS1) $(SHAREDLIB) $(LIBS2) $(LIBS3)

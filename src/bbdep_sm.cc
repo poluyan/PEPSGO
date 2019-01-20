@@ -422,47 +422,47 @@ void BBDEP_Dunbrack_sm::load_data_sm(std::string amino_acids)
 
     // 0 ser, 1 val, 2 cys, 3 thr
     if(amino_acids.find("S") != std::string::npos)
-        pepsgo::bbdep::load_data_sm(path + "ser.bbdep.rotamers.lib", aa_sm_1d[0].lib, aa_sm_1d[0].libn);
+        pepsgo::bbdep::load_data_sm(path + "ser.bbdep.rotamers.lib.gz", aa_sm_1d[0].lib, aa_sm_1d[0].libn);
     if(amino_acids.find("V") != std::string::npos)
-        pepsgo::bbdep::load_data_sm(path + "val.bbdep.rotamers.lib", aa_sm_1d[1].lib, aa_sm_1d[1].libn);
+        pepsgo::bbdep::load_data_sm(path + "val.bbdep.rotamers.lib.gz", aa_sm_1d[1].lib, aa_sm_1d[1].libn);
     if(amino_acids.find("C") != std::string::npos)
-        pepsgo::bbdep::load_data_sm(path + "cys.bbdep.rotamers.lib", aa_sm_1d[2].lib, aa_sm_1d[2].libn);
+        pepsgo::bbdep::load_data_sm(path + "cys.bbdep.rotamers.lib.gz", aa_sm_1d[2].lib, aa_sm_1d[2].libn);
     if(amino_acids.find("T") != std::string::npos)
-        pepsgo::bbdep::load_data_sm(path + "thr.bbdep.rotamers.lib", aa_sm_1d[3].lib, aa_sm_1d[3].libn);
+        pepsgo::bbdep::load_data_sm(path + "thr.bbdep.rotamers.lib.gz", aa_sm_1d[3].lib, aa_sm_1d[3].libn);
 
     // 0 trp, 1 his, 2 asn, 3 asp, 4 phe, 5 tyr, 6 ile, 7 leu
     if(amino_acids.find("W") != std::string::npos)
-        pepsgo::bbdep::load_data_sm(path + "trp.bbdep.rotamers.lib", aa_sm_2d[0].lib, aa_sm_2d[0].libn);
+        pepsgo::bbdep::load_data_sm(path + "trp.bbdep.rotamers.lib.gz", aa_sm_2d[0].lib, aa_sm_2d[0].libn);
     if(amino_acids.find("H") != std::string::npos)
-        pepsgo::bbdep::load_data_sm(path + "his.bbdep.rotamers.lib", aa_sm_2d[1].lib, aa_sm_2d[1].libn);
+        pepsgo::bbdep::load_data_sm(path + "his.bbdep.rotamers.lib.gz", aa_sm_2d[1].lib, aa_sm_2d[1].libn);
     if(amino_acids.find("N") != std::string::npos)
-        pepsgo::bbdep::load_data_sm(path + "asn.bbdep.rotamers.lib", aa_sm_2d[2].lib, aa_sm_2d[2].libn);
+        pepsgo::bbdep::load_data_sm(path + "asn.bbdep.rotamers.lib.gz", aa_sm_2d[2].lib, aa_sm_2d[2].libn);
     if(amino_acids.find("D") != std::string::npos)
-        pepsgo::bbdep::load_data_sm(path + "asp.bbdep.rotamers.lib", aa_sm_2d[3].lib, aa_sm_2d[3].libn);
+        pepsgo::bbdep::load_data_sm(path + "asp.bbdep.rotamers.lib.gz", aa_sm_2d[3].lib, aa_sm_2d[3].libn);
     if(amino_acids.find("F") != std::string::npos)
-        pepsgo::bbdep::load_data_sm(path + "phe.bbdep.rotamers.lib", aa_sm_2d[4].lib, aa_sm_2d[4].libn);
+        pepsgo::bbdep::load_data_sm(path + "phe.bbdep.rotamers.lib.gz", aa_sm_2d[4].lib, aa_sm_2d[4].libn);
     if(amino_acids.find("Y") != std::string::npos)
-        pepsgo::bbdep::load_data_sm(path + "tyr.bbdep.rotamers.lib", aa_sm_2d[5].lib, aa_sm_2d[5].libn);
+        pepsgo::bbdep::load_data_sm(path + "tyr.bbdep.rotamers.lib.gz", aa_sm_2d[5].lib, aa_sm_2d[5].libn);
     if(amino_acids.find("I") != std::string::npos)
-        pepsgo::bbdep::load_data_sm(path + "ile.bbdep.rotamers.lib", aa_sm_2d[6].lib, aa_sm_2d[6].libn);
+        pepsgo::bbdep::load_data_sm(path + "ile.bbdep.rotamers.lib.gz", aa_sm_2d[6].lib, aa_sm_2d[6].libn);
     if(amino_acids.find("L") != std::string::npos)
-        pepsgo::bbdep::load_data_sm(path + "leu.bbdep.rotamers.lib", aa_sm_2d[7].lib, aa_sm_2d[7].libn);
+        pepsgo::bbdep::load_data_sm(path + "leu.bbdep.rotamers.lib.gz", aa_sm_2d[7].lib, aa_sm_2d[7].libn);
 
     // 0 met, 1 glu, 2 gln, 3 pro
     if(amino_acids.find("M") != std::string::npos)
-        pepsgo::bbdep::load_data_sm(path + "met.bbdep.rotamers.lib", aa_sm_3d[0].lib, aa_sm_3d[0].libn);
+        pepsgo::bbdep::load_data_sm(path + "met.bbdep.rotamers.lib.gz", aa_sm_3d[0].lib, aa_sm_3d[0].libn);
     if(amino_acids.find("E") != std::string::npos)
-        pepsgo::bbdep::load_data_sm(path + "glu.bbdep.rotamers.lib", aa_sm_3d[1].lib, aa_sm_3d[1].libn);
+        pepsgo::bbdep::load_data_sm(path + "glu.bbdep.rotamers.lib.gz", aa_sm_3d[1].lib, aa_sm_3d[1].libn);
     if(amino_acids.find("Q") != std::string::npos)
-        pepsgo::bbdep::load_data_sm(path + "gln.bbdep.rotamers.lib", aa_sm_3d[2].lib, aa_sm_3d[2].libn);
+        pepsgo::bbdep::load_data_sm(path + "gln.bbdep.rotamers.lib.gz", aa_sm_3d[2].lib, aa_sm_3d[2].libn);
     if(amino_acids.find("P") != std::string::npos)
-        pepsgo::bbdep::load_data_sm(path + "pro.bbdep.rotamers.lib", aa_sm_3d[3].lib, aa_sm_3d[3].libn);
+        pepsgo::bbdep::load_data_sm(path + "pro.bbdep.rotamers.lib.gz", aa_sm_3d[3].lib, aa_sm_3d[3].libn);
 
     // 0 arg, 1 lys
     if(amino_acids.find("R") != std::string::npos)
-        pepsgo::bbdep::load_data_sm(path + "arg.bbdep.rotamers.lib", aa_sm_4d[0].lib, aa_sm_4d[0].libn);
+        pepsgo::bbdep::load_data_sm(path + "arg.bbdep.rotamers.lib.gz", aa_sm_4d[0].lib, aa_sm_4d[0].libn);
     if(amino_acids.find("K") != std::string::npos)
-        pepsgo::bbdep::load_data_sm(path + "lys.bbdep.rotamers.lib", aa_sm_4d[1].lib, aa_sm_4d[1].libn);
+        pepsgo::bbdep::load_data_sm(path + "lys.bbdep.rotamers.lib.gz", aa_sm_4d[1].lib, aa_sm_4d[1].libn);
 }
 
 void BBDEP_Dunbrack_sm::fill_grid_and_states_and_create_cdf_chi1(const std::vector<bbdep::Dunbrack_data> &data,

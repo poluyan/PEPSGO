@@ -16,6 +16,8 @@
 
 **************************************************************************/
 #include <numeric/NumericTraits.hh>
+#include <protocols/idealize/IdealizeMover.hh>
+#include <core/conformation/util.hh>
 
 #include "bbtools.hh"
 
@@ -52,6 +54,17 @@ core::Real normalize_to_mpi_to_ppi(core::Real radian)
 		return radian - 2.0 * numeric::NumericTraits<core::Real>::pi();
 	else
 		return radian + 2.0 * numeric::NumericTraits<core::Real>::pi();
+}
+
+void make_ideal_peptide(core::pose::Pose& ideal_peptide, const core::pose::Pose& peptide)
+{
+	ideal_peptide = peptide;
+	core::conformation::Conformation conf = ideal_peptide.conformation();
+
+	for (numeric::Size seqpos = 1, seqpos_end = ideal_peptide.total_residue(); seqpos <= seqpos_end; ++seqpos)
+	{
+		core::conformation::idealize_position(seqpos, ideal_peptide.conformation());
+	}
 }
 
 }

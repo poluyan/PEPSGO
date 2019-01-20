@@ -50,6 +50,10 @@ private:
     core::pose::Pose peptide;
     std::vector<core::pose::Pose> mt_peptide;
     
+    core::pose::Pose peptide_native;
+    core::pose::Pose peptide_native_ideal;
+    core::pose::Pose peptide_native_ideal_optimized;
+    
 //    core::pose::Pose ideal_peptide;
 //    core::pose::Pose abs_min_peptide;
 //    core::pose::Pose ideal_abs_min_peptide;
@@ -57,7 +61,10 @@ private:
     
     ///
     std::vector<pepsgo::opt_element> opt_vector;
-    pepsgo::ranges peptide_ranges;    
+    pepsgo::ranges peptide_ranges;
+
+    std::vector<pepsgo::opt_element> opt_vector_native;
+    pepsgo::ranges peptide_ranges_native; 
     /// 
     std::vector<std::shared_ptr<trie_based::TrieBased<trie_based::NodeCount<int>,int>>> phipsi_rama2_sample;
     std::vector<std::shared_ptr<empirical_quantile::ImplicitQuantile<int, double>>> phipsi_rama2_quantile;
@@ -78,6 +85,9 @@ public:
     
     void set_peptide(std::string _peptide_sequence);
     void set_peptide_from_file();
+    
+    void optimize_native();
+    void find_native_in_frag_space();
     
     void create_space_frag(size_t phipsi_step, size_t omega_step);
     

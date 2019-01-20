@@ -27,10 +27,6 @@
 
 #include "pepsgo.hh"
 
-
-#include <random>
-#include <omp.h>
-
 int main(int argc, char *argv[])
 {
     devel::init(argc, argv);
@@ -44,7 +40,10 @@ int main(int argc, char *argv[])
 //    obj.set_peptide("DPCYEVCLQQHGNVKECEEACKHPVE");
     obj.set_peptide_from_file();
     obj.fill_opt_vector();
+    obj.optimize_native();
     obj.create_space_frag(144, 144);
+    obj.find_native_in_frag_space();
+    return 0;
     obj.fill_rama2_quantile(4);
     obj.set_bbdep();
     obj.set_multithread();
