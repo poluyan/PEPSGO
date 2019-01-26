@@ -26,6 +26,9 @@
 #include <core/sequence/util.hh>
 #include <numeric/conversions.hh>
 
+//#include <core/fragment/SecondaryStructure.hh>
+//#include <core/io/external/PsiPredInterface.hh>
+
 #include <string>
 #include <vector>
 
@@ -53,6 +56,12 @@ private:
     //std::string psipred_fname;
     std::string fragmet_file;
     std::string peptide_seq;
+    
+//    core::fragment::SecondaryStructure ss_profile;
+    std::vector<core::Real> confidence;
+    std::string ss_predicted;
+    std::vector<size_t> step_num_phipsi;
+    std::vector<size_t> step_num_omega;
     
     size_t frag_size;
 
@@ -82,13 +91,16 @@ public:
     
     void set_file();
 
-    void fill_grids(size_t phipsi_step, size_t omega_step);
+    void fill_grids();
 
     size_t get_index_phipsi(core::Real radian, size_t index) const;
     size_t get_index_omega(core::Real radian, size_t index) const;
     
     void load_frag_file();
-    void make_permutations();
+    void make_permutations(size_t type);
+    void all_possible(size_t residues, size_t n_frags);
+    void one_chain(size_t residues, size_t n_frags);
+    void coil_chain(size_t residues, size_t n_frags);
 //    void write_structures_pdb(size_t delta);
 //    void add_phipsi(empirical_quantile::ImplicitQuantile<std::uint8_t,double> &phipsi_quantile);
 //
@@ -97,6 +109,7 @@ public:
     void set_storage_shared(std::shared_ptr<sample_type> in_sample);
     std::vector<size_t> get_bounds();
 //    void test();
+    void set_psipred(size_t phipsi_min, size_t omega_min);
 };
 
 }

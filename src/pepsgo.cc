@@ -142,11 +142,17 @@ void PEPSGO::set_peptide_from_file()
         core::pose::make_pose_from_sequence(peptide_native, peptide_sequence,
                                             *core::chemical::ChemicalManager::get_instance()->residue_type_set(core::chemical::FA_STANDARD));
     }
+
+    if(peptide_sequence != peptide_native.sequence())
+    {
+        std::cout << "peptide sequence != native sequence" << std::endl;
+    }
+
     pepsgo::bbtools::make_ideal_peptide(peptide_native_ideal, peptide_native);
     peptide_native_ideal_optimized = peptide_native_ideal;
     peptide_native_ideal.dump_pdb("output/pdb/peptide_native_ideal.pdb");
 }
-void PEPSGO::set_bbdep(/*std::string _bbdep_path*/)
+void PEPSGO::set_bbdep(size_t step/*std::string _bbdep_path*/)
 {
     //bbdep_path = _bbdep_path;
 
@@ -155,7 +161,7 @@ void PEPSGO::set_bbdep(/*std::string _bbdep_path*/)
 
     bbdep_sm.set_path(lib_path);
     //bbdep_sm.set_step(1000);
-    bbdep_sm.set_step(360);
+    bbdep_sm.set_step(step);
     bbdep_sm.initialize_all(true, peptide_amino_acids, threads_number);
 
 //    pepsgo::bbdep::plot_chi1_all(bbdep_sm);
@@ -168,14 +174,14 @@ void PEPSGO::set_bbdep(/*std::string _bbdep_path*/)
 //    obj.initialize(2, 2, 2, 2,"RK");
 }
 void PEPSGO::optimize_native()
-{    
+{
     core::kinematics::MoveMapOP movemap_minimizer_ = core::kinematics::MoveMapOP(new core::kinematics::MoveMap());
     for(const auto &i : opt_vector_native)
         movemap_minimizer_->set(i.dofid, true);
 
 //    movemap_minimizer_->set_bb(true);
 //    movemap_minimizer_->set_chi(true);
-    
+
     protocols::minimization_packing::MinMover minimizer(movemap_minimizer_, score_fn, "lbfgs", 1e-20, true);
     minimizer.max_iter(5000);
     minimizer.apply(peptide_native_ideal_optimized);
@@ -194,10 +200,11 @@ void PEPSGO::find_native_in_frag_space()
     {
         native_state[i] = frags.get_index_omega(peptide_native_ideal_optimized.dof(opt_vector_native[i].dofid), k);
     }
-//    for(size_t i = 0; i != native_state.size(); i++)
-//    {
-//        std::cout << int(native_state[i]) << std::endl;
-//    }
+    for(size_t i = 0; i != native_state.size(); i++)
+    {
+        std::cout << int(native_state[i]) << ", ";
+    }
+    std::cout << std::endl;
     std::cout << "is presented? " << structures_triebased->search(native_state) << std::endl;
 }
 void PEPSGO::set_bbind(std::string _bbind_path)
@@ -496,21 +503,26 @@ void PEPSGO::fill_opt_vector()
     std::cout << std::get<1>(peptide_ranges.chi) << ' ' << std::get<2>(peptide_ranges.chi) << std::endl;
 
     peptide_ranges.do_chi = true;
-    
+
     // native
     pepsgo::insert_to_opt_vector(opt_vector_native, peptide_native_ideal_optimized, arguments, peptide_ranges_native);
 }
 
-void PEPSGO::create_space_frag(size_t phipsi_step, size_t omega_step)
+void PEPSGO::create_space_frag(size_t phipsi_step_min, size_t omega_step_min)
 {
     structures_triebased = std::make_shared<frag_type>();
     frags.set_peptide(peptide);
     frags.set_file();
-    frags.fill_grids(phipsi_step, omega_step);// 72, 144
+    frags.set_psipred(phipsi_step_min, omega_step_min);
+    frags.fill_grids();
     frags.set_storage_shared(structures_triebased);
     frags.load_frag_file();
-    frags.make_permutations();
+    frags.make_permutations(1);
 
+//    std::vector<std::uint8_t> t = {37, 24, 123, 12, 77, 9, 61, 14, 80, 2, 40, 13, 80, 8, 35, 29, 86, 12, 50, 44, 41, 33, 20, 23, 76, 15, 50, 21, 71, 32, 99, 10, 106, 23, 122, 20, 138, 18, 104, 6, 195, 162, 124, 107, 124, 0, 121, 89, 1, 1, 161, 0, 125, 1, 2, 139, 143, 159, 2, 142};
+//    structures_triebased->insert(t);
+    
+    
     auto bonds = frags.get_bounds();
     structures_quant = std::make_shared<empirical_quantile::ImplicitQuantile<std::uint8_t, double>>(
                            std::vector<double>(bonds.size(), -numeric::NumericTraits<core::Real>::pi()),

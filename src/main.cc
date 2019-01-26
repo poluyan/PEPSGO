@@ -27,6 +27,7 @@
 
 #include "pepsgo.hh"
 
+
 int main(int argc, char *argv[])
 {
     devel::init(argc, argv);
@@ -41,11 +42,12 @@ int main(int argc, char *argv[])
     obj.set_peptide_from_file();
     obj.fill_opt_vector();
     obj.optimize_native();
-    obj.create_space_frag(144, 144);
+    //obj.create_space_frag(18, 72);
+    obj.create_space_frag(18, 72);
+//    return 0;
     obj.find_native_in_frag_space();
-    return 0;
     obj.fill_rama2_quantile(4);
-    obj.set_bbdep();
+    obj.set_bbdep(360);
     obj.set_multithread();
 
     std::cout << obj.get_opt_vector_size() << std::endl;
@@ -53,4 +55,5 @@ int main(int argc, char *argv[])
     std::function<core::Real(const std::vector<double>&, int)> f_mt = std::bind(&pepsgo::PEPSGO::objective_mt, obj, std::placeholders::_1, std::placeholders::_2);
     std::cout << f(std::vector<core::Real>(obj.get_opt_vector_size(),0.4)) << std::endl;
     std::cout << f_mt(std::vector<core::Real>(obj.get_opt_vector_size(),0.4),thread_num-1) << std::endl;
+
 }

@@ -89,11 +89,11 @@ public:
     void optimize_native();
     void find_native_in_frag_space();
     
-    void create_space_frag(size_t phipsi_step, size_t omega_step);
+    void create_space_frag(size_t phipsi_step_min, size_t omega_step_min);
     
     void unique_aa();
     
-    void set_bbdep(/*std::string _bbdep_path*/);
+    void set_bbdep(size_t step/*std::string _bbdep_path*/);
     void set_bbind(std::string _bbind_path);
     core::Real objective(const std::vector<double> &x);
     core::Real objective_mt(const std::vector<double> &x, int th_id);

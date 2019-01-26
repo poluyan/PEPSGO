@@ -24,6 +24,8 @@
 #include <core/fragment/picking_old/FragmentLibraryManager.hh>
 
 #include <cmath>
+#include <fstream>
+#include "bbtools.hh"
 
 namespace pepsgo
 {
@@ -179,6 +181,97 @@ std::vector<size_t> get_permut_sizes2(size_t total_resiudes, size_t residues, si
     return sums;
 }
 
+size_t column_count(const std::vector<std::vector<size_t>> &matrix, size_t c, size_t filln)
+{
+    size_t count = 0;
+    for(size_t i = 0; i != matrix.size(); i++)
+    {
+        if(matrix[i][c] != filln)
+            count += matrix[i][c];
+        else
+            count++;
+    }
+    return count;
+}
+
+std::vector<size_t> get_permut_sizes3(size_t total_resiudes, size_t residues, size_t frag_size, std::string ss_pred, size_t max_in_column, size_t &matrix_size, std::vector<std::vector<size_t>> &full_matrix)
+{
+    size_t filln = 1e6;
+    std::vector<std::vector<size_t>> matrix(residues, std::vector<size_t>(total_resiudes, 0));
+    for(size_t i = 0; i != matrix.size(); i++)
+    {
+        for(size_t j = i; j != frag_size + i; j++)
+        {
+            matrix[i][j] = 1;
+        }
+    }
+    size_t delta = frag_size, k = 0;
+    for(size_t i = 0, t = delta; i < matrix.size(); i+=delta, t+=delta)
+    {
+        for(size_t j = k; (j != t) && (j != matrix[i].size()); j++)
+        {
+            matrix[i][j] = filln;
+            k = j + 1;
+        }
+    }
+    for(size_t i = k; i < matrix.back().size(); i++)
+    {
+        matrix.back()[i] = filln;
+    }
+    for(size_t i = 0; i != matrix.size(); i++)
+    {
+        for(size_t j = 0; j != matrix[i].size(); j++)
+        {
+            if(matrix[i][j] == filln)
+            {
+                matrix[i][j] = 1;
+                continue;
+            }
+            if(matrix[i][j] == 0)
+                continue;
+            if(ss_pred[j] == 'C' && column_count(matrix, j, filln) <= max_in_column)
+                matrix[i][j] = 1;
+            else
+                matrix[i][j] = 0;
+        }
+    }
+    full_matrix = matrix;
+
+    auto empty_rows = std::remove_if(matrix.begin(), matrix.end(), [](const std::vector<size_t>& row)
+    {
+        return std::accumulate(row.begin(), row.end(), 0) == 0;
+    });
+    matrix.erase(empty_rows, matrix.end());
+    for(size_t i = 0; i != matrix.size(); i++)
+    {
+        for(size_t j = 0; j != matrix[i].size(); j++)
+        {
+            std::cout << matrix[i][j] << ' ';
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+
+    std::vector<size_t> sums(total_resiudes);
+    for(size_t i = 0; i != sums.size(); i++)
+    {
+        sums[i] = 0;
+        for(size_t j = 0; j != matrix.size(); j++)
+        {
+            sums[i] += matrix[j][i];
+        }
+    }
+
+    for(size_t i = 0; i != sums.size(); i++)
+    {
+        std::cout << sums[i] << ' ';
+    }
+    std::cout << std::endl;
+
+    matrix_size = matrix.size();
+    return sums;
+}
+
 std::vector<std::vector<Frag>> get_frag_mix(std::vector<std::vector<Frag>> res, size_t total_resiudes, size_t residues, size_t frag_size)
 {
     std::vector<std::vector<Frag>> matrix(residues, std::vector<Frag>(total_resiudes));
@@ -231,6 +324,59 @@ std::vector<std::vector<Frag>> get_frag_mix2(std::vector<std::vector<Frag>> res,
     return sums;
 }
 
+std::vector<std::vector<Frag>> get_frag_mix3(std::vector<std::vector<Frag>> res,
+                            size_t total_resiudes, size_t residues, size_t frag_size,
+                            const std::vector<std::vector<size_t>> &imatrix)
+{
+//    std::cout << residues << "x" << total_resiudes << std::endl;
+//    std::cout << res.size() << "x" << res.front().size() << std::endl;
+//    std::cin.get();
+    std::vector<std::vector<Frag>> matrix;
+    for(size_t i = 0, l = 0; i != imatrix.size(); i++)
+    {
+        std::vector<Frag> t(total_resiudes);
+        bool is_pushed = false;
+        for(size_t j = i, k = 0; j != frag_size + i; j++, k++)
+        {
+            if(imatrix[i][j] == 1)
+            {
+                t[j] = res[l][k];
+                is_pushed = true;
+            }
+        }
+        if(is_pushed)
+        {
+            matrix.push_back(t);
+            l++;
+        }
+    }
+//    std::cout << residues << "x" << total_resiudes << std::endl;
+//    for(size_t i = 0; i != matrix.size(); i++)
+//    {
+//        for(size_t j = 0; j != matrix[i].size(); j++)
+//        {
+//            std::cout << matrix[i][j].aa << ' ';
+//        }
+//        std::cout << std::endl;
+//    }
+
+//    std::cout << "asv" << std::endl;
+//    std::cin.get();
+
+    std::vector<std::vector<Frag>> sums;
+    for(size_t i = 0; i != matrix.front().size(); i++)
+    {
+        std::vector<Frag> temp;
+        for(size_t j = 0; j != matrix.size(); j++)
+        {
+            if(matrix[j][i].aa != ' ')
+                temp.push_back(matrix[j][i]);
+        }
+        sums.push_back(temp);
+    }
+    return sums;
+}
+
 
 FragPick::FragPick()
 {
@@ -259,10 +405,23 @@ void FragPick::set_file()
     std::cout << "fragmet_file " << fragmet_file << std::endl;
 }
 
-void FragPick::fill_grids(size_t phipsi_step, size_t omega_step)
+void FragPick::fill_grids()
 {
-    phipsi_grid_number = std::vector<core::Size>(2*peptide_seq.size() - 2, phipsi_step);
-    omega_grid_number = std::vector<core::Size>(peptide_seq.size() - 1, omega_step);
+//    phipsi_grid_number = std::vector<core::Size>(2*peptide_seq.size() - 2, phipsi_step);
+//    omega_grid_number = std::vector<core::Size>(peptide_seq.size() - 1, omega_step);
+    phipsi_grid_number.resize(2*peptide_seq.size() - 2);
+    phipsi_grid_number.front() = step_num_phipsi.front();
+    for(size_t i = 1, k = 1; k != step_num_phipsi.size() - 1; i+=2, k++)
+    {
+        phipsi_grid_number[i] = step_num_phipsi[k];
+        phipsi_grid_number[i + 1] = step_num_phipsi[k];
+    }
+    phipsi_grid_number.back() = step_num_phipsi.back();
+    omega_grid_number.resize(peptide_seq.size() - 1);
+    for(size_t i = 0; i != omega_grid_number.size(); i++)
+    {
+        omega_grid_number[i] = step_num_omega[i];
+    }
 
     phipsi_grids_dx.resize(phipsi_grid_number.size());
     phipsi_grids_radians.resize(phipsi_grid_number.size());
@@ -369,187 +528,291 @@ void FragPick::load_frag_file()
     std::cout << "n_frags " << all_fragments.front().size() << std::endl;
 }
 
-void FragPick::make_permutations()
+void FragPick::all_possible(size_t residues, size_t n_frags)
 {
-    bool full = false;
+    std::vector<size_t> sizes = get_permut_sizes(peptide.total_residue(), residues, frag_size);
 
+    std::vector<std::vector<int>> for_selected(sizes.size());
+    for(size_t i = 0, k = 0; i != for_selected.size(); i++, k+=frag_size)
+    {
+        for_selected[i].resize(sizes[i]);
+        for(size_t j = 0; j != sizes[i]; j++)
+        {
+            for_selected[i][j] = j;
+        }
+    }
+    std::cout << "it will be " << std::fixed <<
+              n_frags << " ^ " << residues << " * " << how_much_will_be_iterate(for_selected) << " = "
+              << size_t(std::pow(n_frags, residues)*how_much_will_be_iterate(for_selected)) << std::endl;
+    std::cin.get();
+
+    std::vector<std::vector<int>> permut_for_selected = iterate(for_selected);
+
+    std::vector<std::vector<int>> variable_values(residues, std::vector<int>(n_frags));
+    for(size_t i = 0; i != variable_values.size(); i++)
+    {
+        for(size_t j = 0; j != n_frags; j++)
+        {
+            variable_values[i][j] = j;
+            std::cout << variable_values[i][j] << ' ';
+        }
+        std::cout << std::endl;
+    }
+    std::vector<std::vector<int>> permut = iterate(variable_values);    // n_frags^residues
+    //        structures.clear();
+    for(size_t i = 0; i != permut.size(); i++)
+    {
+        std::vector<std::vector<Frag>> to_distr;
+        for(size_t j = 0; j != permut[i].size(); j++)
+        {
+            to_distr.push_back(all_fragments[j][permut[i][j]]);
+        }
+        //                std::cout << "to_distr " << to_distr.size() << std::endl;
+        auto distr = get_frag_mix(to_distr, peptide.total_residue(), residues, frag_size);
+
+        for(size_t j = 0; j != permut_for_selected.size(); j++)
+        {
+            std::vector<Frag> temp;
+            for(size_t k = 0; k != permut_for_selected[j].size(); k++)
+            {
+                temp.push_back(distr[k][permut_for_selected[j][k]]);
+            }
+            //                structures.push_back(temp);
+
+            std::vector<core::Real> phipsi_values_radians(phipsi_grid_number.size());
+            std::vector<core::Real> omega_values_radians(omega_grid_number.size());
+            std::vector<std::uint8_t> to_trie(phipsi_values_radians.size() + omega_values_radians.size());
+
+            phipsi_values_radians.front() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp.front().psi));
+            omega_values_radians.front() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp.front().omg));
+            for(size_t j = 1, k = 1; j != temp.size() - 1; j++, k+=2)
+            {
+                phipsi_values_radians[k] = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp[j].phi));
+                phipsi_values_radians[k + 1] = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp[j].psi));
+                omega_values_radians[j] = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp[j].omg));
+            }
+            phipsi_values_radians.back() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp.back().phi));
+
+            for(size_t j = 0; j != phipsi_values_radians.size(); j++)
+            {
+                to_trie[j] = get_index_phipsi(phipsi_values_radians[j], j);
+            }
+            for(size_t j = phipsi_values_radians.size(), k = 0; j != to_trie.size(); j++, k++)
+            {
+                to_trie[j] = get_index_omega(omega_values_radians[k], k);
+            }
+            if(!structures_trie->search(to_trie))
+                structures_trie->insert(to_trie);
+        }
+    }
+    std::cout << permut.size() << std::endl;
+    //        std::cout << structures.size() << std::endl;
+}
+
+void FragPick::one_chain(size_t residues, size_t n_frags)
+{
+    std::vector<size_t> sizes = get_permut_sizes2(peptide.total_residue(), residues, frag_size);
+
+    size_t matrix_size = peptide.total_residue()%frag_size ? peptide.total_residue()/frag_size + 1 : peptide.total_residue()/frag_size;
+
+    std::vector<std::vector<int>> for_selected(sizes.size());
+    for(size_t i = 0, k = 0; i != for_selected.size(); i++, k+=frag_size)
+    {
+        for_selected[i].resize(sizes[i]);
+        for(size_t j = 0; j != sizes[i]; j++)
+        {
+            for_selected[i][j] = j;
+        }
+    }
+    std::cout << "it will be " << std::fixed <<
+              n_frags << " ^ " << matrix_size << " * " << how_much_will_be_iterate(for_selected) << " = "
+              << size_t(std::pow(n_frags, matrix_size)*how_much_will_be_iterate(for_selected)) << std::endl;
+    std::cin.get();
+
+    std::vector<std::vector<int>> permut_for_selected = iterate(for_selected);
+
+    std::vector<std::vector<int>> variable_values(matrix_size, std::vector<int>(n_frags));
+    for(size_t i = 0; i != variable_values.size(); i++)
+    {
+        for(size_t j = 0; j != n_frags; j++)
+        {
+            variable_values[i][j] = j;
+            //std::cout << variable_values[i][j] << ' ';
+        }
+        //std::cout << std::endl;
+    }
+    std::vector<std::vector<int>> permut = iterate(variable_values);    // n_frags^residues
+    std::cout << permut.size() << std::endl;
+    std::cout << all_fragments.size() << std::endl;
+    //        structures.clear();
+    std::ofstream fOut;
+    for(size_t i = 0; i != permut.size(); i++)
+    {
+        std::vector<std::vector<Frag>> to_distr;
+        size_t delta = frag_size;
+        for(size_t j = 0, t = 0; j != permut[i].size(); j++, t+=delta)
+        {
+            to_distr.push_back(all_fragments[t][permut[i][j]]);
+            if(t + delta >= all_fragments.size())
+                delta = 1;
+        }
+        //std::cout << "to_distr " << to_distr.size() << std::endl;
+        auto distr = get_frag_mix2(to_distr, peptide.total_residue(), residues, frag_size);
+
+        for(size_t j = 0; j != permut_for_selected.size(); j++)
+        {
+            std::vector<Frag> temp;
+            for(size_t k = 0; k != permut_for_selected[j].size(); k++)
+            {
+                temp.push_back(distr[k][permut_for_selected[j][k]]);
+            }
+            //                structures.push_back(temp);
+
+            std::vector<core::Real> phipsi_values_radians(phipsi_grid_number.size());
+            std::vector<core::Real> omega_values_radians(omega_grid_number.size());
+            std::vector<std::uint8_t> to_trie(phipsi_values_radians.size() + omega_values_radians.size());
+
+            phipsi_values_radians.front() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp.front().psi));
+            omega_values_radians.front() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp.front().omg));
+            for(size_t j = 1, k = 1; j != temp.size() - 1; j++, k+=2)
+            {
+                phipsi_values_radians[k] = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp[j].phi));
+                phipsi_values_radians[k + 1] = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp[j].psi));
+                omega_values_radians[j] = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp[j].omg));
+            }
+            phipsi_values_radians.back() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp.back().phi));
+
+            for(size_t j = 0; j != phipsi_values_radians.size(); j++)
+            {
+                to_trie[j] = get_index_phipsi(phipsi_values_radians[j], j);
+            }
+            for(size_t j = phipsi_values_radians.size(), k = 0; j != to_trie.size(); j++, k++)
+            {
+                to_trie[j] = get_index_omega(omega_values_radians[k], k);
+            }
+            if(!structures_trie->search(to_trie))
+            {
+                for(const auto &j : to_trie)
+                {
+                    fOut << int(j) << '\t';
+                }
+                fOut << std::endl;
+                structures_trie->insert(to_trie);
+            }
+        }
+    }
+    fOut.close();
+    std::cout << permut.size() << std::endl;
+    //        std::cout << structures.size() << std::endl;
+}
+
+void FragPick::coil_chain(size_t residues, size_t n_frags)
+{
+    size_t col_max = 2;
+    size_t matrix_size = 0;
+    std::vector<std::vector<size_t>> full_matrix;
+    std::vector<size_t> sizes = get_permut_sizes3(peptide.total_residue(), residues, frag_size, ss_predicted, col_max, matrix_size, full_matrix);
+
+    std::vector<std::vector<int>> for_selected(sizes.size());
+    for(size_t i = 0, k = 0; i != for_selected.size(); i++, k+=frag_size)
+    {
+        for_selected[i].resize(sizes[i]);
+        for(size_t j = 0; j != sizes[i]; j++)
+        {
+            for_selected[i][j] = j;
+        }
+    }
+    std::cout << "it will be " << std::fixed <<
+              n_frags << " ^ " << matrix_size << " * " << how_much_will_be_iterate(for_selected) << " = "
+              << size_t(std::pow(n_frags, matrix_size)*how_much_will_be_iterate(for_selected)) << std::endl;
+    std::cin.get();
+
+    std::vector<std::vector<int>> permut_for_selected = iterate(for_selected);
+
+    std::vector<std::vector<int>> variable_values(matrix_size, std::vector<int>(n_frags));
+//    for(size_t i = 0; i != variable_values.size(); i++)
+//    {
+//        for(size_t j = 0; j != n_frags; j++)
+//        {
+//            variable_values[i][j] = j;
+//            std::cout << variable_values[i][j] << ' ';
+//        }
+//        std::cout << std::endl;
+//    }
+//    std::cin.get();
+    size_t count = 0;
+    std::vector<std::vector<int>> permut = iterate(variable_values);    // n_frags^residues
+    //        structures.clear();
+    for(size_t i = 0; i != permut.size(); i++)
+    {
+        std::vector<std::vector<Frag>> to_distr;
+        for(size_t j = 0; j != permut[i].size(); j++)
+        {
+            to_distr.push_back(all_fragments[j][permut[i][j]]);
+        }
+//        std::cout << "to_distr " << to_distr.size() << std::endl;
+//        std::cin.get();
+        auto distr = get_frag_mix3(to_distr, peptide.total_residue(), residues, frag_size, full_matrix);
+
+        for(size_t j = 0; j != permut_for_selected.size(); j++)
+        {
+            std::vector<Frag> temp;
+            for(size_t k = 0; k != permut_for_selected[j].size(); k++)
+            {
+                temp.push_back(distr[k][permut_for_selected[j][k]]);
+            }
+            //                structures.push_back(temp);
+
+            std::vector<core::Real> phipsi_values_radians(phipsi_grid_number.size());
+            std::vector<core::Real> omega_values_radians(omega_grid_number.size());
+            std::vector<std::uint8_t> to_trie(phipsi_values_radians.size() + omega_values_radians.size());
+            
+            phipsi_values_radians.front() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp.front().psi));
+            omega_values_radians.front() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp.front().omg));
+            for(size_t j = 1, k = 1; j != temp.size() - 1; j++, k+=2)
+            {
+                phipsi_values_radians[k] = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp[j].phi));
+                phipsi_values_radians[k + 1] = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp[j].psi));
+                omega_values_radians[j] = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp[j].omg));
+            }
+            phipsi_values_radians.back() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp.back().phi));
+
+            for(size_t j = 0; j != phipsi_values_radians.size(); j++)
+            {
+                to_trie[j] = get_index_phipsi(phipsi_values_radians[j], j);
+            }
+            for(size_t j = phipsi_values_radians.size(), k = 0; j != to_trie.size(); j++, k++)
+            {
+                to_trie[j] = get_index_omega(omega_values_radians[k], k);
+            }
+            count++;
+            if(!structures_trie->search(to_trie))
+                structures_trie->insert(to_trie);
+        }
+    }
+    std::cout << permut.size() << std::endl;
+    std::cout << "count " << count << std::endl;
+    //        std::cout << structures.size() << std::endl;
+}
+
+void FragPick::make_permutations(size_t type)
+{
     size_t residues = all_fragments.size(); // not total_residues!
     size_t n_frags = all_fragments.front().size(); // n_frags ^ residues
 
-    if(full)
+    switch(type)
     {
-        std::vector<size_t> sizes = get_permut_sizes(peptide.total_residue(), residues, frag_size);
-
-        std::vector<std::vector<int>> for_selected(sizes.size());
-        for(size_t i = 0, k = 0; i != for_selected.size(); i++, k+=frag_size)
-        {
-            for_selected[i].resize(sizes[i]);
-            for(size_t j = 0; j != sizes[i]; j++)
-            {
-                for_selected[i][j] = j;
-            }
-        }
-        std::cout << "it will be " << std::fixed <<
-                  n_frags << " ^ " << residues << " * " << how_much_will_be_iterate(for_selected) << " = "
-                  << size_t(std::pow(n_frags, residues)*how_much_will_be_iterate(for_selected)) << std::endl;
-        std::cin.get();
-
-        std::vector<std::vector<int>> permut_for_selected = iterate(for_selected);
-
-        std::vector<std::vector<int>> variable_values(residues, std::vector<int>(n_frags));
-        for(size_t i = 0; i != variable_values.size(); i++)
-        {
-            for(size_t j = 0; j != n_frags; j++)
-            {
-                variable_values[i][j] = j;
-                std::cout << variable_values[i][j] << ' ';
-            }
-            std::cout << std::endl;
-        }
-        std::vector<std::vector<int>> permut = iterate(variable_values);    // n_frags^residues
-//        structures.clear();
-        for(size_t i = 0; i != permut.size(); i++)
-        {
-            std::vector<std::vector<Frag>> to_distr;
-            for(size_t j = 0; j != permut[i].size(); j++)
-            {
-                to_distr.push_back(all_fragments[j][permut[i][j]]);
-            }
-//                std::cout << "to_distr " << to_distr.size() << std::endl;
-            auto distr = get_frag_mix(to_distr, peptide.total_residue(), residues, frag_size);
-
-            for(size_t j = 0; j != permut_for_selected.size(); j++)
-            {
-                std::vector<Frag> temp;
-                for(size_t k = 0; k != permut_for_selected[j].size(); k++)
-                {
-                    temp.push_back(distr[k][permut_for_selected[j][k]]);
-                }
-//                structures.push_back(temp);
-
-
-                std::vector<double> phipsi_values_radians(phipsi_grid_number.size());
-                std::vector<double> omega_values_radians(omega_grid_number.size());
-                std::vector<std::uint8_t> to_trie(phipsi_values_radians.size() + omega_values_radians.size());
-
-                phipsi_values_radians.front() = numeric::conversions::radians(temp.front().psi);
-
-                phipsi_values_radians.front() = numeric::conversions::radians(temp.front().psi);
-                omega_values_radians.front() = numeric::conversions::radians(temp.front().omg);
-                for(size_t j = 1, k = 1; j != temp.size() - 1; j++, k+=2)
-                {
-                    phipsi_values_radians[k] = numeric::conversions::radians(temp[j].phi);
-                    phipsi_values_radians[k + 1] = numeric::conversions::radians(temp[j].psi);
-                    omega_values_radians[j] = numeric::conversions::radians(temp[j].omg);
-                }
-                phipsi_values_radians.back() = numeric::conversions::radians(temp.back().phi);
-
-                for(size_t j = 0; j != phipsi_values_radians.size(); j++)
-                {
-                    to_trie[j] = get_index_phipsi(phipsi_values_radians[j], j);
-                }
-                for(size_t j = phipsi_values_radians.size(), k = 0; j != to_trie.size(); j++, k++)
-                {
-                    to_trie[j] = get_index_omega(omega_values_radians[k], k);
-                }
-                if(!structures_trie->search(to_trie))
-                    structures_trie->insert(to_trie);
-            }
-        }
-        std::cout << permut.size() << std::endl;
-//        std::cout << structures.size() << std::endl;
-    }
-    else
-    {
-
-        std::vector<size_t> sizes = get_permut_sizes2(peptide.total_residue(), residues, frag_size);
-
-        size_t matrix_size = peptide.total_residue()%frag_size ? peptide.total_residue()/frag_size + 1 : peptide.total_residue()/frag_size;
-
-        std::vector<std::vector<int>> for_selected(sizes.size());
-        for(size_t i = 0, k = 0; i != for_selected.size(); i++, k+=frag_size)
-        {
-            for_selected[i].resize(sizes[i]);
-            for(size_t j = 0; j != sizes[i]; j++)
-            {
-                for_selected[i][j] = j;
-            }
-        }
-        std::cout << "it will be " << std::fixed <<
-                  n_frags << " ^ " << matrix_size << " * " << how_much_will_be_iterate(for_selected) << " = "
-                  << size_t(std::pow(n_frags, matrix_size)*how_much_will_be_iterate(for_selected)) << std::endl;
-        std::cin.get();
-
-        std::vector<std::vector<int>> permut_for_selected = iterate(for_selected);
-
-        std::vector<std::vector<int>> variable_values(matrix_size, std::vector<int>(n_frags));
-        for(size_t i = 0; i != variable_values.size(); i++)
-        {
-            for(size_t j = 0; j != n_frags; j++)
-            {
-                variable_values[i][j] = j;
-                //std::cout << variable_values[i][j] << ' ';
-            }
-            //std::cout << std::endl;
-        }
-        std::vector<std::vector<int>> permut = iterate(variable_values);    // n_frags^residues
-        std::cout << permut.size() << std::endl;
-        std::cout << all_fragments.size() << std::endl;
-//        structures.clear();
-        for(size_t i = 0; i != permut.size(); i++)
-        {
-            std::vector<std::vector<Frag>> to_distr;
-            size_t delta = frag_size;
-            for(size_t j = 0, t = 0; j != permut[i].size(); j++, t+=delta)
-            {
-                to_distr.push_back(all_fragments[t][permut[i][j]]);
-                if(t + delta >= all_fragments.size())
-                    delta = 1;
-            }
-            //std::cout << "to_distr " << to_distr.size() << std::endl;
-            auto distr = get_frag_mix2(to_distr, peptide.total_residue(), residues, frag_size);
-
-            for(size_t j = 0; j != permut_for_selected.size(); j++)
-            {
-                std::vector<Frag> temp;
-                for(size_t k = 0; k != permut_for_selected[j].size(); k++)
-                {
-                    temp.push_back(distr[k][permut_for_selected[j][k]]);
-                }
-//                structures.push_back(temp);
-
-                std::vector<double> phipsi_values_radians(phipsi_grid_number.size());
-                std::vector<double> omega_values_radians(omega_grid_number.size());
-                std::vector<std::uint8_t> to_trie(phipsi_values_radians.size() + omega_values_radians.size());
-
-                phipsi_values_radians.front() = numeric::conversions::radians(temp.front().psi);
-
-                phipsi_values_radians.front() = numeric::conversions::radians(temp.front().psi);
-                omega_values_radians.front() = numeric::conversions::radians(temp.front().omg);
-                for(size_t j = 1, k = 1; j != temp.size() - 1; j++, k+=2)
-                {
-                    phipsi_values_radians[k] = numeric::conversions::radians(temp[j].phi);
-                    phipsi_values_radians[k + 1] = numeric::conversions::radians(temp[j].psi);
-                    omega_values_radians[j] = numeric::conversions::radians(temp[j].omg);
-                }
-                phipsi_values_radians.back() = numeric::conversions::radians(temp.back().phi);
-
-                for(size_t j = 0; j != phipsi_values_radians.size(); j++)
-                {
-                    to_trie[j] = get_index_phipsi(phipsi_values_radians[j], j);
-                }
-                for(size_t j = phipsi_values_radians.size(), k = 0; j != to_trie.size(); j++, k++)
-                {
-                    to_trie[j] = get_index_omega(omega_values_radians[k], k);
-                }
-                if(!structures_trie->search(to_trie))
-                    structures_trie->insert(to_trie);
-
-
-            }
-        }
-        std::cout << permut.size() << std::endl;
-//        std::cout << structures.size() << std::endl;
+        case 0:
+            all_possible(residues, n_frags);
+            break;
+        case 1:
+            one_chain(residues, n_frags);
+            break;
+        case 2:
+            coil_chain(residues, n_frags);
+            break;
+        default:
+            break;
     }
 }
 
@@ -563,6 +826,98 @@ std::vector<size_t> FragPick::get_bounds()
 
     std::cout << phipsiomg_grid_number.size() << std::endl;
     return phipsiomg_grid_number;
+}
+
+void FragPick::set_psipred(size_t phipsi_min, size_t omega_min)
+{
+    std::string horiz_fname;
+    if(basic::options::option[basic::options::OptionKeys::in::file::psipred_ss2].user())
+    {
+        horiz_fname = basic::options::option[basic::options::OptionKeys::in::file::psipred_ss2].value_string();
+        std::cout << "psipred.horiz " << horiz_fname << std::endl;
+    }
+
+//    confidence.resize(ss_profile.total_residue());
+//    for(core::Size i = 1; i <= ss_profile.total_residue(); i++)
+//    {
+//        confidence[i - 1] = ss_profile.helix_fraction(i);
+//        if(ss_profile.sheet_fraction(i) > confidence[i - 1])
+//            confidence[i - 1] = ss_profile.sheet_fraction(i);
+//        if(ss_profile.loop_fraction(i) > confidence[i - 1])
+//            confidence[i - 1] = ss_profile.loop_fraction(i);
+//    }
+
+    ss_predicted.clear();
+    confidence.clear();
+    std::ifstream fPsiHoriz;
+    fPsiHoriz.open(horiz_fname.c_str());
+    if(!fPsiHoriz.is_open())
+    {
+        std::cout << "not open" << std::endl;
+    }
+    std::string line;
+    while(getline(fPsiHoriz, line))
+    {
+        if(line.find("#") != std::string::npos || line.empty())
+            continue;
+        if(line.find("Conf") != std::string::npos)
+        {
+            for(size_t i = 0; i != line.size(); i++)
+            {
+                if(std::isdigit(line[i]) == 0)
+                    continue;
+                confidence.push_back(std::stoi(line.substr(i, 1)));
+            }
+        }
+        if(line.find("Pred") != std::string::npos)
+        {
+            for(size_t i = 0; i != line.size(); i++)
+            {
+                if(line[i] == 'C' || line[i] == 'H' || line[i] == 'E')
+                {
+                    ss_predicted.push_back(line[i]);
+                }
+            }
+        }
+    }
+    fPsiHoriz.close();
+
+    for(const auto &i : ss_predicted)
+    {
+        std::cout << i;
+    }
+    std::cout << std::endl;
+    for(const auto &i : peptide_seq)
+    {
+        std::cout << i;
+    }
+    std::cout << std::endl;
+    for(const auto &i : confidence)
+    {
+        std::cout << i;
+    }
+    std::cout << std::endl;
+    if(confidence.size() != peptide.total_residue())
+    {
+        std::cout << "confidence size != peptide totalresidue" << std::endl;
+    }
+
+    double phipsi = 254 - phipsi_min;
+    double omega = 254 - omega_min;
+    step_num_phipsi.resize(confidence.size());
+    step_num_omega.resize(confidence.size());
+    for(size_t i = 0; i != confidence.size(); i++)
+    {
+        step_num_phipsi[i] = phipsi_min + phipsi*(confidence[i] + 1)/10.0;
+        if(ss_predicted[i] == 'C')
+        {
+            step_num_phipsi[i] /= 2;
+            if(i < 2 && i < confidence.size() - 2)
+                step_num_phipsi[i] /= 2;
+        }
+        step_num_omega[i] = omega_min + omega*(confidence[i] + 1)/10.0;
+        std::cout << step_num_phipsi[i] << '\t' << step_num_omega[i] << std::endl;
+    }
 }
 
 }
