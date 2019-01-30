@@ -645,7 +645,9 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
     std::cout << permut.size() << std::endl;
     std::cout << all_fragments.size() << std::endl;
     //        structures.clear();
-    std::ofstream fOut;
+    std::ofstream fOut("sample.dat");
+//    std::set<std::vector<std::uint8_t>> sample;
+    size_t min_sum = 256*native_state.size();
     for(size_t i = 0; i != permut.size(); i++)
     {
         std::vector<std::vector<Frag>> to_distr;
@@ -691,13 +693,29 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
                 to_trie[j] = get_index_omega(omega_values_radians[k], k);
             }
             if(!structures_trie->search(to_trie))
+//            if(sample.find(to_trie) == sample.end())
             {
-                for(const auto &j : to_trie)
+                structures_trie->insert(to_trie);
+//                sample.insert(to_trie);
+                
+                //
+                size_t sum = 0;
+                std::vector<std::uint8_t> dist(native_state.size());
+                for(size_t k = 0; k != dist.size(); k++)
                 {
-                    fOut << int(j) << '\t';
+                    sum += std::abs(static_cast<int>(native_state[k]) - static_cast<int>(to_trie[k]));
+                }
+                if(min_sum > sum)
+                {
+                    min_sum = sum;
+                    closest = to_trie;
+                }
+                
+                for(const auto &k : to_trie)
+                {
+                    fOut << int(k) << '\t';
                 }
                 fOut << std::endl;
-                structures_trie->insert(to_trie);
             }
         }
     }
@@ -918,6 +936,15 @@ void FragPick::set_psipred(size_t phipsi_min, size_t omega_min)
         step_num_omega[i] = omega_min + omega*(confidence[i] + 1)/10.0;
         std::cout << step_num_phipsi[i] << '\t' << step_num_omega[i] << std::endl;
     }
+}
+
+void FragPick::set_native_state(const std::vector<std::uint8_t> &nt)
+{
+    native_state = nt;
+}
+std::vector<std::uint8_t> FragPick::get_closest_to_native()
+{
+    return closest;
 }
 
 }

@@ -189,9 +189,9 @@ void PEPSGO::optimize_native()
     std::cout << "peptide native ideal optimized score " << peptide_native_ideal_optimized.energies().total_energy() << std::endl;
     peptide_native_ideal_optimized.dump_pdb("output/pdb/peptide_native_ideal_optimized.pdb");
 }
-void PEPSGO::find_native_in_frag_space()
+void PEPSGO::set_native_state()
 {
-    std::vector<std::uint8_t> native_state(std::get<2>(peptide_ranges_native.omega) + 1);
+    native_state.resize(std::get<2>(peptide_ranges_native.omega) + 1);
     for(size_t i = 0; i != std::get<2>(peptide_ranges_native.phipsi) + 1; i++)
     {
         native_state[i] = frags.get_index_phipsi(peptide_native_ideal_optimized.dof(opt_vector_native[i].dofid), i);
@@ -205,7 +205,10 @@ void PEPSGO::find_native_in_frag_space()
         std::cout << int(native_state[i]) << ", ";
     }
     std::cout << std::endl;
-    std::cout << "is presented? " << structures_triebased->search(native_state) << std::endl;
+}
+bool PEPSGO::is_native_in_frag_space()
+{
+    return structures_triebased->search(native_state);
 }
 void PEPSGO::set_bbind(std::string _bbind_path)
 {
@@ -515,13 +518,23 @@ void PEPSGO::create_space_frag(size_t phipsi_step_min, size_t omega_step_min)
     frags.set_file();
     frags.set_psipred(phipsi_step_min, omega_step_min);
     frags.fill_grids();
+    set_native_state();
     frags.set_storage_shared(structures_triebased);
     frags.load_frag_file();
+    frags.set_native_state(native_state);
     frags.make_permutations(1);
-
-//    std::vector<std::uint8_t> t = {37, 24, 123, 12, 77, 9, 61, 14, 80, 2, 40, 13, 80, 8, 35, 29, 86, 12, 50, 44, 41, 33, 20, 23, 76, 15, 50, 21, 71, 32, 99, 10, 106, 23, 122, 20, 138, 18, 104, 6, 195, 162, 124, 107, 124, 0, 121, 89, 1, 1, 161, 0, 125, 1, 2, 139, 143, 159, 2, 142};
-//    structures_triebased->insert(t);
+    auto closest = frags.get_closest_to_native();
+    std::cout << "is native in frag space " << is_native_in_frag_space() << std::endl;
     
+    std::cout << "native vs closest" << std::endl;
+    for(size_t i = 0; i != native_state.size(); i++)
+    {
+        int t = std::abs(int(native_state[i]) - int(closest[i]));
+        std::cout << int(native_state[i]) << '\t' << int(closest[i]) << '\t' 
+        << std::min(t, std::abs(255 - t)) << std::endl;
+    }
+
+//    structures_triebased->insert(native_state);
     
     auto bonds = frags.get_bounds();
     structures_quant = std::make_shared<empirical_quantile::ImplicitQuantile<std::uint8_t, double>>(

@@ -53,6 +53,7 @@ private:
     core::pose::Pose peptide_native;
     core::pose::Pose peptide_native_ideal;
     core::pose::Pose peptide_native_ideal_optimized;
+    std::vector<std::uint8_t> native_state;
     
 //    core::pose::Pose ideal_peptide;
 //    core::pose::Pose abs_min_peptide;
@@ -87,7 +88,8 @@ public:
     void set_peptide_from_file();
     
     void optimize_native();
-    void find_native_in_frag_space();
+    void set_native_state();
+    bool is_native_in_frag_space();
     
     void create_space_frag(size_t phipsi_step_min, size_t omega_step_min);
     

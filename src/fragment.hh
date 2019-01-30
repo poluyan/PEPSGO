@@ -56,6 +56,8 @@ private:
     //std::string psipred_fname;
     std::string fragmet_file;
     std::string peptide_seq;
+    std::vector<std::uint8_t> native_state;
+    std::vector<std::uint8_t> closest;
     
 //    core::fragment::SecondaryStructure ss_profile;
     std::vector<core::Real> confidence;
@@ -110,6 +112,8 @@ public:
     std::vector<size_t> get_bounds();
 //    void test();
     void set_psipred(size_t phipsi_min, size_t omega_min);
+    void set_native_state(const std::vector<std::uint8_t> &nt);
+    std::vector<std::uint8_t> get_closest_to_native();
 };
 
 }

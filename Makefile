@@ -12,11 +12,11 @@ RUNLIBS1=$(MAIN)/source/build/src/release/linux/$(LINUXVER)/64/x86/gcc/$(GCCVER)
 # libcifparse.so libcppdb.so libsqlite3.so libxml2.so libzmq.so
 RUNLIBS2=$(MAIN)/source/build/external/release/linux/$(LINUXVER)/64/x86/gcc/$(GCCVER)/default
 # rosetta options
-RUNFLAGS=-in::file::fasta input.fasta -in::file::native input/pdb/2jsb.pdb -in::file::psipred_ss2 input.horiz -frags::frag_sizes $$fragsize -in::file::frag_files fragments.Nmers -mute all
+RUNFLAGS=-in::file::fasta input/input.fasta -in::file::native input/pdb/2jsb.pdb -in::file::psipred_ss2 input/input.horiz -frags::frag_sizes $$fragsize -in::file::frag_files input/fragments.Nmers -mute all
 
 ##
 
-CPPFLAGS = -c -std=c++17 -Wall -Wextra -Wpedantic -ffor-scope -fopenmp -MD 
+CPPFLAGS = -c -std=c++17 -Wall -Wextra -Wpedantic -ffor-scope -fopenmp -MD
 CPPFLAGSLIB = -fPIC
 CPPFLAGSEXTRA = -pipe -pedantic -Wno-long-long -Wno-strict-aliasing -march=core2 -mtune=generic -O3 -ffast-math -funroll-loops -finline-functions -finline-limit=20000 -s -Wno-unused-variable -Wno-unused-parameter -DBOOST_ERROR_CODE_HEADER_ONLY -DBOOST_SYSTEM_NO_DEPRECATED -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS -DPTR_STD -DNDEBUG 
 
@@ -72,7 +72,7 @@ release: before_release out_release
 
 before_release:
 	$(file >$(RUNNAME),export LD_LIBRARY_PATH=./:$(RUNLIBS1):$(RUNLIBS2))
-	$(file >>$(RUNNAME),fragsize=$$(sed '/'"$$(awk '/position/' RS= fragments.Nmers | sed -n '2p')"'/q' fragments.Nmers | sed -ne '/position/,/^$$/{/position/N;p}' | sed '/^$$/,/^$$/!d' | sed '/^$$/d' | awk 'END{print NR}' $$1))
+	$(file >>$(RUNNAME),fragsize=$$(sed '/'"$$(awk '/position/' RS= input/fragments.Nmers | sed -n '2p')"'/q' input/fragments.Nmers | sed -ne '/position/,/^$$/{/position/N;p}' | sed '/^$$/,/^$$/!d' | sed '/^$$/d' | awk 'END{print NR}' $$1))
 	$(file >>$(RUNNAME),./main -database $(MAIN)/database $(RUNFLAGS))
 	chmod +x $(RUNNAME)
 	test -d $(OBJDIR_RELEASE) || mkdir -p $(OBJDIR_RELEASE)
