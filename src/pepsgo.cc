@@ -48,7 +48,7 @@ namespace pepsgo
 
 PEPSGO::PEPSGO()
 {
-    //score_fn = core::scoring::ScoreFunctionFactory::create_score_function("ref2015");
+//    score_fn = core::scoring::ScoreFunctionFactory::create_score_function("ref2015");
     score_fn = core::scoring::get_score_function();
     std::cout << "score function: " << score_fn->get_name() << std::endl;
 
@@ -523,25 +523,30 @@ void PEPSGO::create_space_frag(size_t phipsi_step_min, size_t omega_step_min)
     frags.load_frag_file();
     frags.set_native_state(native_state);
     frags.make_permutations(1);
-    auto closest = frags.get_closest_to_native();
-    std::cout << "is native in frag space " << is_native_in_frag_space() << std::endl;
-    
-    std::cout << "native vs closest" << std::endl;
-    for(size_t i = 0; i != native_state.size(); i++)
-    {
-        int t = std::abs(int(native_state[i]) - int(closest[i]));
-        std::cout << int(native_state[i]) << '\t' << int(closest[i]) << '\t' 
-        << std::min(t, std::abs(255 - t)) << std::endl;
-    }
 
-//    structures_triebased->insert(native_state);
-    
+    structures_triebased->insert(native_state);
+
     auto bonds = frags.get_bounds();
     structures_quant = std::make_shared<empirical_quantile::ImplicitQuantile<std::uint8_t, double>>(
                            std::vector<double>(bonds.size(), -numeric::NumericTraits<core::Real>::pi()),
                            std::vector<double>(bonds.size(), numeric::NumericTraits<core::Real>::pi()),
                            bonds);
     structures_quant->set_sample_shared(structures_triebased);
+
+
+    auto closest = frags.get_closest_to_native();
+    std::cout << "is native in frag space " << is_native_in_frag_space() << std::endl;
+
+    std::cout << "native vs closest" << std::endl;
+    size_t sum = 0;
+    for(size_t i = 0; i != native_state.size(); i++)
+    {
+        int t = std::abs(int(native_state[i]) - int(closest[i]));
+        sum += std::min(t, std::abs(int(bonds[i]) - t));
+        std::cout << bonds[i] << '\t' << int(native_state[i]) << '\t' << int(closest[i]) << '\t'
+                  << std::min(t, std::abs(int(bonds[i]) - t)) << std::endl;
+    }
+    std::cout << "sum = " << sum << std::endl;
 }
 
 size_t PEPSGO::get_opt_vector_size()

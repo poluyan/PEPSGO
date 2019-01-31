@@ -45,7 +45,7 @@ struct Frag
     core::Real phi;
     core::Real psi;
     core::Real omg;
-    
+
     Frag();
     Frag(char _aa, core::Real _phi, core::Real _psi, core::Real _omg);
 };
@@ -58,13 +58,13 @@ private:
     std::string peptide_seq;
     std::vector<std::uint8_t> native_state;
     std::vector<std::uint8_t> closest;
-    
+
 //    core::fragment::SecondaryStructure ss_profile;
     std::vector<core::Real> confidence;
     std::string ss_predicted;
     std::vector<size_t> step_num_phipsi;
     std::vector<size_t> step_num_omega;
-    
+
     size_t frag_size;
 
     std::vector<std::vector<std::vector<Frag>>> all_fragments;
@@ -80,24 +80,24 @@ private:
     std::vector<core::Real> omega_grids_dx;
     core::Real omega_min_val;
     core::Real omega_max_val;
-    
+
 //    std::vector<std::vector<Frag> > structures;
-    
+
     typedef trie_based::TrieBased<trie_based::NodeCount<std::uint8_t>,std::uint8_t> sample_type;
     std::shared_ptr<sample_type> structures_trie;
-    
+
     core::pose::Pose peptide;
 public:
     FragPick();
     void set_peptide(const core::pose::Pose &_peptide);
-    
+
     void set_file();
 
     void fill_grids();
 
     size_t get_index_phipsi(core::Real radian, size_t index) const;
     size_t get_index_omega(core::Real radian, size_t index) const;
-    
+
     void load_frag_file();
     void make_permutations(size_t type);
     void all_possible(size_t residues, size_t n_frags);
@@ -107,7 +107,7 @@ public:
 //    void add_phipsi(empirical_quantile::ImplicitQuantile<std::uint8_t,double> &phipsi_quantile);
 //
 //    void fill_sample(std::shared_ptr<trie_based::TrieBased<trie_based::NodeCount<std::uint8_t>,std::uint8_t>> sample);
-//    
+//
     void set_storage_shared(std::shared_ptr<sample_type> in_sample);
     std::vector<size_t> get_bounds();
 //    void test();

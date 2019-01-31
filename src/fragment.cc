@@ -648,6 +648,7 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
     std::ofstream fOut("sample.dat");
 //    std::set<std::vector<std::uint8_t>> sample;
     size_t min_sum = 256*native_state.size();
+    auto bonds = get_bounds();
     for(size_t i = 0; i != permut.size(); i++)
     {
         std::vector<std::vector<Frag>> to_distr;
@@ -697,25 +698,27 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
             {
                 structures_trie->insert(to_trie);
 //                sample.insert(to_trie);
-                
+
                 //
                 size_t sum = 0;
                 std::vector<std::uint8_t> dist(native_state.size());
                 for(size_t k = 0; k != dist.size(); k++)
                 {
-                    sum += std::abs(static_cast<int>(native_state[k]) - static_cast<int>(to_trie[k]));
+                    int t = std::abs(static_cast<int>(native_state[k]) - static_cast<int>(to_trie[k]));
+                    sum += std::min(t, std::abs(int(bonds[k]) - t));
                 }
                 if(min_sum > sum)
                 {
                     min_sum = sum;
                     closest = to_trie;
+                    std::cout << min_sum << std::endl;
                 }
-                
-                for(const auto &k : to_trie)
-                {
-                    fOut << int(k) << '\t';
-                }
-                fOut << std::endl;
+
+//                for(const auto &k : to_trie)
+//                {
+//                    fOut << int(k) << '\t';
+//                }
+//                fOut << std::endl;
             }
         }
     }
@@ -761,6 +764,9 @@ void FragPick::coil_chain(size_t residues, size_t n_frags)
     size_t count = 0;
     std::vector<std::vector<int>> permut = iterate(variable_values);    // n_frags^residues
     //        structures.clear();
+    std::set<std::vector<std::uint8_t>> sample;
+    size_t min_sum = 256*native_state.size();
+    auto bonds = get_bounds();
     for(size_t i = 0; i != permut.size(); i++)
     {
         std::vector<std::vector<Frag>> to_distr;
@@ -784,7 +790,7 @@ void FragPick::coil_chain(size_t residues, size_t n_frags)
             std::vector<core::Real> phipsi_values_radians(phipsi_grid_number.size());
             std::vector<core::Real> omega_values_radians(omega_grid_number.size());
             std::vector<std::uint8_t> to_trie(phipsi_values_radians.size() + omega_values_radians.size());
-            
+
             phipsi_values_radians.front() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp.front().psi));
             omega_values_radians.front() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp.front().omg));
             for(size_t j = 1, k = 1; j != temp.size() - 1; j++, k+=2)
@@ -804,8 +810,25 @@ void FragPick::coil_chain(size_t residues, size_t n_frags)
                 to_trie[j] = get_index_omega(omega_values_radians[k], k);
             }
             count++;
-            if(!structures_trie->search(to_trie))
-                structures_trie->insert(to_trie);
+//            if(!structures_trie->search(to_trie))
+            if(sample.find(to_trie) == sample.end())
+            {
+//                structures_trie->insert(to_trie);
+
+                size_t sum = 0;
+                std::vector<std::uint8_t> dist(native_state.size());
+                for(size_t k = 0; k != dist.size(); k++)
+                {
+                    int t = std::abs(static_cast<int>(native_state[k]) - static_cast<int>(to_trie[k]));
+                    sum += std::min(t, std::abs(int(bonds[k]) - t));
+                }
+                if(min_sum > sum)
+                {
+                    min_sum = sum;
+                    closest = to_trie;
+                    std::cout << min_sum << std::endl;
+                }
+            }
         }
     }
     std::cout << permut.size() << std::endl;
@@ -917,7 +940,7 @@ void FragPick::set_psipred(size_t phipsi_min, size_t omega_min)
     std::cout << std::endl;
     if(confidence.size() != peptide.total_residue())
     {
-        std::cout << "confidence size != peptide totalresidue" << std::endl;
+        std::cout << "confidence size != peptide total residue" << std::endl;
     }
 
     double phipsi = 254 - phipsi_min;
@@ -930,8 +953,22 @@ void FragPick::set_psipred(size_t phipsi_min, size_t omega_min)
         if(ss_predicted[i] == 'C')
         {
             step_num_phipsi[i] /= 2;
-            if(i < 2 && i < confidence.size() - 2)
+            if(i > 1 && i < confidence.size() - 2)
                 step_num_phipsi[i] /= 2;
+        }
+        else
+        {
+            if(i > 1 && i < confidence.size() - 2)
+            {
+                if(ss_predicted[i + 1] == 'C')
+                {
+                    step_num_phipsi[i] /= 2;
+                }
+                if(ss_predicted[i - 1] == 'C')
+                {
+                    step_num_phipsi[i] /= 2;
+                }
+            }
         }
         step_num_omega[i] = omega_min + omega*(confidence[i] + 1)/10.0;
         std::cout << step_num_phipsi[i] << '\t' << step_num_omega[i] << std::endl;
