@@ -558,14 +558,16 @@ void FragPick::all_possible(size_t residues, size_t n_frags)
         }
         std::cout << std::endl;
     }
-    std::vector<std::vector<int>> permut = iterate(variable_values);    // n_frags^residues
+//    std::vector<std::vector<int>> permut = iterate(variable_values);    // n_frags^residues
     //        structures.clear();
-    for(size_t i = 0; i != permut.size(); i++)
+    std::vector<size_t> it(variable_values.size(), 0);
+    do
     {
+        std::vector<int> permut = get_line(variable_values, it);
         std::vector<std::vector<Frag>> to_distr;
-        for(size_t j = 0; j != permut[i].size(); j++)
+        for(size_t j = 0; j != permut.size(); j++)
         {
-            to_distr.push_back(all_fragments[j][permut[i][j]]);
+            to_distr.push_back(all_fragments[j][permut[j]]);
         }
         //                std::cout << "to_distr " << to_distr.size() << std::endl;
         auto distr = get_frag_mix(to_distr, peptide.total_residue(), residues, frag_size);
@@ -605,7 +607,9 @@ void FragPick::all_possible(size_t residues, size_t n_frags)
                 structures_trie->insert(to_trie);
         }
     }
-    std::cout << permut.size() << std::endl;
+    while(increase(variable_values, it));
+    
+//    std::cout << permut.size() << std::endl;
     //        std::cout << structures.size() << std::endl;
 }
 
@@ -641,21 +645,27 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
         }
         //std::cout << std::endl;
     }
-    std::vector<std::vector<int>> permut = iterate(variable_values);    // n_frags^residues
-    std::cout << permut.size() << std::endl;
+//    std::vector<std::vector<int>> permut = iterate(variable_values);    // n_frags^residues
+//    std::cout << permut.size() << std::endl;
     std::cout << all_fragments.size() << std::endl;
     //        structures.clear();
     std::ofstream fOut("sample.dat");
-//    std::set<std::vector<std::uint8_t>> sample;
+    std::set<std::vector<std::uint8_t>> sample;
     size_t min_sum = 256*native_state.size();
     auto bonds = get_bounds();
-    for(size_t i = 0; i != permut.size(); i++)
+    size_t count = 0;
+    std::vector<size_t> it(variable_values.size(), 0);
+    do
     {
+        count++;
+        if(!(count%1000000))
+            std::cout << "count " << count << '\t' << sample.size() << '\t' << min_sum << std::endl;
+        std::vector<int> permut = get_line(variable_values, it);
         std::vector<std::vector<Frag>> to_distr;
         size_t delta = frag_size;
-        for(size_t j = 0, t = 0; j != permut[i].size(); j++, t+=delta)
+        for(size_t j = 0, t = 0; j != permut.size(); j++, t+=delta)
         {
-            to_distr.push_back(all_fragments[t][permut[i][j]]);
+            to_distr.push_back(all_fragments[t][permut[j]]);
             if(t + delta >= all_fragments.size())
                 delta = 1;
         }
@@ -693,11 +703,11 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
             {
                 to_trie[j] = get_index_omega(omega_values_radians[k], k);
             }
-            if(!structures_trie->search(to_trie))
-//            if(sample.find(to_trie) == sample.end())
+//            if(!structures_trie->search(to_trie))
+            if(sample.find(to_trie) == sample.end())
             {
-                structures_trie->insert(to_trie);
-//                sample.insert(to_trie);
+//                structures_trie->insert(to_trie);
+                sample.insert(to_trie);
 
                 //
                 size_t sum = 0;
@@ -722,9 +732,10 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
             }
         }
     }
+    while(increase(variable_values, it));
     fOut.close();
-    std::cout << permut.size() << std::endl;
-    //        std::cout << structures.size() << std::endl;
+//    std::cout << permut.size() << std::endl;
+//    std::cout << structures.size() << std::endl;
 }
 
 void FragPick::coil_chain(size_t residues, size_t n_frags)
@@ -762,17 +773,19 @@ void FragPick::coil_chain(size_t residues, size_t n_frags)
 //    }
 //    std::cin.get();
     size_t count = 0;
-    std::vector<std::vector<int>> permut = iterate(variable_values);    // n_frags^residues
+//    std::vector<std::vector<int>> permut = iterate(variable_values);    // n_frags^residues
     //        structures.clear();
     std::set<std::vector<std::uint8_t>> sample;
     size_t min_sum = 256*native_state.size();
     auto bonds = get_bounds();
-    for(size_t i = 0; i != permut.size(); i++)
+    std::vector<size_t> it(variable_values.size(), 0);
+    do
     {
+        std::vector<int> permut = get_line(variable_values, it);
         std::vector<std::vector<Frag>> to_distr;
-        for(size_t j = 0; j != permut[i].size(); j++)
+        for(size_t j = 0; j != permut.size(); j++)
         {
-            to_distr.push_back(all_fragments[j][permut[i][j]]);
+            to_distr.push_back(all_fragments[j][permut[j]]);
         }
 //        std::cout << "to_distr " << to_distr.size() << std::endl;
 //        std::cin.get();
@@ -810,6 +823,8 @@ void FragPick::coil_chain(size_t residues, size_t n_frags)
                 to_trie[j] = get_index_omega(omega_values_radians[k], k);
             }
             count++;
+            if(!(count%10000))
+                std::cout << "count " << count << std::endl;
 //            if(!structures_trie->search(to_trie))
             if(sample.find(to_trie) == sample.end())
             {
@@ -831,7 +846,8 @@ void FragPick::coil_chain(size_t residues, size_t n_frags)
             }
         }
     }
-    std::cout << permut.size() << std::endl;
+    while(increase(variable_values, it));
+//    std::cout << permut.size() << std::endl;
     std::cout << "count " << count << std::endl;
     //        std::cout << structures.size() << std::endl;
 }

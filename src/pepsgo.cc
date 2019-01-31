@@ -529,7 +529,7 @@ void PEPSGO::create_space_frag(size_t phipsi_step_min, size_t omega_step_min)
     frags.set_storage_shared(structures_triebased);
     frags.load_frag_file();
     frags.set_native_state(native_state);
-    frags.make_permutations(1);
+    frags.make_permutations(1); // 0, 1, 2
 
 //    structures_triebased->insert(native_state);
 
@@ -544,7 +544,7 @@ void PEPSGO::create_space_frag(size_t phipsi_step_min, size_t omega_step_min)
     auto closest = frags.get_closest_to_native();
     std::cout << "is native in frag space " << is_native_in_frag_space() << std::endl;
     
-//    structures_triebased->insert(closest);
+    structures_triebased->insert(closest);
 
     std::cout << "native vs closest" << std::endl;
     size_t sum = 0;
