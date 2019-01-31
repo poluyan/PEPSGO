@@ -646,7 +646,7 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
     std::cout << all_fragments.size() << std::endl;
     //        structures.clear();
     std::ofstream fOut("sample.dat");
-    std::set<std::vector<std::uint8_t>> sample;
+//    std::set<std::vector<std::uint8_t>> sample;
     size_t min_sum = 256*native_state.size();
     auto bonds = get_bounds();
     for(size_t i = 0; i != permut.size(); i++)
@@ -693,11 +693,11 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
             {
                 to_trie[j] = get_index_omega(omega_values_radians[k], k);
             }
-//            if(!structures_trie->search(to_trie))
-            if(sample.find(to_trie) == sample.end())
+            if(!structures_trie->search(to_trie))
+//            if(sample.find(to_trie) == sample.end())
             {
-//                structures_trie->insert(to_trie);
-                sample.insert(to_trie);
+                structures_trie->insert(to_trie);
+//                sample.insert(to_trie);
 
                 //
                 size_t sum = 0;

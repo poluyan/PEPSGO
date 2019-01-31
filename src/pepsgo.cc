@@ -543,6 +543,8 @@ void PEPSGO::create_space_frag(size_t phipsi_step_min, size_t omega_step_min)
 
     auto closest = frags.get_closest_to_native();
     std::cout << "is native in frag space " << is_native_in_frag_space() << std::endl;
+    
+//    structures_triebased->insert(closest);
 
     std::cout << "native vs closest" << std::endl;
     size_t sum = 0;

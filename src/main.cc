@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 //    obj.create_space_frag(200, 250);
     obj.create_space_frag(18, 36);
     obj.fill_rama2_quantile(4);
-    obj.set_bbdep(72);
+    obj.set_bbdep(360);
     obj.set_multithread();
 
     std::cout << obj.get_opt_vector_size() << std::endl;
