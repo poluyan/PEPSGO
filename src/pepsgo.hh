@@ -112,6 +112,9 @@ public:
     void extend_peptide();
 
     void set_quantile();
+    
+    core::Real get_CA_rmsd(const std::vector<double> &x);
+    core::Real get_AA_rmsd(const std::vector<double> &x);
 };
 
 }

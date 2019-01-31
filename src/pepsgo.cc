@@ -35,6 +35,8 @@
 #include <core/kinematics/MoveMap.hh>
 #include <protocols/minimization_packing/MinMover.hh>
 
+#include <core/scoring/rms_util.hh>
+
 #include "pepsgo.hh"
 #include "data_io.hh"
 #include "transform.hh"
@@ -524,7 +526,7 @@ void PEPSGO::create_space_frag(size_t phipsi_step_min, size_t omega_step_min)
     frags.set_native_state(native_state);
     frags.make_permutations(1);
 
-    structures_triebased->insert(native_state);
+//    structures_triebased->insert(native_state);
 
     auto bonds = frags.get_bounds();
     structures_quant = std::make_shared<empirical_quantile::ImplicitQuantile<std::uint8_t, double>>(
@@ -566,6 +568,17 @@ void PEPSGO::unique_aa()
     {
         peptide_amino_acids.push_back(i);
     }
+}
+
+core::Real PEPSGO::get_CA_rmsd(const std::vector<double> &x)
+{
+    objective(x);
+    return core::scoring::CA_rmsd(peptide, peptide_native_ideal_optimized);
+}
+core::Real PEPSGO::get_AA_rmsd(const std::vector<double> &x)
+{
+    objective(x);
+    return core::scoring::all_atom_rmsd(peptide, peptide_native_ideal_optimized);
 }
 
 }
