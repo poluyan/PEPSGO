@@ -36,6 +36,7 @@
 #include <protocols/minimization_packing/MinMover.hh>
 
 #include <core/scoring/rms_util.hh>
+#include <protocols/simple_moves/SuperimposeMover.hh>
 
 #include "pepsgo.hh"
 #include "data_io.hh"
@@ -152,6 +153,10 @@ void PEPSGO::set_peptide_from_file()
 
     pepsgo::bbtools::make_ideal_peptide(peptide_native_ideal, peptide_native);
     peptide_native_ideal_optimized = peptide_native_ideal;
+
+    superposed_aa = peptide_native_ideal;
+    superposed_ca = peptide_native_ideal;
+
     peptide_native_ideal.dump_pdb("output/pdb/peptide_native_ideal.pdb");
 }
 void PEPSGO::set_bbdep(size_t step/*std::string _bbdep_path*/)
@@ -579,6 +584,36 @@ core::Real PEPSGO::get_AA_rmsd(const std::vector<double> &x)
 {
     objective(x);
     return core::scoring::all_atom_rmsd(peptide, peptide_native_ideal_optimized);
+}
+
+void PEPSGO::append_to_superposed_aa(const std::vector<double> &x)
+{
+    objective(x);
+    core::pose::Pose temp_pose = peptide;
+
+    // last bool CA_only
+    protocols::simple_moves::SuperimposeMoverOP sm(new protocols::simple_moves::SuperimposeMover(
+                peptide_native_ideal_optimized, 1, peptide_native_ideal_optimized.total_residue(), 1, peptide_native_ideal_optimized.total_residue(), false));
+    sm->apply(temp_pose);
+    superposed_aa.append_pose_by_jump(temp_pose, superposed_aa.total_residue());
+}
+
+void PEPSGO::append_to_superposed_ca(const std::vector<double> &x)
+{
+    objective(x);
+    core::pose::Pose temp_pose = peptide;
+
+    // last bool CA_only
+    protocols::simple_moves::SuperimposeMoverOP sm(new protocols::simple_moves::SuperimposeMover(
+                peptide_native_ideal_optimized, 1, peptide_native_ideal_optimized.total_residue(), 1, peptide_native_ideal_optimized.total_residue(), false));
+    sm->apply(temp_pose);
+    superposed_ca.append_pose_by_jump(temp_pose, superposed_ca.total_residue());
+}
+
+void PEPSGO::dumb_superposed()
+{
+    superposed_aa.dump_pdb("output/pdb/superposed_aa.pdb");
+    superposed_ca.dump_pdb("output/pdb/superposed_ca.pdb");
 }
 
 }

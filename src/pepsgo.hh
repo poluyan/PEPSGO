@@ -55,10 +55,8 @@ private:
     core::pose::Pose peptide_native_ideal_optimized;
     std::vector<std::uint8_t> native_state;
 
-//    core::pose::Pose ideal_peptide;
-//    core::pose::Pose abs_min_peptide;
-//    core::pose::Pose ideal_abs_min_peptide;
-//    core::pose::Pose all_superposed;
+    core::pose::Pose superposed_aa;
+    core::pose::Pose superposed_ca;
 
     ///
     std::vector<pepsgo::opt_element> opt_vector;
@@ -115,6 +113,11 @@ public:
     
     core::Real get_CA_rmsd(const std::vector<double> &x);
     core::Real get_AA_rmsd(const std::vector<double> &x);
+    
+    void append_to_superposed_aa(const std::vector<double> &x);
+    void append_to_superposed_ca(const std::vector<double> &x);
+    
+    void dumb_superposed();
 };
 
 }

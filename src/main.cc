@@ -46,4 +46,8 @@ int main(int argc, char *argv[])
     
     std::cout << obj.get_AA_rmsd(std::vector<core::Real>(obj.get_opt_vector_size(),0.4)) << std::endl;
     std::cout << obj.get_CA_rmsd(std::vector<core::Real>(obj.get_opt_vector_size(),0.4)) << std::endl;
+    
+    obj.append_to_superposed_aa(std::vector<core::Real>(obj.get_opt_vector_size(),0.4));
+    obj.append_to_superposed_ca(std::vector<core::Real>(obj.get_opt_vector_size(),0.4));
+    obj.dumb_superposed();
 }
