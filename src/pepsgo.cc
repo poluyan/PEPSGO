@@ -518,12 +518,12 @@ void PEPSGO::fill_opt_vector()
     pepsgo::insert_to_opt_vector(opt_vector_native, peptide_native_ideal_optimized, arguments, peptide_ranges_native);
 }
 
-void PEPSGO::create_space_frag(size_t phipsi_step_min, size_t omega_step_min)
+void PEPSGO::create_space_frag(std::pair<std::uint8_t,std::uint8_t> phipsi_minmax, std::pair<std::uint8_t,std::uint8_t> omega_minmax)
 {
     structures_triebased = std::make_shared<frag_type>();
     frags.set_peptide(peptide);
     frags.set_file();
-    frags.set_psipred(phipsi_step_min, omega_step_min);
+    frags.set_psipred(phipsi_minmax, omega_minmax);
     frags.fill_grids();
     set_native_state();
     frags.set_storage_shared(structures_triebased);
@@ -544,7 +544,7 @@ void PEPSGO::create_space_frag(size_t phipsi_step_min, size_t omega_step_min)
     auto closest = frags.get_closest_to_native();
     std::cout << "is native in frag space " << is_native_in_frag_space() << std::endl;
     
-    structures_triebased->insert(closest);
+//    structures_triebased->insert(closest);
 
     std::cout << "native vs closest" << std::endl;
     size_t sum = 0;

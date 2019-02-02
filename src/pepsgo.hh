@@ -89,7 +89,7 @@ public:
     void set_native_state();
     bool is_native_in_frag_space();
 
-    void create_space_frag(size_t phipsi_step_min, size_t omega_step_min);
+    void create_space_frag(std::pair<std::uint8_t,std::uint8_t> phipsi_minmax, std::pair<std::uint8_t,std::uint8_t> omega_minmax);
 
     void unique_aa();
 

@@ -111,7 +111,7 @@ public:
     void set_storage_shared(std::shared_ptr<sample_type> in_sample);
     std::vector<size_t> get_bounds();
 //    void test();
-    void set_psipred(size_t phipsi_min, size_t omega_min);
+    void set_psipred(std::pair<std::uint8_t,std::uint8_t> phipsi_minmax, std::pair<std::uint8_t,std::uint8_t> omega_minmax);
     void set_native_state(const std::vector<std::uint8_t> &nt);
     std::vector<std::uint8_t> get_closest_to_native();
 };

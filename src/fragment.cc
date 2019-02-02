@@ -703,11 +703,11 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
             {
                 to_trie[j] = get_index_omega(omega_values_radians[k], k);
             }
-//            if(!structures_trie->search(to_trie))
-            if(sample.find(to_trie) == sample.end())
+            if(!structures_trie->search(to_trie))
+//            if(sample.find(to_trie) == sample.end())
             {
-//                structures_trie->insert(to_trie);
-                sample.insert(to_trie);
+                structures_trie->insert(to_trie);
+//                sample.insert(to_trie);
 
                 //
                 size_t sum = 0;
@@ -885,7 +885,7 @@ std::vector<size_t> FragPick::get_bounds()
     return phipsiomg_grid_number;
 }
 
-void FragPick::set_psipred(size_t phipsi_min, size_t omega_min)
+void FragPick::set_psipred(std::pair<std::uint8_t,std::uint8_t> phipsi_minmax, std::pair<std::uint8_t,std::uint8_t> omega_minmax)
 {
     std::string horiz_fname;
     if(basic::options::option[basic::options::OptionKeys::in::file::psipred_ss2].user())
@@ -959,13 +959,13 @@ void FragPick::set_psipred(size_t phipsi_min, size_t omega_min)
         std::cout << "confidence size != peptide total residue" << std::endl;
     }
 
-    double phipsi = 254 - phipsi_min;
-    double omega = 254 - omega_min;
+    double phipsi = phipsi_minmax.second - phipsi_minmax.first;
+    double omega = omega_minmax.second - omega_minmax.first;
     step_num_phipsi.resize(confidence.size());
     step_num_omega.resize(confidence.size());
     for(size_t i = 0; i != confidence.size(); i++)
     {
-        step_num_phipsi[i] = phipsi_min + phipsi*(confidence[i] + 1)/10.0;
+        step_num_phipsi[i] = phipsi_minmax.first + phipsi*(confidence[i] + 1)/10.0;
         if(ss_predicted[i] == 'C')
         {
             step_num_phipsi[i] /= 2;
@@ -986,7 +986,7 @@ void FragPick::set_psipred(size_t phipsi_min, size_t omega_min)
                 }
             }
         }
-        step_num_omega[i] = omega_min + omega*(confidence[i] + 1)/10.0;
+        step_num_omega[i] = omega_minmax.first + omega*(confidence[i] + 1)/10.0;
         std::cout << step_num_phipsi[i] << '\t' << step_num_omega[i] << std::endl;
     }
 }
