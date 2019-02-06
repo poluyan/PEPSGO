@@ -529,7 +529,7 @@ void PEPSGO::create_space_frag(std::pair<std::uint8_t,std::uint8_t> phipsi_minma
     frags.set_storage_shared(structures_triebased);
     frags.load_frag_file();
     frags.set_native_state(native_state);
-    frags.make_permutations(1); // 0, 1, 2
+    frags.make_permutations(1); // 0 - all, 1 - one chain, 2 - one chain Von Neumann, 3 - coil chain
 
 //    structures_triebased->insert(native_state);
 

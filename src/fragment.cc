@@ -230,6 +230,7 @@ std::vector<size_t> get_permut_sizes3(size_t total_resiudes, size_t residues, si
             if(matrix[i][j] == 0)
                 continue;
             if(ss_pred[j] == 'C' && column_count(matrix, j, filln) <= max_in_column)
+                //if(j > 1 && j < matrix[i].size() - 2 && ss_pred[j] == 'C' && column_count(matrix, j, filln) <= max_in_column)
                 matrix[i][j] = 1;
             else
                 matrix[i][j] = 0;
@@ -608,7 +609,7 @@ void FragPick::all_possible(size_t residues, size_t n_frags)
         }
     }
     while(increase(variable_values, it));
-    
+
 //    std::cout << permut.size() << std::endl;
     //        std::cout << structures.size() << std::endl;
 }
@@ -730,6 +731,213 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
 //                }
 //                fOut << std::endl;
             }
+//            if(structures_trie->get_total_count() > 1e6)
+//                break;
+        }
+//        if(structures_trie->get_total_count() > 1e6)
+//            break;
+    }
+    while(increase(variable_values, it));
+    fOut.close();
+//    std::cout << permut.size() << std::endl;
+//    std::cout << structures.size() << std::endl;
+}
+
+void FragPick::one_chain_Von_Neumann(size_t residues, size_t n_frags)
+{
+    std::vector<size_t> sizes = get_permut_sizes2(peptide.total_residue(), residues, frag_size);
+
+    size_t matrix_size = peptide.total_residue()%frag_size ? peptide.total_residue()/frag_size + 1 : peptide.total_residue()/frag_size;
+
+    std::vector<std::vector<int>> for_selected(sizes.size());
+    for(size_t i = 0, k = 0; i != for_selected.size(); i++, k+=frag_size)
+    {
+        for_selected[i].resize(sizes[i]);
+        for(size_t j = 0; j != sizes[i]; j++)
+        {
+            for_selected[i][j] = j;
+        }
+    }
+    std::cout << "it will be " << std::fixed <<
+              n_frags << " ^ " << matrix_size << " * " << how_much_will_be_iterate(for_selected) << " = "
+              << size_t(std::pow(n_frags, matrix_size)*how_much_will_be_iterate(for_selected)) << std::endl;
+    std::cin.get();
+
+    std::vector<std::vector<int>> permut_for_selected = iterate(for_selected);
+
+    std::vector<std::vector<int>> variable_values(matrix_size, std::vector<int>(n_frags));
+    for(size_t i = 0; i != variable_values.size(); i++)
+    {
+        for(size_t j = 0; j != n_frags; j++)
+        {
+            variable_values[i][j] = j;
+            //std::cout << variable_values[i][j] << ' ';
+        }
+        //std::cout << std::endl;
+    }
+//    std::vector<std::vector<int>> permut = iterate(variable_values);    // n_frags^residues
+//    std::cout << permut.size() << std::endl;
+    std::cout << all_fragments.size() << std::endl;
+    //        structures.clear();
+    std::ofstream fOut("sample.dat");
+    std::set<std::vector<std::uint8_t>> sample;
+    size_t min_sum = 256*native_state.size();
+    auto bonds = get_bounds();
+    size_t count = 0;
+    std::vector<size_t> it(variable_values.size(), 0);
+    do
+    {
+        count++;
+        if(!(count%1000000))
+            std::cout << "count " << count << '\t' << sample.size() << '\t' << min_sum << std::endl;
+        std::vector<int> permut = get_line(variable_values, it);
+        std::vector<std::vector<Frag>> to_distr;
+        size_t delta = frag_size;
+        for(size_t j = 0, t = 0; j != permut.size(); j++, t+=delta)
+        {
+            to_distr.push_back(all_fragments[t][permut[j]]);
+            if(t + delta >= all_fragments.size())
+                delta = 1;
+        }
+        //std::cout << "to_distr " << to_distr.size() << std::endl;
+        auto distr = get_frag_mix2(to_distr, peptide.total_residue(), residues, frag_size);
+
+        for(size_t j = 0; j != permut_for_selected.size(); j++)
+        {
+            std::vector<Frag> temp;
+            for(size_t k = 0; k != permut_for_selected[j].size(); k++)
+            {
+                temp.push_back(distr[k][permut_for_selected[j][k]]);
+            }
+            //                structures.push_back(temp);
+
+            std::vector<core::Real> phipsi_values_radians(phipsi_grid_number.size());
+            std::vector<core::Real> omega_values_radians(omega_grid_number.size());
+            std::vector<std::uint8_t> to_trie(phipsi_values_radians.size() + omega_values_radians.size());
+
+            phipsi_values_radians.front() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp.front().psi));
+            omega_values_radians.front() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp.front().omg));
+            for(size_t j = 1, k = 1; j != temp.size() - 1; j++, k+=2)
+            {
+                phipsi_values_radians[k] = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp[j].phi));
+                phipsi_values_radians[k + 1] = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp[j].psi));
+                omega_values_radians[j] = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp[j].omg));
+            }
+            phipsi_values_radians.back() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp.back().phi));
+
+            for(size_t j = 0; j != phipsi_values_radians.size(); j++)
+            {
+                to_trie[j] = get_index_phipsi(phipsi_values_radians[j], j);
+            }
+            for(size_t j = phipsi_values_radians.size(), k = 0; j != to_trie.size(); j++, k++)
+            {
+                to_trie[j] = get_index_omega(omega_values_radians[k], k);
+            }
+
+            auto init_point = to_trie;
+            auto point = to_trie;
+            for(size_t i = 0; i != init_point.size(); i++)
+            {
+                point = init_point;
+                point[i] = point[i] + 1;
+
+                if(point[i] > static_cast<std::uint8_t>(bonds[i] - 1))
+                {
+                    point[i] = 0;
+                }
+                if(!structures_trie->search(point))
+//            if(sample.find(point) == sample.end())
+                {
+                    structures_trie->insert(point);
+//                sample.insert(point);
+
+                    //
+                    size_t sum = 0;
+                    std::vector<std::uint8_t> dist(native_state.size());
+                    for(size_t k = 0; k != dist.size(); k++)
+                    {
+                        int t = std::abs(static_cast<int>(native_state[k]) - static_cast<int>(point[k]));
+                        sum += std::min(t, std::abs(int(bonds[k]) - t));
+                    }
+                    if(min_sum > sum)
+                    {
+                        min_sum = sum;
+                        closest = point;
+                        std::cout << min_sum << std::endl;
+                    }
+
+//                for(const auto &k : point)
+//                {
+//                    fOut << int(k) << '\t';
+//                }
+//                fOut << std::endl;
+                }
+            }
+            for(size_t i = 0; i != point.size(); i++)
+            {
+                point = init_point;
+                if(point[i] != 0)
+                    point[i] = point[i] - 1;
+                else
+                    point[i] = point[i] - 1;
+
+
+                if(!structures_trie->search(point))
+//            if(sample.find(point) == sample.end())
+                {
+                    structures_trie->insert(point);
+//                sample.insert(point);
+
+                    //
+                    size_t sum = 0;
+                    std::vector<std::uint8_t> dist(native_state.size());
+                    for(size_t k = 0; k != dist.size(); k++)
+                    {
+                        int t = std::abs(static_cast<int>(native_state[k]) - static_cast<int>(point[k]));
+                        sum += std::min(t, std::abs(int(bonds[k]) - t));
+                    }
+                    if(min_sum > sum)
+                    {
+                        min_sum = sum;
+                        closest = point;
+                        std::cout << min_sum << std::endl;
+                    }
+
+//                for(const auto &k : point)
+//                {
+//                    fOut << int(k) << '\t';
+//                }
+//                fOut << std::endl;
+                }
+            }
+
+            if(!structures_trie->search(to_trie))
+//            if(sample.find(to_trie) == sample.end())
+            {
+                structures_trie->insert(to_trie);
+//                sample.insert(to_trie);
+
+                //
+                size_t sum = 0;
+                std::vector<std::uint8_t> dist(native_state.size());
+                for(size_t k = 0; k != dist.size(); k++)
+                {
+                    int t = std::abs(static_cast<int>(native_state[k]) - static_cast<int>(to_trie[k]));
+                    sum += std::min(t, std::abs(int(bonds[k]) - t));
+                }
+                if(min_sum > sum)
+                {
+                    min_sum = sum;
+                    closest = to_trie;
+                    std::cout << min_sum << std::endl;
+                }
+
+//                for(const auto &k : to_trie)
+//                {
+//                    fOut << int(k) << '\t';
+//                }
+//                fOut << std::endl;
+            }
         }
     }
     while(increase(variable_values, it));
@@ -737,6 +945,7 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
 //    std::cout << permut.size() << std::endl;
 //    std::cout << structures.size() << std::endl;
 }
+
 
 void FragPick::coil_chain(size_t residues, size_t n_frags)
 {
@@ -823,12 +1032,13 @@ void FragPick::coil_chain(size_t residues, size_t n_frags)
                 to_trie[j] = get_index_omega(omega_values_radians[k], k);
             }
             count++;
-            if(!(count%10000))
-                std::cout << "count " << count << std::endl;
+            if(!(count%1000000))
+                std::cout << "count " << count << '\t' << sample.size() << '\t' << min_sum << std::endl;
 //            if(!structures_trie->search(to_trie))
             if(sample.find(to_trie) == sample.end())
             {
 //                structures_trie->insert(to_trie);
+                sample.insert(to_trie);
 
                 size_t sum = 0;
                 std::vector<std::uint8_t> dist(native_state.size());
@@ -866,6 +1076,9 @@ void FragPick::make_permutations(size_t type)
             one_chain(residues, n_frags);
             break;
         case 2:
+            one_chain_Von_Neumann(residues, n_frags);
+            break;
+        case 3:
             coil_chain(residues, n_frags);
             break;
         default:

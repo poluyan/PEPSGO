@@ -12,7 +12,7 @@ RUNLIBS1=$(MAIN)/source/build/src/release/linux/$(LINUXVER)/64/x86/gcc/$(GCCVER)
 # libcifparse.so libcppdb.so libsqlite3.so libxml2.so libzmq.so
 RUNLIBS2=$(MAIN)/source/build/external/release/linux/$(LINUXVER)/64/x86/gcc/$(GCCVER)/default
 # rosetta options
-RUNFLAGS=-in::file::fasta input/sequence.fasta -in::file::native input/pdb/2jsb.pdb -in::file::psipred_ss2 input/prediction.horiz -frags::frag_sizes $$fragsize -in::file::frag_files input/fragments.Nmers -mute all
+RUNFLAGS=-in::file::fasta input/sequence.fasta -in::file::native $$native -in::file::psipred_ss2 input/prediction.horiz -frags::frag_sizes $$fragsize -in::file::frag_files input/fragments.Nmers -mute all
 
 ##
 
@@ -72,6 +72,7 @@ release: before_release out_release
 
 before_release:
 	$(file >$(RUNNAME),export LD_LIBRARY_PATH=./:$(RUNLIBS1):$(RUNLIBS2))
+	$(file >>$(RUNNAME),native=$$(head -n 1 input/native.data))
 	$(file >>$(RUNNAME),fragsize=$$(sed '/'"$$(awk '/position/' RS= input/fragments.Nmers | sed -n '2p')"'/q' input/fragments.Nmers | sed -ne '/position/,/^$$/{/position/N;p}' | sed '/^$$/,/^$$/!d' | sed '/^$$/d' | awk 'END{print NR}' $$1))
 	$(file >>$(RUNNAME),./main -database $(MAIN)/database $(RUNFLAGS))
 	chmod +x $(RUNNAME)
