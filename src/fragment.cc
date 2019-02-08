@@ -387,6 +387,8 @@ FragPick::FragPick()
 void FragPick::set_peptide(const core::pose::Pose &_peptide)
 {
     peptide = _peptide;
+    peptide_centroid = _peptide;
+    bbtools::to_centroid(peptide_centroid);
     peptide_seq = peptide.sequence();
 }
 
@@ -704,11 +706,12 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
             {
                 to_trie[j] = get_index_omega(omega_values_radians[k], k);
             }
-            if(!structures_trie->search(to_trie))
-//            if(sample.find(to_trie) == sample.end())
+            
+//            if(!structures_trie->search(to_trie))
+            if(sample.find(to_trie) == sample.end())
             {
-                structures_trie->insert(to_trie);
-//                sample.insert(to_trie);
+//                structures_trie->insert(to_trie);
+                sample.insert(to_trie);
 
                 //
                 size_t sum = 0;

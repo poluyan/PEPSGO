@@ -19,52 +19,62 @@
 #include <protocols/idealize/IdealizeMover.hh>
 #include <core/conformation/util.hh>
 
+#include <protocols/simple_moves/SwitchResidueTypeSetMover.hh>
+
 #include "bbtools.hh"
 
 namespace pepsgo
 {
 namespace bbtools
 {
-    
+
 core::Real to_positive_radians(core::Real radian)
 {
 //    if(radian > 0)
 //        return radian;
 //    numeric::Real delta = numeric::NumericTraits< core::Real >::pi() - std::abs(radian);
 //    return (numeric::NumericTraits< core::Real >::pi() + delta);
-	if (radian > 0)
-		return radian;
-	while (radian < 0)
-		radian += 2.0 * numeric::NumericTraits < core::Real > ::pi();
-	return radian;
+    if(radian > 0)
+        return radian;
+    while(radian < 0)
+        radian += 2.0 * numeric::NumericTraits < core::Real > ::pi();
+    return radian;
 }
 core::Real to_negative_radians(core::Real radian)
 {
-	if (radian < 0)
-		return radian;
-	while (radian > 0)
-		radian -= 2.0 * numeric::NumericTraits<core::Real>::pi();
-	return radian;
-}    
+    if(radian < 0)
+        return radian;
+    while(radian > 0)
+        radian -= 2.0 * numeric::NumericTraits<core::Real>::pi();
+    return radian;
+}
 core::Real normalize_to_mpi_to_ppi(core::Real radian)
 {
-	if (radian < numeric::NumericTraits<core::Real>::pi() && radian > -numeric::NumericTraits<core::Real>::pi())
-		return radian;
-	if (radian > numeric::NumericTraits<core::Real>::pi())
-		return radian - 2.0 * numeric::NumericTraits<core::Real>::pi();
-	else
-		return radian + 2.0 * numeric::NumericTraits<core::Real>::pi();
+    if(radian < numeric::NumericTraits<core::Real>::pi() && radian > -numeric::NumericTraits<core::Real>::pi())
+        return radian;
+    if(radian > numeric::NumericTraits<core::Real>::pi())
+        return radian - 2.0 * numeric::NumericTraits<core::Real>::pi();
+    else
+        return radian + 2.0 * numeric::NumericTraits<core::Real>::pi();
 }
 
 void make_ideal_peptide(core::pose::Pose& ideal_peptide, const core::pose::Pose& peptide)
 {
-	ideal_peptide = peptide;
-	core::conformation::Conformation conf = ideal_peptide.conformation();
+    ideal_peptide = peptide;
+    core::conformation::Conformation conf = ideal_peptide.conformation();
 
-	for (numeric::Size seqpos = 1, seqpos_end = ideal_peptide.total_residue(); seqpos <= seqpos_end; ++seqpos)
-	{
-		core::conformation::idealize_position(seqpos, ideal_peptide.conformation());
-	}
+    for(numeric::Size seqpos = 1, seqpos_end = ideal_peptide.total_residue(); seqpos <= seqpos_end; ++seqpos)
+    {
+        core::conformation::idealize_position(seqpos, ideal_peptide.conformation());
+    }
+}
+
+void to_centroid(core::pose::Pose & pose)
+{
+    if(!pose.is_fullatom())
+        return;
+    protocols::simple_moves::SwitchResidueTypeSetMover to_centroid_mover(core::chemical::CENTROID);
+    to_centroid_mover.apply(pose);
 }
 
 }

@@ -87,6 +87,7 @@ private:
     std::shared_ptr<sample_type> structures_trie;
 
     core::pose::Pose peptide;
+    core::pose::Pose peptide_centroid;
 public:
     FragPick();
     void set_peptide(const core::pose::Pose &_peptide);
