@@ -23,6 +23,13 @@
 #include <core/fragment/picking_old/vall/util.hh>
 #include <core/fragment/picking_old/FragmentLibraryManager.hh>
 
+#include <core/scoring/ScoreFunction.hh>
+#include <core/scoring/ScoreFunctionFactory.hh>
+#include <core/scoring/Energies.hh>
+
+#include <core/kinematics/MoveMap.hh>
+#include <protocols/minimization_packing/MinMover.hh>
+
 #include <cmath>
 #include <fstream>
 #include "bbtools.hh"
@@ -706,7 +713,62 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
             {
                 to_trie[j] = get_index_omega(omega_values_radians[k], k);
             }
-            
+
+            ///
+
+            /*peptide_centroid.set_psi(1, temp.front().psi);
+            peptide_centroid.set_omega(1, temp.front().omg);
+
+            for(size_t j = 1; j != temp.size() - 1; j++)
+            {
+                peptide_centroid.set_phi(j + 1, temp[j].phi);
+                peptide_centroid.set_psi(j + 1, temp[j].psi);
+                peptide_centroid.set_omega(j + 1, temp[j].omg);
+            }
+            peptide_centroid.set_phi(peptide_centroid.total_residue(), temp.back().phi);
+
+            //            core::scoring::ScoreFunctionOP score_cent = core::scoring::ScoreFunctionFactory::create_score_function("cen_std");
+            //            core::kinematics::MoveMapOP movemap_minimizer_ = core::kinematics::MoveMapOP(new core::kinematics::MoveMap());
+            //            movemap_minimizer_->set_bb(true);
+            //            protocols::minimization_packing::MinMover minimizer(movemap_minimizer_, score_cent, "lbfgs", 1e-20, true);
+            //            minimizer.max_iter(5000);
+            //            minimizer.apply(peptide_centroid);
+
+            //peptide_centroid.dump_pdb("1.pdb");
+            //std::cin.get();
+            //            numeric::Real current_distance(peptide_centroid.residue(1).xyz("CA").distance( peptide_centroid.residue(peptide_centroid.total_residue()).xyz("CA") ));
+            //            if(current_distance > 10)
+            //                continue;
+            //            std::cout << "hit it" << std::endl;
+            //            peptide_centroid.dump_pdb("1.pdb");
+            //            std::cin.get();
+
+            std::vector<core::Real> phipsi_values_radians(phipsi_grid_number.size());
+            std::vector<core::Real> omega_values_radians(omega_grid_number.size());
+            std::vector<std::uint8_t> to_trie(phipsi_values_radians.size() + omega_values_radians.size());
+
+            phipsi_values_radians.front() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(peptide_centroid.psi(1)));
+            omega_values_radians.front() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(peptide_centroid.omega(1)));
+            for(size_t j = 1, k = 1, seqpos = 2; j != temp.size() - 1; j++, k+=2, seqpos++)
+            {
+                phipsi_values_radians[k] = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(peptide_centroid.phi(seqpos)));
+                phipsi_values_radians[k + 1] = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(peptide_centroid.psi(seqpos)));
+                omega_values_radians[j] = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(peptide_centroid.omega(seqpos)));
+            }
+            phipsi_values_radians.back() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(peptide_centroid.phi(peptide_centroid.total_residue())));
+
+            for(size_t j = 0; j != phipsi_values_radians.size(); j++)
+            {
+                to_trie[j] = get_index_phipsi(phipsi_values_radians[j], j);
+            }
+            for(size_t j = phipsi_values_radians.size(), k = 0; j != to_trie.size(); j++, k++)
+            {
+                to_trie[j] = get_index_omega(omega_values_radians[k], k);
+            }*/
+
+            ///
+
+
 //            if(!structures_trie->search(to_trie))
             if(sample.find(to_trie) == sample.end())
             {
@@ -1184,9 +1246,13 @@ void FragPick::set_psipred(std::pair<std::uint8_t,std::uint8_t> phipsi_minmax, s
         step_num_phipsi[i] = phipsi_minmax.first + phipsi*(confidence[i] + 1)/10.0;
         if(ss_predicted[i] == 'C')
         {
-            step_num_phipsi[i] /= 2;
-            if(i > 1 && i < confidence.size() - 2)
-                step_num_phipsi[i] /= 2;
+//            step_num_phipsi[i] /= 2;
+//            if(i > 1 && i < confidence.size() - 2)
+//            {
+//                step_num_phipsi[i] /= 2;
+//                step_num_phipsi[i] = 1;
+//            }
+            step_num_phipsi[i] = 1;
         }
         else
         {
@@ -1214,6 +1280,11 @@ void FragPick::set_native_state(const std::vector<std::uint8_t> &nt)
 std::vector<std::uint8_t> FragPick::get_closest_to_native()
 {
     return closest;
+}
+
+std::string FragPick::get_ss_predicted() const
+{
+    return ss_predicted;
 }
 
 }

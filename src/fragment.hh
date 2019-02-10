@@ -116,6 +116,8 @@ public:
     void set_psipred(std::pair<std::uint8_t,std::uint8_t> phipsi_minmax, std::pair<std::uint8_t,std::uint8_t> omega_minmax);
     void set_native_state(const std::vector<std::uint8_t> &nt);
     std::vector<std::uint8_t> get_closest_to_native();
+    
+    std::string get_ss_predicted() const;
 };
 
 }

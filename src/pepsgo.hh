@@ -42,6 +42,7 @@ private:
     std::string bbind_path;
 
     std::string peptide_sequence;
+    std::string peptide_ss_predicted;
     std::string peptide_amino_acids;
 
     core::scoring::ScoreFunctionOP score_fn;

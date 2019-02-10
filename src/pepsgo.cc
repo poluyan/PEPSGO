@@ -102,6 +102,7 @@ void PEPSGO::extend_peptide()
 void PEPSGO::set_peptide(std::string _peptide_sequence)
 {
     peptide_sequence = _peptide_sequence;
+    peptide_ss_predicted = std::string(_peptide_sequence.size(), 'C');
     unique_aa();
     core::pose::make_pose_from_sequence(peptide, peptide_sequence,
                                         *core::chemical::ChemicalManager::get_instance()->residue_type_set(core::chemical::FA_STANDARD));
@@ -114,6 +115,7 @@ void PEPSGO::set_peptide_from_file()
         std::string fasta = basic::options::option[basic::options::OptionKeys::in::file::fasta]()[1];
         std::cout << "reading " << fasta << std::endl;
         peptide_sequence = core::sequence::read_fasta_file_return_str(fasta);
+        peptide_ss_predicted = std::string(peptide_sequence.size(), 'C');
         unique_aa();
         std::cout << "loaded sequence " << peptide_sequence << std::endl;
         std::cout << "unique aa " << peptide_amino_acids << std::endl;
@@ -195,6 +197,9 @@ void PEPSGO::optimize_native()
     (*score_fn)(peptide_native_ideal_optimized);
     std::cout << "peptide native ideal optimized score " << peptide_native_ideal_optimized.energies().total_energy() << std::endl;
     peptide_native_ideal_optimized.dump_pdb("output/pdb/peptide_native_ideal_optimized.pdb");
+
+    superposed_aa = peptide_native_ideal_optimized;
+    superposed_ca = peptide_native_ideal_optimized;
 }
 void PEPSGO::set_native_state()
 {
@@ -243,6 +248,21 @@ core::Real PEPSGO::objective(const std::vector<double> &x)
     std::vector<double> vt = pepsgo::transform::bbdep_experiment_actual_states(
                                  xx, opt_vector, peptide_ranges, bbdep_sm, phipsi_rama2_quantile.size());
 
+    //  C -> transform
+    std::vector<double> values01(2), sampled(2);
+    for(size_t i = 1, j = 1; i != peptide_ss_predicted.size() - 1; i++, j+=2)
+    {
+        if(peptide_ss_predicted[i] == 'C')
+        {
+            values01[0] = x[j];
+            values01[1] = x[j + 1];
+            phipsi_rama2_quantile[i-1]->transform(values01, sampled);
+            vt[j] = sampled[0];
+            vt[j + 1] = sampled[1];
+        }
+    }
+    //
+
 //    for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
 //    {
 //        std::cout << vt[i] << '\t' << i << std::endl;
@@ -278,6 +298,21 @@ core::Real PEPSGO::objective_mt(const std::vector<double> &x, int th_id)
 
     std::vector<double> vt = pepsgo::transform::bbdep_experiment_actual_states(
                                  xx, opt_vector, peptide_ranges, bbdep_sm, phipsi_rama2_quantile.size());
+
+    //  C -> transform
+    std::vector<double> values01(2), sampled(2);
+    for(size_t i = 1, j = 1; i != peptide_ss_predicted.size() - 1; i++, j+=2)
+    {
+        if(peptide_ss_predicted[i] == 'C')
+        {
+            values01[0] = x[j];
+            values01[1] = x[j + 1];
+            phipsi_rama2_quantile[i-1]->transform(values01, sampled);
+            vt[j] = sampled[0];
+            vt[j + 1] = sampled[1];
+        }
+    }
+    //
 
 //    for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
 //    {
@@ -530,8 +565,9 @@ void PEPSGO::create_space_frag(std::pair<std::uint8_t,std::uint8_t> phipsi_minma
     frags.load_frag_file();
     frags.set_native_state(native_state);
     frags.make_permutations(1); // 0 - all, 1 - one chain, 2 - one chain Von Neumann, 3 - coil chain
+    peptide_ss_predicted = frags.get_ss_predicted();
 
-//    structures_triebased->insert(native_state);
+    structures_triebased->insert(native_state);
 
     auto bonds = frags.get_bounds();
     structures_quant = std::make_shared<empirical_quantile::ImplicitQuantile<std::uint8_t, double>>(
@@ -543,7 +579,7 @@ void PEPSGO::create_space_frag(std::pair<std::uint8_t,std::uint8_t> phipsi_minma
 
     auto closest = frags.get_closest_to_native();
     std::cout << "is native in frag space " << is_native_in_frag_space() << std::endl;
-    
+
 //    structures_triebased->insert(closest);
 
     std::cout << "native vs closest" << std::endl;
