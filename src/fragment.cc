@@ -1252,11 +1252,11 @@ void FragPick::set_psipred(std::pair<std::uint8_t,std::uint8_t> phipsi_minmax, s
 //                step_num_phipsi[i] /= 2;
 //                step_num_phipsi[i] = 1;
 //            }
-            step_num_phipsi[i] = 1;
+//            step_num_phipsi[i] = 36;
         }
         else
         {
-            if(i > 1 && i < confidence.size() - 2)
+            /*if(i > 1 && i < confidence.size() - 2)
             {
                 if(ss_predicted[i + 1] == 'C')
                 {
@@ -1266,7 +1266,7 @@ void FragPick::set_psipred(std::pair<std::uint8_t,std::uint8_t> phipsi_minmax, s
                 {
                     step_num_phipsi[i] /= 2;
                 }
-            }
+            }*/
         }
         step_num_omega[i] = omega_minmax.first + omega*(confidence[i] + 1)/10.0;
         std::cout << step_num_phipsi[i] << '\t' << step_num_omega[i] << std::endl;

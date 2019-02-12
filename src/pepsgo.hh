@@ -68,6 +68,7 @@ private:
     ///
     std::vector<std::shared_ptr<trie_based::TrieBased<trie_based::NodeCount<int>,int>>> phipsi_rama2_sample;
     std::vector<std::shared_ptr<empirical_quantile::ImplicitQuantile<int, double>>> phipsi_rama2_quantile;
+    std::vector<std::shared_ptr<empirical_quantile::ImplicitQuantile<int, double>>> omega_quantile;
 
     ///
     int threads_number;
@@ -96,9 +97,11 @@ public:
 
     void set_bbdep(size_t step/*std::string _bbdep_path*/);
     void set_bbind(std::string _bbind_path);
+    void transform_with_frags(const std::vector<double> &x, std::vector<double> &out);
     core::Real objective(const std::vector<double> &x);
     core::Real objective_mt(const std::vector<double> &x, int th_id);
-    void write(const std::vector<double> &x);
+    void write(const std::vector<double> &x, std::string fname);
+    void write_lbfgs(const std::vector<double> &x, std::string fname);
 
     // creating rama2 from second to next-to-last residue
     void fill_rama2_residue(core::pose::Pose &pep, core::scoring::ScoreFunctionOP &scorefn_rama2b, size_t ind, size_t step);
@@ -119,6 +122,8 @@ public:
     void append_to_superposed_ca(const std::vector<double> &x);
     
     void dumb_superposed();
+    
+    void set_omega_quantile(size_t step);
 };
 
 }

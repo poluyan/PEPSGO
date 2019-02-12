@@ -228,97 +228,20 @@ void PEPSGO::set_bbind(std::string _bbind_path)
 }
 core::Real PEPSGO::objective(const std::vector<double> &x)
 {
-    std::vector<double> xx = x;
-    // transform here
-    std::vector<double> frag_vector(std::get<1>(peptide_ranges.chi));
-    std::vector<double> x_temp(std::get<1>(peptide_ranges.chi));
-
-    for(size_t i = 0; i != x_temp.size(); i++)
-    {
-        x_temp[i] = x[i];
-    }
-
-    structures_quant->transform(x_temp, frag_vector);
-
-    for(size_t i = 0; i != frag_vector.size(); i++)
-    {
-        xx[i] = frag_vector[i];
-    }
-
-    std::vector<double> vt = pepsgo::transform::bbdep_experiment_actual_states(
-                                 xx, opt_vector, peptide_ranges, bbdep_sm, phipsi_rama2_quantile.size());
-
-    //  C -> transform
-    std::vector<double> values01(2), sampled(2);
-    for(size_t i = 1, j = 1; i != peptide_ss_predicted.size() - 1; i++, j+=2)
-    {
-        if(peptide_ss_predicted[i] == 'C')
-        {
-            values01[0] = x[j];
-            values01[1] = x[j + 1];
-            phipsi_rama2_quantile[i-1]->transform(values01, sampled);
-            vt[j] = sampled[0];
-            vt[j + 1] = sampled[1];
-        }
-    }
-    //
-
-//    for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
-//    {
-//        std::cout << vt[i] << '\t' << i << std::endl;
-//    }
-
+    std::vector<double> vt(x.size());
+    transform_with_frags(x, vt);
     for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
     {
         peptide.set_dof(opt_vector[i].dofid, vt[i]);
     }
     (*score_fn)(peptide);
-//    peptide.dump_pdb("output/pdb/peptide.pdb");
     return peptide.energies().total_energy();
 }
 
 core::Real PEPSGO::objective_mt(const std::vector<double> &x, int th_id)
 {
-    std::vector<double> xx = x;
-    // transform here
-    std::vector<double> frag_vector(std::get<1>(peptide_ranges.chi));
-    std::vector<double> x_temp(std::get<1>(peptide_ranges.chi));
-
-    for(size_t i = 0; i != x_temp.size(); i++)
-    {
-        x_temp[i] = x[i];
-    }
-
-    structures_quant->transform(x_temp, frag_vector);
-
-    for(size_t i = 0; i != frag_vector.size(); i++)
-    {
-        xx[i] = frag_vector[i];
-    }
-
-    std::vector<double> vt = pepsgo::transform::bbdep_experiment_actual_states(
-                                 xx, opt_vector, peptide_ranges, bbdep_sm, phipsi_rama2_quantile.size());
-
-    //  C -> transform
-    std::vector<double> values01(2), sampled(2);
-    for(size_t i = 1, j = 1; i != peptide_ss_predicted.size() - 1; i++, j+=2)
-    {
-        if(peptide_ss_predicted[i] == 'C')
-        {
-            values01[0] = x[j];
-            values01[1] = x[j + 1];
-            phipsi_rama2_quantile[i-1]->transform(values01, sampled);
-            vt[j] = sampled[0];
-            vt[j + 1] = sampled[1];
-        }
-    }
-    //
-
-//    for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
-//    {
-//        std::cout << vt[i] << '\t' << i << std::endl;
-//    }
-
+    std::vector<double> vt(x.size());
+    transform_with_frags(x, vt);
     for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
     {
         mt_peptide[th_id].set_dof(opt_vector[i].dofid, vt[i]);
@@ -328,39 +251,39 @@ core::Real PEPSGO::objective_mt(const std::vector<double> &x, int th_id)
     return mt_peptide[th_id].energies().total_energy();
 }
 
-void PEPSGO::write(const std::vector<double> &x)
+void PEPSGO::write(const std::vector<double> &x, std::string fname)
 {
-    std::vector<double> xx = x;
-    // transform here
-    std::vector<double> frag_vector(std::get<1>(peptide_ranges.chi));
-    std::vector<double> x_temp(std::get<1>(peptide_ranges.chi));
-
-    for(size_t i = 0; i != x_temp.size(); i++)
-    {
-        x_temp[i] = x[i];
-    }
-
-    structures_quant->transform(x_temp, frag_vector);
-
-    for(size_t i = 0; i != frag_vector.size(); i++)
-    {
-        xx[i] = frag_vector[i];
-    }
-
-    std::vector<double> vt = pepsgo::transform::bbdep_experiment_actual_states(
-                                 xx, opt_vector, peptide_ranges, bbdep_sm, phipsi_rama2_quantile.size());
-
-//    for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
-//    {
-//        std::cout << vt[i] << '\t' << i << std::endl;
-//    }
-
+    std::vector<double> vt(x.size());
+    transform_with_frags(x, vt);
     for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
     {
         peptide.set_dof(opt_vector[i].dofid, vt[i]);
     }
     (*score_fn)(peptide);
-    peptide.dump_pdb("output/pdb/peptide.pdb");
+    std::cout << "peptide score: " << peptide.energies().total_energy() << std::endl;
+    peptide.dump_pdb(fname);
+}
+
+void PEPSGO::write_lbfgs(const std::vector<double> &x, std::string fname)
+{
+    std::vector<double> vt(x.size());
+    transform_with_frags(x, vt);
+    for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
+    {
+        peptide.set_dof(opt_vector[i].dofid, vt[i]);
+    }
+    (*score_fn)(peptide);
+    
+    core::kinematics::MoveMapOP movemap_minimizer_ = core::kinematics::MoveMapOP(new core::kinematics::MoveMap());
+    for(const auto &i : opt_vector_native)
+        movemap_minimizer_->set(i.dofid, true);
+
+    protocols::minimization_packing::MinMover minimizer(movemap_minimizer_, score_fn, "lbfgs", 1e-20, true);
+    minimizer.max_iter(5000);
+    minimizer.apply(peptide);
+    (*score_fn)(peptide);
+    std::cout << "peptide score: " << peptide.energies().total_energy() << std::endl;
+    peptide.dump_pdb(fname);
 }
 
 void PEPSGO::fill_rama2_residue(core::pose::Pose &pep, core::scoring::ScoreFunctionOP &scorefn_rama2b, size_t ind, size_t step)
@@ -567,7 +490,7 @@ void PEPSGO::create_space_frag(std::pair<std::uint8_t,std::uint8_t> phipsi_minma
     frags.make_permutations(1); // 0 - all, 1 - one chain, 2 - one chain Von Neumann, 3 - coil chain
     peptide_ss_predicted = frags.get_ss_predicted();
 
-    structures_triebased->insert(native_state);
+//    structures_triebased->insert(native_state);
 
     auto bonds = frags.get_bounds();
     structures_quant = std::make_shared<empirical_quantile::ImplicitQuantile<std::uint8_t, double>>(
@@ -580,7 +503,7 @@ void PEPSGO::create_space_frag(std::pair<std::uint8_t,std::uint8_t> phipsi_minma
     auto closest = frags.get_closest_to_native();
     std::cout << "is native in frag space " << is_native_in_frag_space() << std::endl;
 
-//    structures_triebased->insert(closest);
+    structures_triebased->insert(closest);
 
     std::cout << "native vs closest" << std::endl;
     size_t sum = 0;
@@ -652,6 +575,76 @@ void PEPSGO::dumb_superposed()
 {
     superposed_aa.dump_pdb("output/pdb/superposed_aa.pdb");
     superposed_ca.dump_pdb("output/pdb/superposed_ca.pdb");
+}
+
+void PEPSGO::set_omega_quantile(size_t step)
+{
+    omega_quantile.resize(1);
+    std::vector<size_t> grid_number = {step};
+    omega_quantile.front() = std::make_shared<empirical_quantile::ImplicitQuantileSorted<int, double>>(
+                                 std::vector<double>(grid_number.size(), -numeric::NumericTraits<core::Real>::pi()),
+                                 std::vector<double>(grid_number.size(), numeric::NumericTraits<core::Real>::pi()),
+                                 grid_number
+                             );
+    std::vector<std::vector<int>> in_sample = {{0}, {int(step) - 1}};
+    omega_quantile.front()->set_sample(in_sample);
+}
+
+void PEPSGO::transform_with_frags(const std::vector<double> &x, std::vector<double> &out)
+{
+    std::vector<double> xx = x;
+    // transform here
+    std::vector<double> frag_vector(std::get<1>(peptide_ranges.chi));
+    std::vector<double> x_temp(std::get<1>(peptide_ranges.chi));
+
+    for(size_t i = 0; i != x_temp.size(); i++)
+    {
+        x_temp[i] = x[i];
+    }
+
+    structures_quant->transform(x_temp, frag_vector);
+
+    for(size_t i = 0; i != frag_vector.size(); i++)
+    {
+        xx[i] = frag_vector[i];
+    }
+
+    out = pepsgo::transform::bbdep_experiment_actual_states(
+                                 xx, opt_vector, peptide_ranges, bbdep_sm, phipsi_rama2_quantile.size());
+
+//    ///  C -> transform
+//    // phi/psi
+//    std::vector<double> values01(2), sampled(2);
+//    for(size_t i = 1, j = 1; i != peptide_ss_predicted.size() - 1; i++, j+=2)
+//    {
+//        if(peptide_ss_predicted[i] == 'C')
+//        {
+////            std::cout << "C" << i << '\t' << opt_vector[j].seqpos << '\t' << 
+////            opt_vector[j].torsion_name << std::endl;
+//            values01[0] = x[j];
+//            values01[1] = x[j + 1];
+//            phipsi_rama2_quantile[i-1]->transform(values01, sampled);
+//            vt[j] = sampled[0];
+//            vt[j + 1] = sampled[1];
+//        }
+//    }
+//    // omega
+//    std::vector<double> values01_omg(1), sampled_omg(1);
+//    for(size_t i = std::get<1>(peptide_ranges.omega), j = 0; i <= std::get<2>(peptide_ranges.omega); i++, j++)
+//    {
+//        if(peptide_ss_predicted[j] == 'C')
+//        {
+//            values01_omg[0] = x[i];
+//            omega_quantile.front()->transform(values01_omg, sampled_omg);
+//            vt[i] = sampled_omg.front();
+//        }
+//    }
+//    ///
+
+//    for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
+//    {
+//        std::cout << vt[i] << '\t' << i << std::endl;
+//    }
 }
 
 }
