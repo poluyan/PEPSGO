@@ -801,6 +801,8 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
         }
 //        if(structures_trie->get_total_count() > 1e6)
 //            break;
+        if(sample.size() > 1e6)
+            break;
     }
     while(increase(variable_values, it));
     fOut.close();
@@ -1246,7 +1248,7 @@ void FragPick::set_psipred(std::pair<std::uint8_t,std::uint8_t> phipsi_minmax, s
         step_num_phipsi[i] = phipsi_minmax.first + phipsi*(confidence[i] + 1)/10.0;
         if(ss_predicted[i] == 'C')
         {
-//            step_num_phipsi[i] /= 2;
+            step_num_phipsi[i] /= 2;
 //            if(i > 1 && i < confidence.size() - 2)
 //            {
 //                step_num_phipsi[i] /= 2;
@@ -1256,7 +1258,13 @@ void FragPick::set_psipred(std::pair<std::uint8_t,std::uint8_t> phipsi_minmax, s
         }
         else
         {
-            /*if(i > 1 && i < confidence.size() - 2)
+//            if(ss_predicted[i] == 'H')
+//            {
+//                step_num_phipsi[i] *= 4;
+//                if(step_num_phipsi[i] > 254)
+//                    step_num_phipsi[i] = 254;
+//            }
+            if(i > 1 && i < confidence.size() - 2)
             {
                 if(ss_predicted[i + 1] == 'C')
                 {
@@ -1266,7 +1274,7 @@ void FragPick::set_psipred(std::pair<std::uint8_t,std::uint8_t> phipsi_minmax, s
                 {
                     step_num_phipsi[i] /= 2;
                 }
-            }*/
+            }
         }
         step_num_omega[i] = omega_minmax.first + omega*(confidence[i] + 1)/10.0;
         std::cout << step_num_phipsi[i] << '\t' << step_num_omega[i] << std::endl;

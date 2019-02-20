@@ -31,8 +31,10 @@ int main(int argc, char *argv[])
     obj.set_peptide_from_file();
     obj.fill_opt_vector();
     obj.optimize_native();
-    //obj.create_space_frag(std::make_pair(18, 72), std::make_pair(72, 180));
-    obj.create_space_frag(std::make_pair(8, 18), std::make_pair(36, 72));
+//    obj.create_space_frag(std::make_pair(18, 72), std::make_pair(72, 180));
+//    obj.create_space_frag(std::make_pair(8, 18), std::make_pair(36, 72));
+//    obj.create_space_frag(std::make_pair(8, 12), std::make_pair(36, 72));
+    obj.create_space_frag(std::make_pair(8, 10), std::make_pair(54, 72));
     obj.fill_rama2_quantile(4);
     obj.set_omega_quantile(72);
     obj.set_bbdep(360);
