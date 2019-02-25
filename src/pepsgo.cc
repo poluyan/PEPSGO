@@ -273,7 +273,7 @@ void PEPSGO::write_lbfgs(const std::vector<double> &x, std::string fname)
         peptide.set_dof(opt_vector[i].dofid, vt[i]);
     }
     (*score_fn)(peptide);
-    
+
     core::kinematics::MoveMapOP movemap_minimizer_ = core::kinematics::MoveMapOP(new core::kinematics::MoveMap());
     for(const auto &i : opt_vector_native)
         movemap_minimizer_->set(i.dofid, true);
@@ -503,7 +503,7 @@ void PEPSGO::create_space_frag(std::pair<std::uint8_t,std::uint8_t> phipsi_minma
     auto closest = frags.get_closest_to_native();
     std::cout << "is native in frag space " << is_native_in_frag_space() << std::endl;
 
-    structures_triebased->insert(closest);
+//    structures_triebased->insert(closest);
 
     std::cout << "native vs closest" << std::endl;
     size_t sum = 0;
@@ -610,7 +610,7 @@ void PEPSGO::transform_with_frags(const std::vector<double> &x, std::vector<doub
     }
 
     out = pepsgo::transform::bbdep_experiment_actual_states(
-                                 xx, opt_vector, peptide_ranges, bbdep_sm, phipsi_rama2_quantile.size());
+              xx, opt_vector, peptide_ranges, bbdep_sm, phipsi_rama2_quantile.size());
 
 //    ///  C -> transform
 //    // phi/psi
@@ -619,7 +619,7 @@ void PEPSGO::transform_with_frags(const std::vector<double> &x, std::vector<doub
 //    {
 //        if(peptide_ss_predicted[i] == 'C')
 //        {
-////            std::cout << "C" << i << '\t' << opt_vector[j].seqpos << '\t' << 
+////            std::cout << "C" << i << '\t' << opt_vector[j].seqpos << '\t' <<
 ////            opt_vector[j].torsion_name << std::endl;
 //            values01[0] = x[j];
 //            values01[1] = x[j + 1];
@@ -646,5 +646,88 @@ void PEPSGO::transform_with_frags(const std::vector<double> &x, std::vector<doub
 //        std::cout << vt[i] << '\t' << i << std::endl;
 //    }
 }
+
+//void PEPSGO::set_extend_search_space(size_t c)
+//{
+//    extend_space_count = c;
+//    ess_fe_count = 0;
+//    best_state_value = std::numeric_limits<core::Real>::max();
+//    th_exss.resize(threads_number);
+//}
+//
+//void PEPSGO::extend_search_space()
+//{
+//    auto bonds = frags.get_bounds();
+//    auto point = best_state;
+//    for(size_t i = 0; i != best_state.size(); i++)
+//    {
+//        point = best_state;
+//        point[i] = point[i] + 1;
+//
+//        if(point[i] > bonds[i] - 1)
+//        {
+//            point[i] = 0;
+//        }
+//        if(!structures_triebased->search(point))
+//        {
+//            structures_triebased->insert(point);
+//        }
+//    }
+//    for(size_t i = 0; i != best_state.size(); i++)
+//    {
+//        point = best_state;
+//        if(point[i] == 0)
+//            point[i] = bonds[i] - 1;
+//        else
+//            point[i] = point[i] - 1;
+//        if(!structures_triebased->search(point))
+//        {
+//            structures_triebased->insert(point);
+//        }
+//    }
+//}
+//
+//core::Real PEPSGO::objective_mt_extend(const std::vector<double> &x, int th_id)
+//{
+//    std::vector<double> vt(x.size());
+//    transform_with_frags(x, vt);
+//    for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
+//    {
+//        mt_peptide[th_id].set_dof(opt_vector[i].dofid, vt[i]);
+//    }
+//    (*mt_score_fn[th_id])(mt_peptide[th_id]);
+//    
+//    std::vector<std::uint8_t> current_state(std::get<2>(peptide_ranges.omega) + 1);
+//    for(size_t i = 0; i != std::get<2>(peptide_ranges.phipsi) + 1; i++)
+//    {
+//        current_state[i] = frags.get_index_phipsi(mt_peptide[th_id].dof(opt_vector_native[i].dofid), i);
+//    }
+//    for(size_t i = std::get<1>(peptide_ranges.omega), k = 0; i != std::get<2>(peptide_ranges.omega) + 1; i++, k++)
+//    {
+//        current_state[i] = frags.get_index_omega(mt_peptide[th_id].dof(opt_vector_native[i].dofid), k);
+//    }
+//    
+//    core::Real rez = mt_peptide[th_id].energies().total_energy();
+//    #pragma omp critical
+//    {
+//        ess_fe_count++;
+//        auto sum = std::accumulate(th_exss.begin(), th_exss.end(), 0);
+//        if(rez < best_state_value && ess_fe_count > extend_space_count && sum != threads_number)
+//        {
+//            th_exss[th_id] = 1;
+//            best_state_value = rez;
+//            best_state = current_state;
+//            extend_search_space();
+//            std::cout << "extend it!! " << th_id << std::endl;
+//        }
+//        if(sum == threads_number)
+//        {
+//            ess_fe_count = 0;
+//            for(auto &i : th_exss)
+//                i = 0;
+//        }
+//    }
+//    return rez;
+//}
 
 }

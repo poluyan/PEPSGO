@@ -2,8 +2,8 @@ TARGET = main
 CPP = g++
 
 # 
-MAIN = /ssdwork/psp_builds/rosetta_src_2018.48.60516_bundle/main
-LINUXVER = 4.19
+MAIN = /ssdwork/psp_builds/rosetta_src_2019.07.60616_bundle/main
+LINUXVER = 4.20
 GCCVER = 8.2
 
 RUNNAME=run.sh

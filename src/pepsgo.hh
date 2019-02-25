@@ -79,6 +79,13 @@ private:
     std::shared_ptr<empirical_quantile::ImplicitQuantile<std::uint8_t, double>> structures_quant;
 
     pepsgo::bbdep::BBDEP_Dunbrack_sm bbdep_sm;
+    
+    /// search space explore
+//    size_t extend_space_count;
+//    size_t ess_fe_count;
+//    std::vector<size_t> th_exss;
+//    core::Real best_state_value;
+//    std::vector<std::uint8_t> best_state;
 public:
     PEPSGO();
     void set_number_of_threads(size_t n);
@@ -124,6 +131,10 @@ public:
     void dumb_superposed();
     
     void set_omega_quantile(size_t step);
+    
+//    void set_extend_search_space(size_t c);
+//    void extend_search_space();
+//    core::Real objective_mt_extend(const std::vector<double> &x, int th_id);
 };
 
 }
