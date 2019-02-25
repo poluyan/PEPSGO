@@ -15,6 +15,6 @@ The PEPSGO is distributed under Apache License 2.0 and it is open-source softwar
 
 ## Some results
 
-Using Adaptive Differential Evolution. Native (green) vs predicted (cyan)
+Using Adaptive Differential Evolution. Native (green) vs predicted (cyan).
 
 ![Alt text](./pics.png)
