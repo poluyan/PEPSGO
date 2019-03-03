@@ -22,7 +22,7 @@ CPPFLAGSEXTRA = -pipe -pedantic -Wno-long-long -Wno-strict-aliasing -march=core2
 
 IS = -isystem $(MAIN)/source/external/boost_1_55_0/ -isystem $(MAIN)/source/external/ -isystem $(MAIN)/source/external/include/ -isystem $(MAIN)/source/external/dbio/
 
-INCLUDE = -I$(MAIN)/source/src -I$(MAIN)/source/external/include -I$(MAIN)/source/src/platform/linux/64/gcc/$(GCCVER) -I$(MAIN)/source/src/platform/linux/64/gcc -I$(MAIN)/source/src/platform/linux/64 -I$(MAIN)/source/src/platform/linux -I$(MAIN)/source/external/boost_1_55_0 -I$(MAIN)/source/external/libxml2/include -I$(MAIN)/source/external -I$(MAIN)/source/external/dbio -I/usr/include -I/usr/local/include
+INCLUDE = -Isrc -I$(MAIN)/source/src -I$(MAIN)/source/external/include -I$(MAIN)/source/src/platform/linux/64/gcc/$(GCCVER) -I$(MAIN)/source/src/platform/linux/64/gcc -I$(MAIN)/source/src/platform/linux/64 -I$(MAIN)/source/src/platform/linux -I$(MAIN)/source/external/boost_1_55_0 -I$(MAIN)/source/external/libxml2/include -I$(MAIN)/source/external -I$(MAIN)/source/external/dbio -I/usr/include -I/usr/local/include
 
 LIBS1 = -L$(MAIN)/source/external/lib -L$(MAIN)/source/build/src/release/linux/$(LINUXVER)/64/x86/gcc/$(GCCVER)/default -L$(MAIN)/source/build/src/release/linux/$(LINUXVER)/64/x86/gcc/$(GCCVER)/default -L$(MAIN)/source/src -L$(MAIN)/source/build/external/release/linux/$(LINUXVER)/64/x86/gcc/$(GCCVER)/default -L$(MAIN)/external
 LIBS2 = -L/usr/lib -L/usr/local/lib -fopenmp
@@ -101,7 +101,7 @@ $(OBJDIR_RELEASE)/dunbrackdata.o: $(SRCPATH)/dunbrackdata.cc
 	$(CPP) $(CPPFLAGSLIB) $(CPPFLAGS) $(IS) $(CPPFLAGSEXTRA) $(INCLUDE) $(SRCPATH)/dunbrackdata.cc -o $(OBJDIR_RELEASE)/dunbrackdata.o
 
 $(OBJDIR_RELEASE)/bbutils.o: $(SRCPATH)/bbutils.cc
-	$(CPP) $(CPPFLAGSLIB) $(CPPFLAGS) $(SRCPATH)/bbutils.cc -o $(OBJDIR_RELEASE)/bbutils.o
+	$(CPP) -I ./src $(CPPFLAGSLIB) $(CPPFLAGS) $(SRCPATH)/bbutils.cc -o $(OBJDIR_RELEASE)/bbutils.o
 
 $(OBJDIR_RELEASE)/bbdep_sm.o: $(SRCPATH)/bbdep_sm.cc
 	$(CPP) $(CPPFLAGSLIB) $(CPPFLAGS) $(IS) $(CPPFLAGSEXTRA) $(INCLUDE) $(SRCPATH)/bbdep_sm.cc -o $(OBJDIR_RELEASE)/bbdep_sm.o

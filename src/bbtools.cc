@@ -21,7 +21,7 @@
 
 #include <protocols/simple_moves/SwitchResidueTypeSetMover.hh>
 
-#include "bbtools.hh"
+#include <bbtools.hh>
 
 namespace pepsgo
 {

@@ -38,10 +38,10 @@
 #include <core/scoring/rms_util.hh>
 #include <protocols/simple_moves/SuperimposeMover.hh>
 
-#include "pepsgo.hh"
-#include "data_io.hh"
-#include "transform.hh"
-#include "bbtools.hh"
+#include <pepsgo.hh>
+#include <data_io.hh>
+#include <transform.hh>
+#include <bbtools.hh>
 
 #include <random>
 #include <omp.h>

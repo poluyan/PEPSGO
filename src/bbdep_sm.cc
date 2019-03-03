@@ -17,9 +17,9 @@
 **************************************************************************/
 #include <omp.h>
 
-#include "bbdep_sm.hh"
-#include "bbutils.hh"
-#include "data_io.hh"
+#include <bbdep_sm.hh>
+#include <bbutils.hh>
+#include <data_io.hh>
 
 namespace pepsgo
 {

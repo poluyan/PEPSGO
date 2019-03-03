@@ -27,10 +27,10 @@
 #include <string>
 #include <vector>
 
-#include "quantile.hh"
-#include "get_dof.hh"
-#include "transform.hh"
-#include "fragment.hh"
+#include <quantile.hh>
+#include <get_dof.hh>
+#include <transform.hh>
+#include <fragment.hh>
 
 namespace pepsgo
 {

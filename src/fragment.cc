@@ -15,7 +15,8 @@
    limitations under the License.
 
 **************************************************************************/
-#include "fragment.hh"
+#include <fragment.hh>
+#include <bbtools.hh>
 
 #include <core/fragment/ConstantLengthFragSet.hh>
 #include <core/fragment/FragSet.hh>
@@ -35,7 +36,6 @@
 
 #include <cmath>
 #include <fstream>
-#include "bbtools.hh"
 
 namespace pepsgo
 {

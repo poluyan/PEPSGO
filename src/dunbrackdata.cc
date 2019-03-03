@@ -15,7 +15,7 @@
    limitations under the License.
 
 **************************************************************************/
-#include "dunbrackdata.hh"
+#include <dunbrackdata.hh>
 
 #include <tuple>
 #include <cmath>

@@ -22,7 +22,7 @@
 
 #include <numeric/NumericTraits.hh>
 
-#include "get_dof.hh"
+#include <get_dof.hh>
 
 namespace pepsgo
 {

@@ -18,8 +18,8 @@
 #ifndef INCLUDED_transform_hh
 #define INCLUDED_transform_hh
 
-#include "opt.hh"
-#include "bbdep_sm.hh"
+#include <opt.hh>
+#include <bbdep_sm.hh>
 
 #include <tuple>
 

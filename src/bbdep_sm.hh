@@ -18,8 +18,8 @@
 #ifndef INCLUDED_bbdep_sm_hh
 #define INCLUDED_bbdep_sm_hh
 
-#include "bbutils.hh"
-#include "dunbrackdata.hh"
+#include <bbutils.hh>
+#include <dunbrackdata.hh>
 
 #include <core/chemical/AtomType.hh>
 #include <core/pose/Pose.hh>

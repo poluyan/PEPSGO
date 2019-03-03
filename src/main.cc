@@ -17,7 +17,7 @@
 **************************************************************************/
 #include <devel/init.hh>
 
-#include "pepsgo.hh"
+#include <pepsgo.hh>
 
 int main(int argc, char *argv[])
 {

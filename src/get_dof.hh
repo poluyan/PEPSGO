@@ -27,8 +27,8 @@
 #include <vector>
 #include <string>
 
-#include "opt.hh"
-#include "transform.hh"
+#include <opt.hh>
+#include <transform.hh>
 
 namespace pepsgo
 {

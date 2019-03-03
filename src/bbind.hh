@@ -20,7 +20,7 @@
 
 #include <core/chemical/AA.hh>
 
-#include "bbutils.hh"
+#include <bbutils.hh>
 #include <unordered_map>
 #include <any>
 #include <boost/multi_array.hpp>

@@ -15,9 +15,9 @@
    limitations under the License.
 
 **************************************************************************/
-#include "bbind.hh"
-#include "data_io.hh"
-#include "linterp.hh"
+#include <bbind.hh>
+#include <data_io.hh>
+#include <linterp.hh>
 
 #include <fstream>
 
