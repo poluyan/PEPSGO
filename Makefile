@@ -85,7 +85,7 @@ before_release:
 
 out_release: before_release $(OBJ_RELEASE) $(HEADERS)
 	$(CPP) -shared -o libpepsgo.so $(LIBS1) $(SHAREDLIB) $(LIBS2) $(LIBS3)
-	$(CPP) -o $(TARGET) $(LIBS1) $(OBJDIR_RELEASE)/*.o $(LIBS2) $(LIBS3) -L. -lpepsgo
+	$(CPP) -o $(TARGET) $(LIBS1) $(OBJDIR_RELEASE)/main.o $(LIBS2) $(LIBS3) -L. -lpepsgo
 
 clean_release:
 	rm $(OBJDIR_RELEASE)/*.o

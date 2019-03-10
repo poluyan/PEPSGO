@@ -19,6 +19,14 @@
 
 #include <pepsgo.hh>
 
+class Example
+{
+public:
+    std::function<core::Real(const std::vector<double>&)> FitnessFunction;
+    std::function<core::Real(const std::vector<double>&, int)> FitnessFunctionMultiThread;
+    Example(){}
+};
+
 int main(int argc, char *argv[])
 {
     devel::init(argc, argv);
@@ -49,6 +57,10 @@ int main(int argc, char *argv[])
 
     std::cout << obj.get_AA_rmsd(std::vector<core::Real>(obj.get_opt_vector_size(),0.4)) << std::endl;
     std::cout << obj.get_CA_rmsd(std::vector<core::Real>(obj.get_opt_vector_size(),0.4)) << std::endl;
+    
+    Example fObj;
+    fObj.FitnessFunction = std::bind(&pepsgo::PEPSGO::objective, obj, std::placeholders::_1);
+    fObj.FitnessFunctionMultiThread = std::bind(&pepsgo::PEPSGO::objective_mt, obj, std::placeholders::_1, std::placeholders::_2);
 
     obj.append_to_superposed_aa(std::vector<core::Real>(obj.get_opt_vector_size(),0.4));
     obj.append_to_superposed_ca(std::vector<core::Real>(obj.get_opt_vector_size(),0.4));

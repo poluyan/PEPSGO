@@ -11,6 +11,7 @@ Results using Adaptive Differential Evolution. Native (green) vs predicted (cyan
 To compile from source, you will need:
  * Some Linux distro (Ubuntu/Arch Linux/etc)
  * C++ compiler with C++11 support (current Makefile is GCC-based)
+ * OpenMP for multithreading
  * [The Rosetta software suite](https://www.rosettacommons.org/software)
 
 ## Installation
@@ -37,6 +38,10 @@ GCCVER = 8.2
  * `fragments.Nmers` Fragment file formatted in Rosetta-style (like the output from fragment picker). Fragments can be any length.
  * `native.data` File with a path to the native structure.
  * `prediction.horiz` Secondary structure prediction in PSIPRED HFORMAT.
+
+## Usage
+
+The `src/main.cc` presents the example of using PEPSGO. The default `make` build contains `main.cc` compilation and linking, see `TARGET` generation in `Makefile`.
 
 ## License
 
