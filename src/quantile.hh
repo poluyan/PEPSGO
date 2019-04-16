@@ -19,7 +19,7 @@
 #ifndef QUANTILE_HH
 #define QUANTILE_HH
 
-#include "trie_based.hh"
+#include <trie_based.hh>
 
 #include <numeric>
 

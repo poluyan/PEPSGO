@@ -34,6 +34,26 @@
 #include <core/scoring/rms_util.hh>
 #include <core/import_pose/import_pose.hh>
 
+#include <protocols/evaluation/PoseEvaluator.fwd.hh>
+#include <protocols/evaluation/PCA.fwd.hh>
+#include <protocols/simple_filters/PoseMetricEvaluator.hh>
+#include <protocols/pose_metric_calculators/ClashCountCalculator.hh>
+#include <core/pose/metrics/CalculatorFactory.hh>
+#include <protocols/evaluation/EvaluatorFactory.hh>
+#include <protocols/filters/Filter.hh>
+#include <protocols/simple_filters/RGFilter.hh>
+#include <protocols/simple_filters/COFilter.hh>
+#include <protocols/simple_filters/SheetFilter.hh>
+#include <protocols/simple_filters/PDDFScoreFilter.hh>
+#include <protocols/simple_filters/SAXSScoreFilter.hh>
+#include <basic/options/keys/score.OptionKeys.gen.hh>
+#include <protocols/simple_filters/RmsdEvaluator.hh>
+#include <protocols/simple_filters/JumpEvaluator.hh>
+#include <core/pose/extra_pose_info_util.hh>
+#include <basic/options/keys/filters.OptionKeys.gen.hh>
+#include <protocols/simple_filters/PDDFScoreFilter.hh>
+#include <protocols/simple_filters/SAXSScoreFilter.hh>
+
 #include <cmath>
 #include <fstream>
 
@@ -668,6 +688,11 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
     auto bonds = get_bounds();
     size_t count = 0;
     std::vector<size_t> it(variable_values.size(), 0);
+    
+    core::pose::metrics::PoseMetricCalculatorOP clash_calculator(new protocols::pose_metric_calculators::ClashCountCalculator(2.0));
+    core::pose::metrics::CalculatorFactory::Instance().register_calculator("clashes", clash_calculator);
+    protocols::simple_filters::PoseMetricEvaluator<core::Size> clashes_number("clashes", "bb");
+
     do
     {
         count++;
@@ -717,19 +742,23 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
                 to_trie[q] = get_index_omega(omega_values_radians[k], k);
             }
 
-            ///
-
-            /*peptide_centroid.set_psi(1, temp.front().psi);
-            peptide_centroid.set_omega(1, temp.front().omg);
-
-            for(size_t q = 1; q != temp.size() - 1; q++)
-            {
-                peptide_centroid.set_phi(q + 1, temp[q].phi);
-                peptide_centroid.set_psi(q + 1, temp[q].psi);
-                peptide_centroid.set_omega(q + 1, temp[q].omg);
-            }
-            peptide_centroid.set_phi(peptide_centroid.total_residue(), temp.back().phi);
-            
+            /// remove clashes
+//            peptide_centroid.set_psi(1, temp.front().psi);
+//            peptide_centroid.set_omega(1, temp.front().omg);
+//
+//            for(size_t q = 1; q != temp.size() - 1; q++)
+//            {
+//                peptide_centroid.set_phi(q + 1, temp[q].phi);
+//                peptide_centroid.set_psi(q + 1, temp[q].psi);
+//                peptide_centroid.set_omega(q + 1, temp[q].omg);
+//            }
+//            peptide_centroid.set_phi(peptide_centroid.total_residue(), temp.back().phi);
+//            if(clashes_number.apply(peptide_centroid))
+//            {
+//                std::cout << "clash!" << std::endl;
+//                continue;
+//            }
+                        
 
             //            core::scoring::ScoreFunctionOP score_cent = core::scoring::ScoreFunctionFactory::create_score_function("cen_std");
             //            core::kinematics::MoveMapOP movemap_minimizer_ = core::kinematics::MoveMapOP(new core::kinematics::MoveMap());
@@ -747,7 +776,7 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
             //            peptide_centroid.dump_pdb("1.pdb");
             //            std::cin.get();
 
-            std::vector<core::Real> phipsi_values_radians(phipsi_grid_number.size());
+            /*std::vector<core::Real> phipsi_values_radians(phipsi_grid_number.size());
             std::vector<core::Real> omega_values_radians(omega_grid_number.size());
             std::vector<std::uint8_t> to_trie(phipsi_values_radians.size() + omega_values_radians.size());
 
