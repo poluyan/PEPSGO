@@ -103,6 +103,7 @@ public:
     void make_permutations(size_t type);
     void all_possible(size_t residues, size_t n_frags);
     void one_chain(size_t residues, size_t n_frags);
+    void multistage(size_t residues, size_t n_frags);
     void one_chain_Von_Neumann(size_t residues, size_t n_frags);
     void coil_chain(size_t residues, size_t n_frags);
 //    void write_structures_pdb(size_t delta);

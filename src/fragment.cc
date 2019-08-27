@@ -696,6 +696,204 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
     do
     {
         count++;
+        if(!(count%10000))
+            std::cout << "count " << count << '\t' << sample.size() << '\t' << structures_trie->get_total_count() << '\t' << min_sum << std::endl;
+        std::vector<int> permut = get_line(variable_values, it);
+        std::vector<std::vector<Frag>> to_distr;
+        size_t delta = frag_size;
+        for(size_t j = 0, t = 0; j != permut.size(); j++, t+=delta)
+        {
+            to_distr.push_back(all_fragments[t][permut[j]]);
+            if(t + delta >= all_fragments.size())
+                delta = 1;
+        }
+        //std::cout << "to_distr " << to_distr.size() << std::endl;
+        auto distr = get_frag_mix2(to_distr, peptide.total_residue(), residues, frag_size);
+
+        for(size_t j = 0; j != permut_for_selected.size(); j++)
+        {
+            std::vector<Frag> temp;
+            for(size_t k = 0; k != permut_for_selected[j].size(); k++)
+            {
+                temp.push_back(distr[k][permut_for_selected[j][k]]);
+            }
+            //                structures.push_back(temp);
+
+            std::vector<core::Real> phipsi_values_radians(phipsi_grid_number.size());
+            std::vector<core::Real> omega_values_radians(omega_grid_number.size());
+            std::vector<std::uint8_t> to_trie(phipsi_values_radians.size() + omega_values_radians.size());
+
+            phipsi_values_radians.front() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp.front().psi));
+            omega_values_radians.front() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp.front().omg));
+            for(size_t q = 1, k = 1; q != temp.size() - 1; q++, k+=2)
+            {
+                phipsi_values_radians[k] = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp[q].phi));
+                phipsi_values_radians[k + 1] = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp[q].psi));
+                omega_values_radians[q] = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp[q].omg));
+            }
+            phipsi_values_radians.back() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(temp.back().phi));
+
+            for(size_t q = 0; q != phipsi_values_radians.size(); q++)
+            {
+                to_trie[q] = get_index_phipsi(phipsi_values_radians[q], q);
+            }
+            for(size_t q = phipsi_values_radians.size(), k = 0; q != to_trie.size(); q++, k++)
+            {
+                to_trie[q] = get_index_omega(omega_values_radians[k], k);
+            }
+
+            /// remove clashes
+            peptide_centroid.set_psi(1, temp.front().psi);
+            peptide_centroid.set_omega(1, temp.front().omg);
+
+            for(size_t q = 1; q != temp.size() - 1; q++)
+            {
+                peptide_centroid.set_phi(q + 1, temp[q].phi);
+                peptide_centroid.set_psi(q + 1, temp[q].psi);
+                peptide_centroid.set_omega(q + 1, temp[q].omg);
+            }
+            peptide_centroid.set_phi(peptide_centroid.total_residue(), temp.back().phi);
+            if(clashes_number.apply(peptide_centroid))
+            {
+//                std::cout << "clash!" << std::endl;
+                continue;
+            }
+                        
+
+            //            core::scoring::ScoreFunctionOP score_cent = core::scoring::ScoreFunctionFactory::create_score_function("cen_std");
+            //            core::kinematics::MoveMapOP movemap_minimizer_ = core::kinematics::MoveMapOP(new core::kinematics::MoveMap());
+            //            movemap_minimizer_->set_bb(true);
+            //            protocols::minimization_packing::MinMover minimizer(movemap_minimizer_, score_cent, "lbfgs", 1e-20, true);
+            //            minimizer.max_iter(5000);
+            //            minimizer.apply(peptide_centroid);
+
+            //peptide_centroid.dump_pdb("1.pdb");
+            //std::cin.get();
+            //            numeric::Real current_distance(peptide_centroid.residue(1).xyz("CA").distance( peptide_centroid.residue(peptide_centroid.total_residue()).xyz("CA") ));
+            //            if(current_distance > 10)
+            //                continue;
+            //            std::cout << "hit it" << std::endl;
+            //            peptide_centroid.dump_pdb("1.pdb");
+            //            std::cin.get();
+
+            /*std::vector<core::Real> phipsi_values_radians(phipsi_grid_number.size());
+            std::vector<core::Real> omega_values_radians(omega_grid_number.size());
+            std::vector<std::uint8_t> to_trie(phipsi_values_radians.size() + omega_values_radians.size());
+
+            phipsi_values_radians.front() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(peptide_centroid.psi(1)));
+            omega_values_radians.front() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(peptide_centroid.omega(1)));
+            for(size_t j = 1, k = 1, seqpos = 2; j != temp.size() - 1; j++, k+=2, seqpos++)
+            {
+                phipsi_values_radians[k] = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(peptide_centroid.phi(seqpos)));
+                phipsi_values_radians[k + 1] = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(peptide_centroid.psi(seqpos)));
+                omega_values_radians[j] = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(peptide_centroid.omega(seqpos)));
+            }
+            phipsi_values_radians.back() = bbtools::normalize_to_mpi_to_ppi(numeric::conversions::radians(peptide_centroid.phi(peptide_centroid.total_residue())));
+
+            for(size_t j = 0; j != phipsi_values_radians.size(); j++)
+            {
+                to_trie[j] = get_index_phipsi(phipsi_values_radians[j], j);
+            }
+            for(size_t j = phipsi_values_radians.size(), k = 0; j != to_trie.size(); j++, k++)
+            {
+                to_trie[j] = get_index_omega(omega_values_radians[k], k);
+            }*/
+
+            ///
+
+
+            if(!structures_trie->search(to_trie))
+//            if(sample.find(to_trie) == sample.end())
+            {
+                structures_trie->insert(to_trie);
+//                sample.insert(to_trie);
+
+                //
+                size_t sum = 0;
+                std::vector<std::uint8_t> dist(native_state.size());
+                for(size_t k = 0; k != dist.size() - peptide_seq.length(); k++)
+                {
+                    int t = std::abs(static_cast<int>(native_state[k]) - static_cast<int>(to_trie[k]));
+                    sum += std::min(t, std::abs(int(bonds[k]) - t));
+                }
+                if(min_sum > sum)
+                {
+                    min_sum = sum;
+                    closest = to_trie;
+                    std::cout << min_sum << '\t' << sample.size() << std::endl;
+                }
+
+//                for(const auto &k : to_trie)
+//                {
+//                    fOut << int(k) << '\t';
+//                }
+//                fOut << std::endl;
+            }
+//            if(structures_trie->get_total_count() > 250000)
+//                break;
+        }
+//        if(structures_trie->get_total_count() > 1e6)
+//            break;
+//        if(sample.size() > 250000)
+//            break;
+    }
+    while(increase(variable_values, it));
+    fOut.close();
+//    std::cout << permut.size() << std::endl;
+//    std::cout << structures.size() << std::endl;
+}
+
+
+void FragPick::multistage(size_t residues, size_t n_frags)
+{
+    std::vector<size_t> sizes = get_permut_sizes2(peptide.total_residue(), residues, frag_size);
+
+    size_t matrix_size = peptide.total_residue()%frag_size ? peptide.total_residue()/frag_size + 1 : peptide.total_residue()/frag_size;
+
+    std::vector<std::vector<int>> for_selected(sizes.size());
+    for(size_t i = 0, k = 0; i != for_selected.size(); i++, k+=frag_size)
+    {
+        for_selected[i].resize(sizes[i]);
+        for(size_t j = 0; j != sizes[i]; j++)
+        {
+            for_selected[i][j] = j;
+        }
+    }
+    std::cout << "it will be " << std::fixed <<
+              n_frags << " ^ " << matrix_size << " * " << how_much_will_be_iterate(for_selected) << " = "
+              << size_t(std::pow(n_frags, matrix_size)*how_much_will_be_iterate(for_selected)) << std::endl;
+    std::cin.get();
+
+    std::vector<std::vector<int>> permut_for_selected = iterate(for_selected);
+
+    std::vector<std::vector<int>> variable_values(matrix_size, std::vector<int>(n_frags));
+    for(size_t i = 0; i != variable_values.size(); i++)
+    {
+        for(size_t j = 0; j != n_frags; j++)
+        {
+            variable_values[i][j] = j;
+            //std::cout << variable_values[i][j] << ' ';
+        }
+        //std::cout << std::endl;
+    }
+//    std::vector<std::vector<int>> permut = iterate(variable_values);    // n_frags^residues
+//    std::cout << permut.size() << std::endl;
+    std::cout << all_fragments.size() << std::endl;
+    //        structures.clear();
+    std::ofstream fOut("sample.dat");
+    std::set<std::vector<std::uint8_t>> sample;
+    size_t min_sum = 256*native_state.size();
+    auto bonds = get_bounds();
+    size_t count = 0;
+    std::vector<size_t> it(variable_values.size(), 0);
+    
+    core::pose::metrics::PoseMetricCalculatorOP clash_calculator(new protocols::pose_metric_calculators::ClashCountCalculator(2.0));
+    core::pose::metrics::CalculatorFactory::Instance().register_calculator("clashes", clash_calculator);
+    protocols::simple_filters::PoseMetricEvaluator<core::Size> clashes_number("clashes", "bb");
+
+    do
+    {
+        count++;
         if(!(count%1000000))
             std::cout << "count " << count << '\t' << sample.size() << '\t' << min_sum << std::endl;
         std::vector<int> permut = get_line(variable_values, it);
@@ -743,21 +941,21 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
             }
 
             /// remove clashes
-//            peptide_centroid.set_psi(1, temp.front().psi);
-//            peptide_centroid.set_omega(1, temp.front().omg);
-//
-//            for(size_t q = 1; q != temp.size() - 1; q++)
-//            {
-//                peptide_centroid.set_phi(q + 1, temp[q].phi);
-//                peptide_centroid.set_psi(q + 1, temp[q].psi);
-//                peptide_centroid.set_omega(q + 1, temp[q].omg);
-//            }
-//            peptide_centroid.set_phi(peptide_centroid.total_residue(), temp.back().phi);
-//            if(clashes_number.apply(peptide_centroid))
-//            {
+            peptide_centroid.set_psi(1, temp.front().psi);
+            peptide_centroid.set_omega(1, temp.front().omg);
+
+            for(size_t q = 1; q != temp.size() - 1; q++)
+            {
+                peptide_centroid.set_phi(q + 1, temp[q].phi);
+                peptide_centroid.set_psi(q + 1, temp[q].psi);
+                peptide_centroid.set_omega(q + 1, temp[q].omg);
+            }
+            peptide_centroid.set_phi(peptide_centroid.total_residue(), temp.back().phi);
+            if(clashes_number.apply(peptide_centroid))
+            {
 //                std::cout << "clash!" << std::endl;
-//                continue;
-//            }
+                continue;
+            }
                         
 
             //            core::scoring::ScoreFunctionOP score_cent = core::scoring::ScoreFunctionFactory::create_score_function("cen_std");
@@ -1181,6 +1379,9 @@ void FragPick::make_permutations(size_t type)
         case 3:
             coil_chain(residues, n_frags);
             break;
+        case 4:
+            multistage(residues, n_frags);
+            break;
         default:
             break;
     }
@@ -1279,7 +1480,7 @@ void FragPick::set_psipred(std::pair<std::uint8_t,std::uint8_t> phipsi_minmax, s
     for(size_t i = 0; i != confidence.size(); i++)
     {
         step_num_phipsi[i] = phipsi_minmax.first + phipsi*(confidence[i] + 1)/10.0;
-        if(ss_predicted[i] == 'H')
+        /*if(ss_predicted[i] == 'H')
         {
             step_num_phipsi[i] *= 2;
         }
@@ -1318,7 +1519,7 @@ void FragPick::set_psipred(std::pair<std::uint8_t,std::uint8_t> phipsi_minmax, s
 //                        step_num_phipsi[i] = 254;
 //                }
             }
-        }
+        }*/
         step_num_omega[i] = omega_minmax.first + omega*(confidence[i] + 1)/10.0;
         std::cout << step_num_phipsi[i] << '\t' << step_num_omega[i] << std::endl;
     }

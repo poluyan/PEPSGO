@@ -206,11 +206,11 @@ void PEPSGO::set_native_state()
     native_state.resize(std::get<2>(peptide_ranges_native.omega) + 1);
     for(size_t i = 0; i != std::get<2>(peptide_ranges_native.phipsi) + 1; i++)
     {
-        native_state[i] = frags.get_index_phipsi(peptide_native_ideal_optimized.dof(opt_vector_native[i].dofid), i);
+        native_state[i] = frags.get_index_phipsi(peptide_native.dof(opt_vector_native[i].dofid), i);
     }
     for(size_t i = std::get<1>(peptide_ranges_native.omega), k = 0; i != std::get<2>(peptide_ranges_native.omega) + 1; i++, k++)
     {
-        native_state[i] = frags.get_index_omega(peptide_native_ideal_optimized.dof(opt_vector_native[i].dofid), k);
+        native_state[i] = frags.get_index_omega(peptide_native.dof(opt_vector_native[i].dofid), k);
     }
     for(size_t i = 0; i != native_state.size(); i++)
     {
@@ -490,7 +490,7 @@ void PEPSGO::create_space_frag(std::pair<std::uint8_t,std::uint8_t> phipsi_minma
     frags.make_permutations(1); // 0 - all, 1 - one chain, 2 - one chain Von Neumann, 3 - coil chain
     peptide_ss_predicted = frags.get_ss_predicted();
 
-//    structures_triebased->insert(native_state);
+    structures_triebased->insert(native_state);
 
     auto bonds = frags.get_bounds();
     structures_quant = std::make_shared<empirical_quantile::ImplicitQuantile<std::uint8_t, double>>(
@@ -499,7 +499,6 @@ void PEPSGO::create_space_frag(std::pair<std::uint8_t,std::uint8_t> phipsi_minma
                            bonds);
     structures_quant->set_sample_shared(structures_triebased);
 
-
     auto closest = frags.get_closest_to_native();
     std::cout << "is native in frag space " << is_native_in_frag_space() << std::endl;
 
@@ -507,7 +506,7 @@ void PEPSGO::create_space_frag(std::pair<std::uint8_t,std::uint8_t> phipsi_minma
 
     std::cout << "native vs closest" << std::endl;
     size_t sum = 0;
-    for(size_t i = 0; i != native_state.size(); i++)
+    for(size_t i = 0; i != closest.size(); i++)
     {
         int t = std::abs(int(native_state[i]) - int(closest[i]));
         sum += std::min(t, std::abs(int(bonds[i]) - t));

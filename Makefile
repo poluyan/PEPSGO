@@ -2,9 +2,9 @@ TARGET = main
 CPP = g++
 
 # 
-MAIN = /ssdwork/psp_builds/rosetta_src_2019.12.60667_bundle/main
-LINUXVER = 5.0
-GCCVER = 8.2
+MAIN = /ssdwork/psp_builds/rosetta_src_2019.31.60840_bundle/main
+LINUXVER = 5.2
+GCCVER = 9.1
 
 RUNNAME=run.sh
 # libbasic libObjexxFCL libprotocols libcore etc
@@ -16,7 +16,7 @@ RUNFLAGS=-in::file::fasta input/sequence.fasta -in::file::native $$native -in::f
 
 ##
 
-CPPFLAGS = -c -std=c++17 -Wall -Wextra -Wpedantic -ffor-scope -fopenmp -MD
+CPPFLAGS = -c -std=c++17 -Wall -Wextra -Wpedantic -fopenmp -MD
 CPPFLAGSLIB = -fPIC
 CPPFLAGSEXTRA = -pipe -pedantic -Wno-long-long -Wno-strict-aliasing -march=core2 -mtune=generic -O3 -ffast-math -funroll-loops -finline-functions -finline-limit=20000 -s -Wno-unused-variable -Wno-unused-parameter -DBOOST_ERROR_CODE_HEADER_ONLY -DBOOST_SYSTEM_NO_DEPRECATED -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS -DPTR_STD -DNDEBUG 
 
