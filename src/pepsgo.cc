@@ -433,7 +433,7 @@ void PEPSGO::fill_rama2_quantile(size_t step)
                 grid_number
             );
         auto lower = std::lower_bound(phipsi.begin(), phipsi.end(), peptide_sequence.substr(i, 3));
-        phipsi_rama2_quantile[i]->set_sample_shared(phipsi_rama2_sample[std::distance(phipsi.begin(), lower)]);
+        phipsi_rama2_quantile[i]->set_sample_shared_and_fill_count(phipsi_rama2_sample[std::distance(phipsi.begin(), lower)]);
 
         // check
 //        std::mt19937_64 generator;
@@ -497,7 +497,7 @@ void PEPSGO::create_space_frag(std::pair<std::uint8_t,std::uint8_t> phipsi_minma
                            std::vector<double>(bonds.size(), -numeric::NumericTraits<core::Real>::pi()),
                            std::vector<double>(bonds.size(), numeric::NumericTraits<core::Real>::pi()),
                            bonds);
-    structures_quant->set_sample_shared(structures_triebased);
+    structures_quant->set_sample_shared_and_fill_count(structures_triebased);
 
     auto closest = frags.get_closest_to_native();
     std::cout << "is native in frag space " << is_native_in_frag_space() << std::endl;
@@ -586,7 +586,7 @@ void PEPSGO::set_omega_quantile(size_t step)
                                  grid_number
                              );
     std::vector<std::vector<int>> in_sample = {{0}, {int(step) - 1}};
-    omega_quantile.front()->set_sample(in_sample);
+    omega_quantile.front()->set_sample_and_fill_count(in_sample);
 }
 
 void PEPSGO::transform_with_frags(const std::vector<double> &x, std::vector<double> &out)

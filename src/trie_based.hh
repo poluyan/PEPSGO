@@ -25,6 +25,7 @@
 
 namespace trie_based
 {
+
 template <template <typename> class T, typename I>
 struct TrieNode
 {
@@ -63,13 +64,18 @@ public:
     void set_dimension(size_t dim);
     size_t get_dimension() const;
     void insert(const std::vector<I> &key);
+    void insert(const std::vector<I> &key, size_t number);
     bool search(const std::vector<I> &key) const;
     void fill_tree_count();
     bool empty() const;
     void remove_tree();
     size_t get_total_count() const;
     std::vector<I> get_and_remove_last();
+    size_t get_link_count() const;
+    size_t get_node_count() const;
 protected:
+    void get_link_number(T *p, size_t &count) const;
+    void get_node_number(T *p, size_t &count) const;
     void fill_tree_count(T *p);
     void get_number(T *p, size_t &count) const;
     void is_all_empty(T *p) const;
@@ -113,6 +119,42 @@ size_t TrieBased<T,I>::get_total_count() const
     return count - last_layer.size();
 }
 template <typename T, typename I>
+void TrieBased<T,I>::get_node_number(T *p, size_t &count) const
+{
+    for(const auto &i : p->children)
+    {
+        ++count;
+        get_node_number(i.get(), count);
+    }
+}
+template <typename T, typename I>
+size_t TrieBased<T,I>::get_node_count() const
+{
+    size_t count = 0;
+    get_node_number(root.get(), count);
+    for(const auto &i : last_layer)
+        count -= i.use_count();
+    return count + 2*last_layer.size() + 1;
+}
+template <typename T, typename I>
+void TrieBased<T,I>::get_link_number(T *p, size_t &count) const
+{
+    for(const auto &i : p->children)
+    {
+        ++count;
+        get_node_number(i.get(), count);
+    }
+}
+template <typename T, typename I>
+size_t TrieBased<T,I>::get_link_count() const
+{
+    size_t count = 0;
+    get_node_number(root.get(), count);
+//    for(const auto &i : last_layer)
+//        count -= i.use_count();
+    return count;
+}
+template <typename T, typename I>
 void TrieBased<T,I>::insert(const std::vector<I> &key)
 {
     auto p = root.get();
@@ -128,11 +170,6 @@ void TrieBased<T,I>::insert(const std::vector<I> &key)
             p->children.emplace_back(std::make_shared<T>(value));
             p->children.shrink_to_fit();
             p = p->children.back().get();
-            
-//            auto it = std::lower_bound(p->children.begin(), p->children.end(), value,
-//                [](const std::shared_ptr<T> &l, I r){return l->index < r;});
-//            p->children.insert(it, std::make_shared<T>(value));
-//            p = p->children[std::distance(p->children.begin(), it)].get();
         }
         else
         {
@@ -163,7 +200,62 @@ void TrieBased<T,I>::insert(const std::vector<I> &key)
     if(it == p->children.end())
     {
         std::shared_ptr<T> ptr(last_layer[dist]);
-        p->children.push_back(ptr);
+        p->children.emplace_back(ptr);
+        p->children.shrink_to_fit();
+    }
+}
+template <typename T, typename I>
+void TrieBased<T,I>::insert(const std::vector<I> &key, size_t count)
+{
+    auto p = root.get();
+    for(size_t i = 0; i != key.size() - 1; i++)
+    {
+        p->count += count;
+        auto value = key[i];
+        auto it = std::find_if(p->children.begin(), p->children.end(), [&value](const std::shared_ptr<T> &obj)
+        {
+            return obj->index == value;
+        });
+        if(it == p->children.end())
+        {
+            p->children.emplace_back(std::make_shared<T>(value));
+            p->children.shrink_to_fit();
+            p = p->children.back().get();
+        }
+        else
+        {
+            p = p->children[std::distance(p->children.begin(), it)].get();
+        }
+    }
+    auto value = key.back();
+    auto it = std::find_if(last_layer.begin(), last_layer.end(), [&value](const std::shared_ptr<T> &obj)
+    {
+        return obj->index == value;
+    });
+    size_t dist = 0;
+    if(it == last_layer.end())
+    {
+        last_layer.emplace_back(std::make_shared<T>(value));
+//        last_layer.back()->count += count;
+        last_layer.back()->count = 1;
+        last_layer.shrink_to_fit();
+        dist = last_layer.size() - 1;
+    }
+    else
+    {
+        dist = std::distance(last_layer.begin(), it);
+        last_layer[dist]->count = 1;
+//        last_layer[dist]->count += count;
+    }
+    p->count += count;
+    it = std::find_if(p->children.begin(), p->children.end(), [&value](const std::shared_ptr<T> &obj)
+    {
+        return obj->index == value;
+    });
+    if(it == p->children.end())
+    {
+        std::shared_ptr<T> ptr(last_layer[dist]);
+        p->children.emplace_back(ptr);
         p->children.shrink_to_fit();
     }
 }
@@ -287,6 +379,7 @@ void TrieBased<T,I>::get_number(T *p, size_t &count) const
         get_number(i.get(), count);
     }
 }
+
 }
 
 #endif
