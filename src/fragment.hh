@@ -83,7 +83,7 @@ private:
 
 //    std::vector<std::vector<Frag> > structures;
 
-    typedef trie_based::TrieBased<trie_based::NodeCount<std::uint8_t>,std::uint8_t> sample_type;
+    typedef mveqf::trie_based::TrieBased<mveqf::trie_based::NodeCount<std::uint8_t>,std::uint8_t> sample_type;
     std::shared_ptr<sample_type> structures_trie;
 
     core::pose::Pose peptide;

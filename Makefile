@@ -1,16 +1,18 @@
 TARGET = main
-CPP = g++
+CPP = clang++
 
 # 
-MAIN = /ssdwork/psp_builds/rosetta_src_2019.31.60840_bundle/main
-LINUXVER = 5.2
-GCCVER = 9.1
+MAIN = /ssdwork/psp_builds/rosetta_src_2020.27.61323_bundle/main
+LINUXVER = 5.7
+CPPCOMP = clang
+CPPVER = 10.0
+
 
 RUNNAME=run.sh
 # libbasic libObjexxFCL libprotocols libcore etc
-RUNLIBS1=$(MAIN)/source/build/src/release/linux/$(LINUXVER)/64/x86/gcc/$(GCCVER)/default
+RUNLIBS1=$(MAIN)/source/build/src/release/linux/$(LINUXVER)/64/x86/$(CPPCOMP)/$(CPPVER)/default
 # libcifparse.so libcppdb.so libsqlite3.so libxml2.so libzmq.so
-RUNLIBS2=$(MAIN)/source/build/external/release/linux/$(LINUXVER)/64/x86/gcc/$(GCCVER)/default
+RUNLIBS2=$(MAIN)/source/build/external/release/linux/$(LINUXVER)/64/x86/$(CPPCOMP)/$(CPPVER)/default
 # rosetta options
 RUNFLAGS=-in::file::fasta input/sequence.fasta -in::file::native $$native -in::file::psipred_ss2 input/prediction.horiz -frags::frag_sizes $$fragsize -in::file::frag_files input/fragments.Nmers -mute all
 
@@ -18,16 +20,17 @@ RUNFLAGS=-in::file::fasta input/sequence.fasta -in::file::native $$native -in::f
 
 CPPFLAGS = -c -std=c++17 -Wall -Wextra -Wpedantic -fopenmp -MD
 CPPFLAGSLIB = -fPIC
-CPPFLAGSEXTRA = -pipe -pedantic -Wno-long-long -Wno-strict-aliasing -march=core2 -mtune=generic -O3 -ffast-math -funroll-loops -finline-functions -finline-limit=20000 -s -Wno-unused-variable -Wno-unused-parameter -DBOOST_ERROR_CODE_HEADER_ONLY -DBOOST_SYSTEM_NO_DEPRECATED -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS -DPTR_STD -DNDEBUG 
+#CPPFLAGSEXTRA = -pipe -pedantic -Wno-long-long -Wno-strict-aliasing -march=core2 -mtune=generic -O3 -ffast-math -funroll-loops -finline-functions -finline-limit=20000 -s -Wno-unused-variable -Wno-unused-parameter -DBOOST_ERROR_CODE_HEADER_ONLY -DBOOST_SYSTEM_NO_DEPRECATED -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS -DPTR_STD -DNDEBUG 
+CPPFLAGSEXTRA = -pipe -pedantic -Wno-long-long -Wno-strict-aliasing -march=core2 -mtune=generic -O3 -ffast-math -funroll-loops -finline-functions -Wno-unused-variable -Wno-unused-parameter -DBOOST_ERROR_CODE_HEADER_ONLY -DBOOST_SYSTEM_NO_DEPRECATED -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS -DPTR_STD -DNDEBUG 
+
 
 IS = -isystem $(MAIN)/source/external/boost_1_55_0/ -isystem $(MAIN)/source/external/ -isystem $(MAIN)/source/external/include/ -isystem $(MAIN)/source/external/dbio/
 
-INCLUDE = -Isrc -I$(MAIN)/source/src -I$(MAIN)/source/external/include -I$(MAIN)/source/src/platform/linux/64/gcc/$(GCCVER) -I$(MAIN)/source/src/platform/linux/64/gcc -I$(MAIN)/source/src/platform/linux/64 -I$(MAIN)/source/src/platform/linux -I$(MAIN)/source/external/boost_1_55_0 -I$(MAIN)/source/external/libxml2/include -I$(MAIN)/source/external -I$(MAIN)/source/external/dbio -I/usr/include -I/usr/local/include
+INCLUDE = -Isrc -I$(MAIN)/source/src -I$(MAIN)/source/external/include -I$(MAIN)/source/src/platform/linux/64/$(CPPCOMP)/$(CPPVER) -I$(MAIN)/source/src/platform/linux/64/$(CPPCOMP) -I$(MAIN)/source/src/platform/linux/64 -I$(MAIN)/source/src/platform/linux -I$(MAIN)/source/external/boost_1_55_0 -I$(MAIN)/source/external/libxml2/include -I$(MAIN)/source/external -I$(MAIN)/source/external/dbio -I/usr/include -I/usr/local/include
 
-LIBS1 = -L$(MAIN)/source/external/lib -L$(MAIN)/source/build/src/release/linux/$(LINUXVER)/64/x86/gcc/$(GCCVER)/default -L$(MAIN)/source/build/src/release/linux/$(LINUXVER)/64/x86/gcc/$(GCCVER)/default -L$(MAIN)/source/src -L$(MAIN)/source/build/external/release/linux/$(LINUXVER)/64/x86/gcc/$(GCCVER)/default -L$(MAIN)/external
+LIBS1 = -L$(MAIN)/source/external/lib -L$(MAIN)/source/build/src/release/linux/$(LINUXVER)/64/x86/$(CPPCOMP)/$(CPPVER)/default -L$(MAIN)/source/build/src/release/linux/$(LINUXVER)/64/x86/$(CPPCOMP)/$(CPPVER)/default -L$(MAIN)/source/src -L$(MAIN)/source/build/external/release/linux/$(LINUXVER)/64/x86/$(CPPCOMP)/$(CPPVER)/default -L$(MAIN)/external
 LIBS2 = -L/usr/lib -L/usr/local/lib -fopenmp
-LIBS3 = -ldevel -lprotocols.8 -lprotocols.7 -lprotocols_e.6 -lprotocols_d.6 -lprotocols_c.6 -lprotocols_b.6 -lprotocols_a.6 -lprotocols_h.5 -lprotocols_g.5 -lprotocols_f.5 -lprotocols_e.5 -lprotocols_d.5 -lprotocols_c.5 -lprotocols_b.5 -lprotocols_a.5 -lprotocols.4 -lprotocols.3 -lprotocols_b.2 -lprotocols_a.2 -lprotocols.1 -lcore.5 -lcore.4 -lcore.3 -lcore.2 -lcore.1 -lbasic -lnumeric -lutility -lObjexxFCL -lz -lcppdb -lsqlite3 -lcifparse -lxml2 -lzmq
-
+LIBS3 = -ldevel -lprotocols.8 -lprotocols.7 -lprotocols_e.6 -lprotocols_d.6 -lprotocols_c.6 -lprotocols_b.6 -lprotocols_a.6 -lprotocols_h.5 -lprotocols_g.5 -lprotocols_f.5 -lprotocols_e.5 -lprotocols_d.5 -lprotocols_c.5 -lprotocols_b.5 -lprotocols_a.5 -lprotocols.4 -lprotocols.3 -lprotocols_b.2 -lprotocols_a.2 -lprotocols.1 -lcore.6 -lcore.5 -lcore.4 -lcore.3 -lcore.2 -lcore.1 -lbasic -lnumeric -lutility -lObjexxFCL -lz -lcppdb -lsqlite3 -lcifparse -lxml2 -lzmq
 SRCPATH = ./src
 
 OBJDIR_RELEASE = obj/Release

@@ -358,7 +358,7 @@ void PEPSGO::fill_rama2_residue(core::pose::Pose &pep, core::scoring::ScoreFunct
         }
     }
 
-    phipsi_rama2_sample[ind] = std::make_shared<trie_based::TrieBased<trie_based::NodeCount<int>,int>>();
+    phipsi_rama2_sample[ind] = std::make_shared<mveqf::trie_based::TrieBased<mveqf::trie_based::NodeCount<int>,int>>();
     for(size_t i = 0; i != pdf.size(); i++)
     {
         for(size_t j = 0; j != pdf[i].size(); j++)
@@ -427,7 +427,7 @@ void PEPSGO::fill_rama2_quantile(size_t step)
     for(size_t i = 0; i != phipsi_rama2_quantile.size(); i++)
     {
         phipsi_rama2_quantile[i] =
-            std::make_shared<empirical_quantile::ImplicitQuantileSorted<int, double>>(
+            std::make_shared<mveqf::ImplicitQuantileSorted<int, double>>(
                 std::vector<double>(grid_number.size(), -numeric::NumericTraits<core::Real>::pi()),
                 std::vector<double>(grid_number.size(), numeric::NumericTraits<core::Real>::pi()),
                 grid_number
@@ -493,7 +493,7 @@ void PEPSGO::create_space_frag(std::pair<std::uint8_t,std::uint8_t> phipsi_minma
     structures_triebased->insert(native_state);
 
     auto bonds = frags.get_bounds();
-    structures_quant = std::make_shared<empirical_quantile::ImplicitQuantile<std::uint8_t, double>>(
+    structures_quant = std::make_shared<mveqf::ImplicitQuantile<std::uint8_t, double>>(
                            std::vector<double>(bonds.size(), -numeric::NumericTraits<core::Real>::pi()),
                            std::vector<double>(bonds.size(), numeric::NumericTraits<core::Real>::pi()),
                            bonds);
@@ -580,7 +580,7 @@ void PEPSGO::set_omega_quantile(size_t step)
 {
     omega_quantile.resize(1);
     std::vector<size_t> grid_number = {step};
-    omega_quantile.front() = std::make_shared<empirical_quantile::ImplicitQuantileSorted<int, double>>(
+    omega_quantile.front() = std::make_shared<mveqf::ImplicitQuantileSorted<int, double>>(
                                  std::vector<double>(grid_number.size(), -numeric::NumericTraits<core::Real>::pi()),
                                  std::vector<double>(grid_number.size(), numeric::NumericTraits<core::Real>::pi()),
                                  grid_number

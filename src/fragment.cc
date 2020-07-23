@@ -688,16 +688,34 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
     auto bonds = get_bounds();
     size_t count = 0;
     std::vector<size_t> it(variable_values.size(), 0);
-    
+
     core::pose::metrics::PoseMetricCalculatorOP clash_calculator(new protocols::pose_metric_calculators::ClashCountCalculator(2.0));
     core::pose::metrics::CalculatorFactory::Instance().register_calculator("clashes", clash_calculator);
     protocols::simple_filters::PoseMetricEvaluator<core::Size> clashes_number("clashes", "bb");
-
+    int last = -1;
+//    mdag_sorted::MDAG obj;
     do
     {
         count++;
         if(!(count%10000))
+        {
+            
             std::cout << "count " << count << '\t' << sample.size() << '\t' << structures_trie->get_total_count() << '\t' << min_sum << std::endl;
+        }
+        if(!(structures_trie->get_total_count()%100) && last != structures_trie->get_total_count())
+        {
+//            last = structures_trie->get_total_count();
+            /*std::cout << structures_trie->get_total_count() << '\t'
+                      << structures_trie->get_node_count() << '\t'
+                      << structures_trie->get_link_count() << std::endl;*/
+                      
+//            auto rt = obj.getNodeLinkCount();
+//            std::cout << structures_trie->get_total_count() << '\t'
+//                      << structures_trie->get_node_count() << '\t'
+//                      << structures_trie->get_link_count() << '\t'
+//                      << rt.first << '\t' << rt.second << std::endl;
+        }
+
         std::vector<int> permut = get_line(variable_values, it);
         std::vector<std::vector<Frag>> to_distr;
         size_t delta = frag_size;
@@ -758,7 +776,7 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
 //                std::cout << "clash!" << std::endl;
                 continue;
             }
-                        
+
 
             //            core::scoring::ScoreFunctionOP score_cent = core::scoring::ScoreFunctionFactory::create_score_function("cen_std");
             //            core::kinematics::MoveMapOP movemap_minimizer_ = core::kinematics::MoveMapOP(new core::kinematics::MoveMap());
@@ -807,6 +825,12 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
             {
                 structures_trie->insert(to_trie);
 //                sample.insert(to_trie);
+//                std::vector<int> to_mdag(to_trie.size());
+//                for(size_t kk = 0; kk != to_trie.size(); kk++)
+//                {
+//                    to_mdag[kk] = int(to_trie[kk]);
+//                }
+//                obj.addString(to_mdag);
 
                 //
                 size_t sum = 0;
@@ -820,7 +844,7 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
                 {
                     min_sum = sum;
                     closest = to_trie;
-                    std::cout << min_sum << '\t' << sample.size() << std::endl;
+//                    std::cout << min_sum << '\t' << sample.size() << std::endl;
                 }
 
 //                for(const auto &k : to_trie)
@@ -839,6 +863,33 @@ void FragPick::one_chain(size_t residues, size_t n_frags)
     }
     while(increase(variable_values, it));
     fOut.close();
+    
+    auto rez = structures_trie->get_layer_count();
+    std::cout << rez.size() << std::endl;    
+    std::cout << std::endl;
+    for(const auto &i : rez)
+    {
+        std::cout << i.second.size() << std::endl;
+    }
+    
+    std::cout << std::endl;
+    
+    std::vector<core::Size> lol = phipsi_grid_number;
+    lol.insert( lol.end(), omega_grid_number.begin(), omega_grid_number.end() );
+    
+    std::cout << lol.size() << '\t' << rez.size() << std::endl;
+//    std::cin.get();
+    
+    int j = 0;
+    for(const auto &i : rez)
+    {
+        std::cout << std::fixed << (std::accumulate( i.second.begin(), i.second.end(), 0.0)/i.second.size())/float(lol[j])  << 
+        '\t' << (std::accumulate( i.second.begin(), i.second.end(), 0.0)/i.second.size()) << '/' << lol[j] << std::endl;
+        j++;
+    }
+    
+    std::cin.get();
+    
 //    std::cout << permut.size() << std::endl;
 //    std::cout << structures.size() << std::endl;
 }
@@ -886,7 +937,7 @@ void FragPick::multistage(size_t residues, size_t n_frags)
     auto bonds = get_bounds();
     size_t count = 0;
     std::vector<size_t> it(variable_values.size(), 0);
-    
+
     core::pose::metrics::PoseMetricCalculatorOP clash_calculator(new protocols::pose_metric_calculators::ClashCountCalculator(2.0));
     core::pose::metrics::CalculatorFactory::Instance().register_calculator("clashes", clash_calculator);
     protocols::simple_filters::PoseMetricEvaluator<core::Size> clashes_number("clashes", "bb");
@@ -956,7 +1007,7 @@ void FragPick::multistage(size_t residues, size_t n_frags)
 //                std::cout << "clash!" << std::endl;
                 continue;
             }
-                        
+
 
             //            core::scoring::ScoreFunctionOP score_cent = core::scoring::ScoreFunctionFactory::create_score_function("cen_std");
             //            core::kinematics::MoveMapOP movemap_minimizer_ = core::kinematics::MoveMapOP(new core::kinematics::MoveMap());
@@ -1487,21 +1538,21 @@ void FragPick::set_psipred(std::pair<std::uint8_t,std::uint8_t> phipsi_minmax, s
         if(ss_predicted[i] == 'C' || ss_predicted[i] == 'E')
         {
             step_num_phipsi[i] /= 2;
-//            if(i > 1 && i < confidence.size() - 2)
-//            {
-//                step_num_phipsi[i] /= 2;
-//                step_num_phipsi[i] = 1;
-//            }
-//            step_num_phipsi[i] = 36;
+        //            if(i > 1 && i < confidence.size() - 2)
+        //            {
+        //                step_num_phipsi[i] /= 2;
+        //                step_num_phipsi[i] = 1;
+        //            }
+        //            step_num_phipsi[i] = 36;
         }
         else
         {
-//            if(ss_predicted[i] == 'H')
-//            {
-//                step_num_phipsi[i] *= 4;
-//                if(step_num_phipsi[i] > 254)
-//                    step_num_phipsi[i] = 254;
-//            }
+        //            if(ss_predicted[i] == 'H')
+        //            {
+        //                step_num_phipsi[i] *= 4;
+        //                if(step_num_phipsi[i] > 254)
+        //                    step_num_phipsi[i] = 254;
+        //            }
             if(i > 1 && i < confidence.size() - 2)
             {
                 if(ss_predicted[i + 1] == 'C')
@@ -1512,12 +1563,12 @@ void FragPick::set_psipred(std::pair<std::uint8_t,std::uint8_t> phipsi_minmax, s
                 {
                     step_num_phipsi[i] /= 2;
                 }
-//                if(ss_predicted[i - 1] != 'C' && ss_predicted[i + 1] != 'C' && ss_predicted[i] != 'B')
-//                {
-//                    step_num_phipsi[i] *= 4;
-//                    if(step_num_phipsi[i] > 254)
-//                        step_num_phipsi[i] = 254;
-//                }
+        //                if(ss_predicted[i - 1] != 'C' && ss_predicted[i + 1] != 'C' && ss_predicted[i] != 'B')
+        //                {
+        //                    step_num_phipsi[i] *= 4;
+        //                    if(step_num_phipsi[i] > 254)
+        //                        step_num_phipsi[i] = 254;
+        //                }
             }
         }*/
         step_num_omega[i] = omega_minmax.first + omega*(confidence[i] + 1)/10.0;
