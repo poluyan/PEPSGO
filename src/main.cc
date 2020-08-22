@@ -35,16 +35,9 @@ int main(int argc, char *argv[])
 	pepsgo::PEPSGO obj;
 	obj.set_number_of_threads(thread_num);
 	obj.set_peptide_from_file();
+	obj.set_task(5);
 	obj.fill_opt_vector();
 	obj.optimize_native();
-	obj.create_space_frag(std::make_pair(36, 72), std::make_pair(180, 190));
-//    obj.create_space_frag(std::make_pair(8, 18), std::make_pair(36, 72));
-//    obj.create_space_frag(std::make_pair(8, 12), std::make_pair(36, 72));
-//    obj.create_space_frag(std::make_pair(6, 12), std::make_pair(72, 120));
-//    obj.create_space_frag(std::make_pair(250, 254), std::make_pair(250, 254));
-	obj.fill_rama2_quantile(4);
-	obj.set_omega_quantile(72);
-	obj.set_bbdep(72);
 	obj.set_multithread();
 
 	std::cout << obj.get_opt_vector_size() << std::endl;

@@ -35,107 +35,113 @@
 namespace pepsgo
 {
 
-class PEPSGO
-{
-private:
-    std::string bbdep_path;
-    std::string bbind_path;
+	class PEPSGO
+	{
+	private:
+		std::string bbdep_path;
+		std::string bbind_path;
 
-    std::string peptide_sequence;
-    std::string peptide_ss_predicted;
-    std::string peptide_amino_acids;
+		std::string peptide_sequence;
+		std::string peptide_ss_predicted;
+		std::string peptide_amino_acids;
 
-    core::scoring::ScoreFunctionOP score_fn;
-    std::vector<core::scoring::ScoreFunctionOP> mt_score_fn;
+		core::scoring::ScoreFunctionOP score_fn;
+		std::vector<core::scoring::ScoreFunctionOP> mt_score_fn;
 
-    core::pose::Pose peptide;
-    std::vector<core::pose::Pose> mt_peptide;
+		core::pose::Pose peptide;
+		std::vector<core::pose::Pose> mt_peptide;
 
-    core::pose::Pose peptide_native;
-    core::pose::Pose peptide_native_ideal;
-    core::pose::Pose peptide_native_ideal_optimized;
-    std::vector<std::uint8_t> native_state;
+		core::pose::Pose peptide_native;
+		core::pose::Pose peptide_native_ideal;
+		core::pose::Pose peptide_native_ideal_optimized;
+		std::vector<std::uint8_t> native_state;
 
-    core::pose::Pose superposed_aa;
-    core::pose::Pose superposed_ca;
+		core::pose::Pose superposed_aa;
+		core::pose::Pose superposed_ca;
 
-    ///
-    std::vector<pepsgo::opt_element> opt_vector;
-    pepsgo::ranges peptide_ranges;
+		///
+		std::vector<pepsgo::opt_element> opt_vector;
+		pepsgo::ranges peptide_ranges;
 
-    std::vector<pepsgo::opt_element> opt_vector_native;
-    pepsgo::ranges peptide_ranges_native;
-    ///
-    std::vector<std::shared_ptr<mveqf::trie_based::TrieBased<mveqf::trie_based::NodeCount<int>,int>>> phipsi_rama2_sample;
-    std::vector<std::shared_ptr<mveqf::ImplicitQuantile<int, double>>> phipsi_rama2_quantile;
-    std::vector<std::shared_ptr<mveqf::ImplicitQuantile<int, double>>> omega_quantile;
+		std::vector<pepsgo::opt_element> opt_vector_native;
+		pepsgo::ranges peptide_ranges_native;
+		///
+		std::vector<std::shared_ptr<mveqf::trie_based::TrieBased<mveqf::trie_based::NodeCount<int>,int>>> phipsi_rama2_sample;
+		std::vector<std::shared_ptr<mveqf::ImplicitQuantile<int, double>>> phipsi_rama2_quantile;
+		std::vector<std::shared_ptr<mveqf::ImplicitQuantile<int, double>>> omega_quantile;
 
-    ///
-    int threads_number;
+		///
+		int threads_number;
 
-    pepsgo::fragment::FragPick frags;
-    typedef mveqf::trie_based::TrieBased<mveqf::trie_based::NodeCount<std::uint8_t>,std::uint8_t> frag_type;
-    std::shared_ptr<frag_type> structures_triebased;
-    std::shared_ptr<mveqf::ImplicitQuantile<std::uint8_t, double>> structures_quant;
+		pepsgo::fragment::FragPick frags;
+		typedef mveqf::trie_based::TrieBased<mveqf::trie_based::NodeCount<std::uint8_t>,std::uint8_t> frag_type;
+		std::shared_ptr<frag_type> structures_triebased;
+		std::shared_ptr<mveqf::ImplicitQuantile<std::uint8_t, double>> structures_quant;
 
-    pepsgo::bbdep::BBDEP_Dunbrack_sm bbdep_sm;
-    
-    /// search space explore
+		pepsgo::bbdep::BBDEP_Dunbrack_sm bbdep_sm;
+
+		size_t task; // optimization task
+
+		/// search space explore
 //    size_t extend_space_count;
 //    size_t ess_fe_count;
 //    std::vector<size_t> th_exss;
 //    core::Real best_state_value;
 //    std::vector<std::uint8_t> best_state;
-public:
-    PEPSGO();
-    void set_number_of_threads(size_t n);
-    void set_multithread();
+	public:
+		PEPSGO();
+		void set_number_of_threads(size_t n);
+		void set_multithread();
 
-    void set_peptide(std::string _peptide_sequence);
-    void set_peptide_from_file();
+		void set_peptide(std::string _peptide_sequence);
+		void set_peptide_from_file();
 
-    void optimize_native();
-    void set_native_state();
-    bool is_native_in_frag_space();
+		void optimize_native();
+		void set_native_state();
+		bool is_native_in_frag_space();
 
-    void create_space_frag(std::pair<std::uint8_t,std::uint8_t> phipsi_minmax, std::pair<std::uint8_t,std::uint8_t> omega_minmax);
+		void create_space_frag(std::pair<std::uint8_t,std::uint8_t> phipsi_minmax, std::pair<std::uint8_t,std::uint8_t> omega_minmax);
 
-    void unique_aa();
+		void unique_aa();
 
-    void set_bbdep(size_t step/*std::string _bbdep_path*/);
-    void set_bbind(std::string _bbind_path);
-    void transform_with_frags(const std::vector<double> &x, std::vector<double> &out);
-    core::Real objective(const std::vector<double> &x);
-    core::Real objective_mt(const std::vector<double> &x, int th_id);
-    void write(const std::vector<double> &x, std::string fname);
-    void write_lbfgs(const std::vector<double> &x, std::string fname);
+		void set_bbdep(size_t step/*std::string _bbdep_path*/);
+		void set_bbind(std::string _bbind_path);
+		void transform_with_frags(const std::vector<double> &x, std::vector<double> &out) const;
+		core::Real objective(const std::vector<double> &x);
+		core::Real objective_mt(const std::vector<double> &x, int th_id);
+		void write(const std::vector<double> &x, std::string fname);
+		void write_lbfgs(const std::vector<double> &x, std::string fname);
 
-    // creating rama2 from second to next-to-last residue
-    void fill_rama2_residue(core::pose::Pose &pep, core::scoring::ScoreFunctionOP &scorefn_rama2b, size_t ind, size_t step);
-    void fill_rama2_quantile(size_t step);
+		// creating rama2 from second to next-to-last residue
+		void fill_rama2_residue(core::pose::Pose &pep, core::scoring::ScoreFunctionOP &scorefn_rama2b, size_t ind, size_t step);
+		void fill_rama2_quantile(size_t step);
 
-    void fill_opt_vector();
+		void fill_opt_vector();
 
-    size_t get_opt_vector_size();
+		size_t get_opt_vector_size();
 
-    void extend_peptide();
+		void extend_peptide();
 
-    void set_quantile();
-    
-    core::Real get_CA_rmsd(const std::vector<double> &x);
-    core::Real get_AA_rmsd(const std::vector<double> &x);
-    
-    void append_to_superposed_aa(const std::vector<double> &x);
-    void append_to_superposed_ca(const std::vector<double> &x);
-    
-    void dumb_superposed();
-    
-    void set_omega_quantile(size_t step);
-    
+		void set_quantile();
+
+		void set_task(size_t choise);
+		void transform_vec01_to_vecrad(const std::vector<double> &x, std::vector<double> &out) const;
+		void transform_simple(const std::vector<double> &x, std::vector<double> &out) const;
+
+		core::Real get_CA_rmsd(const std::vector<double> &x);
+		core::Real get_AA_rmsd(const std::vector<double> &x);
+
+		void append_to_superposed_aa(const std::vector<double> &x);
+		void append_to_superposed_ca(const std::vector<double> &x);
+
+		void dumb_superposed();
+
+		void set_omega_quantile(size_t step);
+
 //    void set_extend_search_space(size_t c);
 //    void extend_search_space();
 //    core::Real objective_mt_extend(const std::vector<double> &x, int th_id);
-};
+	};
 
 }
 #endif

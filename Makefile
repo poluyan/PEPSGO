@@ -2,7 +2,7 @@ TARGET = main
 CPP = clang++
 
 # 
-MAIN = /ssdwork/psp_builds/rosetta_src_2020.27.61323_bundle/main
+MAIN = /ssdwork/psp_builds/rosetta_src_2020.28.61328_bundle/main
 LINUXVER = 5.7
 CPPCOMP = clang
 CPPVER = 10.0
