@@ -29,41 +29,41 @@
 namespace pepsgo
 {
 
-struct opt_element
-{
-    core::id::DOF_ID dofid;
-    std::pair<core::Real, core::Real> bounds;
-    core::chemical::AA amino_acid;
-    std::string torsion_name;
-    core::Size chainid;
-    core::Size seqpos;
-    core::Size nchi;
-    core::Size ichi;
+	struct opt_element
+	{
+		core::id::DOF_ID dofid;
+		std::pair<core::Real, core::Real> bounds;
+		core::chemical::AA amino_acid;
+		std::string torsion_name;
+		core::Size chainid;
+		core::Size seqpos;
+		core::Size nchi;
+		core::Size ichi;
 
-    opt_element();
+		opt_element();
 
-    opt_element(core::id::DOF_ID _dofid, std::pair<core::Real, core::Real> _bounds, core::chemical::AA _amino_acid, std::string _torsion_name, core::Size _chainid,
-                core::Size _seqpos,
-                core::Size _nchi,
-                core::Size _ichi);
+		opt_element(core::id::DOF_ID _dofid, std::pair<core::Real, core::Real> _bounds, core::chemical::AA _amino_acid, std::string _torsion_name, core::Size _chainid,
+		            core::Size _seqpos,
+		            core::Size _nchi,
+		            core::Size _ichi);
 
-    friend std::ostream& operator<<(std::ostream& stream, const opt_element& obj)
-    {
-        stream << obj.chainid << ' ' << obj.amino_acid << ' ' << obj.torsion_name << ' ' << obj.seqpos << ' ' << obj.nchi << ' ' << obj.ichi << ' ' << obj.bounds.first << ' ' << obj.bounds.second;
-        return stream;
-    }
-};
+		friend std::ostream& operator<<(std::ostream& stream, const opt_element& obj)
+		{
+			stream << obj.chainid << ' ' << obj.amino_acid << ' ' << obj.torsion_name << ' ' << obj.seqpos << ' ' << obj.nchi << ' ' << obj.ichi << ' ' << obj.bounds.first << ' ' << obj.bounds.second;
+			return stream;
+		}
+	};
 
-struct ranges
-{
-    std::tuple<bool, size_t, size_t> phipsi;
-    std::tuple<bool, size_t, size_t> omega;
-    std::tuple<bool, size_t, size_t> chi;
+	struct ranges
+	{
+		std::tuple<bool, size_t, size_t> phipsi;
+		std::tuple<bool, size_t, size_t> omega;
+		std::tuple<bool, size_t, size_t> chi;
 
-    bool do_phipsi;
-    bool do_omega;
-    bool do_chi;
-};
+		bool do_phipsi;
+		bool do_omega;
+		bool do_chi;
+	};
 
 }
 

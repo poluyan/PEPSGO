@@ -25,8 +25,8 @@
 
 namespace pepsgo
 {
-namespace bbdep
-{
+	namespace bbdep
+	{
 
 /// designation
 // 60 180 300
@@ -59,41 +59,41 @@ namespace bbdep
 //	ASN χ2    GLN χ3    PHE χ2    HIS χ2
 //	ASP χ2    GLU χ3    TYR χ2    TRP χ2
 
-struct Dunbrack_data
-{
-    std::string name;
-    double Phi;
-    double Psi;
-    int Count;
-    size_t r1;
-    size_t r2;
-    size_t r3;
-    size_t r4;
-    double Probabil;
-    double chi1Val;
-    double chi2Val;
-    double chi3Val;
-    double chi4Val;
+		struct Dunbrack_data
+		{
+			std::string name;
+			double Phi;
+			double Psi;
+			int Count;
+			size_t r1;
+			size_t r2;
+			size_t r3;
+			size_t r4;
+			double Probabil;
+			double chi1Val;
+			double chi2Val;
+			double chi3Val;
+			double chi4Val;
 
-    double chi1Sig;
-    double chi2Sig;
-    double chi3Sig;
-    double chi4Sig;
+			double chi1Sig;
+			double chi2Sig;
+			double chi3Sig;
+			double chi4Sig;
 
-    friend std::ostream& operator<<(std::ostream& stream, const Dunbrack_data& obj);
-};
+			friend std::ostream& operator<<(std::ostream& stream, const Dunbrack_data& obj);
+		};
 
-std::string remove_chars(const std::string is, const std::string& chars);
+		std::string remove_chars(const std::string is, const std::string& chars);
 
-void load_data_sm(std::string fname, std::vector<Dunbrack_data> &data, std::vector<std::vector<int>> &numbers);
+		void load_data_sm(std::string fname, std::vector<Dunbrack_data> &data, std::vector<std::vector<int>> &numbers);
 
-Dunbrack_data get_max_prob_object(std::vector<Dunbrack_data> &data, std::vector<std::vector<int>> &numbers, double Phi, double Psi);
+		Dunbrack_data get_max_prob_object(std::vector<Dunbrack_data> &data, std::vector<std::vector<int>> &numbers, double Phi, double Psi);
 
-Dunbrack_data get_probabil(std::vector<Dunbrack_data> &data, std::vector<std::vector<int>> &numbers, std::mt19937_64 &generator, double Phi, double Psi);
+		Dunbrack_data get_probabil(std::vector<Dunbrack_data> &data, std::vector<std::vector<int>> &numbers, std::mt19937_64 &generator, double Phi, double Psi);
 
-bool has_only_zeros_or_dots(const std::string str);
+		bool has_only_zeros_or_dots(const std::string str);
 
-}
+	}
 }
 
 #endif

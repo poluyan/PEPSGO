@@ -23,16 +23,16 @@
 
 namespace pepsgo
 {
-namespace bbtools
-{
+	namespace bbtools
+	{
 
-core::Real to_positive_radians(core::Real radian);
-core::Real to_negative_radians(core::Real radian);
-core::Real normalize_to_mpi_to_ppi(core::Real radian);
-void make_ideal_peptide(core::pose::Pose& ideal_peptide, const core::pose::Pose& peptide);
-void to_centroid(core::pose::Pose &pose);
+		core::Real to_positive_radians(core::Real radian);
+		core::Real to_negative_radians(core::Real radian);
+		core::Real normalize_to_mpi_to_ppi(core::Real radian);
+		void make_ideal_peptide(core::pose::Pose& ideal_peptide, const core::pose::Pose& peptide);
+		void to_centroid(core::pose::Pose &pose);
 
-}
+	}
 }
 
 #endif

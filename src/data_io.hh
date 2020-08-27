@@ -24,47 +24,47 @@
 namespace pepsgo
 {
 
-template<template<typename, typename...> class Container, class T, typename... Params>
-void write_default1d(std::string fname, Container<T, Params...> const& u, size_t step, size_t prec)
-{
-    std::ofstream fOut;
-    fOut.open(fname.c_str());
-    if(!fOut.is_open())
-    {
-        std::cout << "Error opening file." << std::endl;
-        return;
-    }
-    fOut.precision(prec);
-    for(size_t i = 0; i != u.size(); i += step)
-    {
-        fOut << std::scientific << i << '\t' << u[i] << std::endl;
-    }
-    fOut.close();
-    std::cout << fname << std::endl;
-}
+	template<template<typename, typename...> class Container, class T, typename... Params>
+	void write_default1d(std::string fname, Container<T, Params...> const& u, size_t step, size_t prec)
+	{
+		std::ofstream fOut;
+		fOut.open(fname.c_str());
+		if(!fOut.is_open())
+		{
+			std::cout << "Error opening file." << std::endl;
+			return;
+		}
+		fOut.precision(prec);
+		for(size_t i = 0; i != u.size(); i += step)
+		{
+			fOut << std::scientific << i << '\t' << u[i] << std::endl;
+		}
+		fOut.close();
+		std::cout << fname << std::endl;
+	}
 
-template<template<typename, typename...> class Container, class T, typename... Params>
-void write_default2d(std::string fname, Container<T, Params...> const& u, size_t prec)
-{
-    std::ofstream fOut;
-    fOut.open(fname.c_str());
-    if(!fOut.is_open())
-    {
-        std::cout << "Error opening file." << std::endl;
-        return;
-    }
-    fOut.precision(prec);
-    for(const auto & i : u)
-    {
-        for(const auto & j : i)
-        {
-            fOut << std::scientific << j << '\t';
-        }
-        fOut << std::endl;
-    }
-    fOut.close();
-    std::cout << fname << std::endl;
-}
+	template<template<typename, typename...> class Container, class T, typename... Params>
+	void write_default2d(std::string fname, Container<T, Params...> const& u, size_t prec)
+	{
+		std::ofstream fOut;
+		fOut.open(fname.c_str());
+		if(!fOut.is_open())
+		{
+			std::cout << "Error opening file." << std::endl;
+			return;
+		}
+		fOut.precision(prec);
+		for(const auto & i : u)
+		{
+			for(const auto & j : i)
+			{
+				fOut << std::scientific << j << '\t';
+			}
+			fOut << std::endl;
+		}
+		fOut.close();
+		std::cout << fname << std::endl;
+	}
 
 }
 

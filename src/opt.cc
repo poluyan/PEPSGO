@@ -21,29 +21,29 @@
 namespace pepsgo
 {
 
-opt_element::opt_element()
-{
+	opt_element::opt_element()
+	{
 
-}
+	}
 
-opt_element::opt_element(core::id::DOF_ID _dofid,
-                         std::pair<core::Real, core::Real> _bounds,
-                         core::chemical::AA _amino_acid,
-                         std::string _torsion_name,
-                         core::Size _chainid,
-                         core::Size _seqpos,
-                         core::Size _nchi,
-                         core::Size _ichi)
-{
-    dofid = _dofid;
-    bounds = _bounds;
-    amino_acid = _amino_acid;
-    torsion_name = _torsion_name;
-    chainid = _chainid;
-    seqpos = _seqpos;
-    nchi = _nchi;
-    ichi = _ichi;
-}
+	opt_element::opt_element(core::id::DOF_ID _dofid,
+	                         std::pair<core::Real, core::Real> _bounds,
+	                         core::chemical::AA _amino_acid,
+	                         std::string _torsion_name,
+	                         core::Size _chainid,
+	                         core::Size _seqpos,
+	                         core::Size _nchi,
+	                         core::Size _ichi)
+	{
+		dofid = _dofid;
+		bounds = _bounds;
+		amino_acid = _amino_acid;
+		torsion_name = _torsion_name;
+		chainid = _chainid;
+		seqpos = _seqpos;
+		nchi = _nchi;
+		ichi = _ichi;
+	}
 
 
 }
