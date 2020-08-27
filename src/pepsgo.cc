@@ -51,7 +51,7 @@ namespace pepsgo
 
 	PEPSGO::PEPSGO()
 	{
-    //score_fn = core::scoring::ScoreFunctionFactory::create_score_function("score12"); // score12 ref2015 talaris2013
+//		score_fn = core::scoring::ScoreFunctionFactory::create_score_function("score12"); // score12 talaris2014 ref2015 talaris2013
 		score_fn = core::scoring::get_score_function();
 		std::cout << "score function: " << score_fn->get_name() << std::endl;
 
@@ -195,6 +195,14 @@ namespace pepsgo
 		minimizer.max_iter(5000);
 		minimizer.apply(peptide_native_ideal_optimized);
 		(*score_fn)(peptide_native_ideal_optimized);
+
+//		peptide_native_ideal_optimized.energies().show_totals(std::cout);
+//		peptide_native_ideal_optimized.energies().show(std::cout);
+//		peptide_native_ideal_optimized.energies().show_totals(std::cout);
+//		std::cout << score_fn->score_by_scoretype(peptide_native_ideal_optimized, core::scoring::fa_elec, false) << std::endl;
+//		std::cout << score_fn->score_by_scoretype(peptide_native_ideal_optimized, core::scoring::fa_elec, true) << std::endl;
+//		std::cout << peptide_native_ideal_optimized.energies().total_energy() - score_fn->score_by_scoretype(peptide_native_ideal_optimized, core::scoring::fa_elec, true) << std::endl;
+
 		std::cout << "peptide native ideal optimized score " << peptide_native_ideal_optimized.energies().total_energy() << std::endl;
 		peptide_native_ideal_optimized.dump_pdb("output/pdb/peptide_native_ideal_optimized.pdb");
 
@@ -238,6 +246,41 @@ namespace pepsgo
 		return peptide.energies().total_energy();
 	}
 
+	core::Real PEPSGO::objective_mo(const std::vector<double> &x, const std::vector<double> &weights, std::vector<double> &res)
+	{
+		std::vector<double> vt(x.size());
+		transform_vec01_to_vecrad(x, vt);
+		for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
+		{
+			peptide.set_dof(opt_vector[i].dofid, vt[i]);
+		}
+		(*score_fn)(peptide);
+		core::Real fa_elec = score_fn->score_by_scoretype(peptide, core::scoring::fa_elec, true) +
+		                     score_fn->score_by_scoretype(peptide, core::scoring::lk_ball_wtd, true) +
+		                     score_fn->score_by_scoretype(peptide, core::scoring::fa_intra_sol, true) +
+		                     score_fn->score_by_scoretype(peptide, core::scoring::fa_sol, true)/* +
+		                     score_fn->score_by_scoretype(peptide, core::scoring::fa_atr, true) +
+		                     score_fn->score_by_scoretype(peptide, core::scoring::fa_rep, true)*/;
+//		core::Real fa_nonbound = score_fn->score_by_scoretype(peptide, core::scoring::rama, true);
+		std::vector<core::Real> criteria_value = {peptide.energies().total_energy() - fa_elec, fa_elec};
+		res[0] = criteria_value[0];
+		res[1] = criteria_value[1];
+		res[2] = peptide.energies().total_energy();
+		// linear
+		core::Real result = 0.0;
+		for(size_t i = 0; i != criteria_value.size(); i++)
+		{
+			result += weights[i]*criteria_value[i];
+		}
+		return result;
+//		// gre
+//		for(size_t i = 0; i != criteria_value.size(); i++)
+//		{
+//			criteria_value[i] = weights[i]*criteria_value[i];
+//		}
+//		return *std::max_element(criteria_value.begin(), criteria_value.end());
+	}
+
 	core::Real PEPSGO::objective_mt(const std::vector<double> &x, int th_id)
 	{
 		std::vector<double> vt(x.size());
@@ -251,6 +294,42 @@ namespace pepsgo
 		return mt_peptide[th_id].energies().total_energy();
 	}
 
+	core::Real PEPSGO::objective_mt_mo(const std::vector<double> &x, int th_id, const std::vector<double> &weights, std::vector<double> &res)
+	{
+		std::vector<double> vt(x.size());
+		transform_vec01_to_vecrad(x, vt);
+		for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
+		{
+			mt_peptide[th_id].set_dof(opt_vector[i].dofid, vt[i]);
+		}
+		(*mt_score_fn[th_id])(mt_peptide[th_id]);
+		core::Real fa_elec = mt_score_fn[th_id]->score_by_scoretype(mt_peptide[th_id], core::scoring::fa_elec, true) +
+		                     mt_score_fn[th_id]->score_by_scoretype(mt_peptide[th_id], core::scoring::lk_ball_wtd, true) +
+		                     mt_score_fn[th_id]->score_by_scoretype(mt_peptide[th_id], core::scoring::fa_intra_sol, true) +
+		                     mt_score_fn[th_id]->score_by_scoretype(mt_peptide[th_id], core::scoring::fa_sol, true)/* +
+		                     mt_score_fn[th_id]->score_by_scoretype(mt_peptide[th_id], core::scoring::fa_atr, true) +
+		                     mt_score_fn[th_id]->score_by_scoretype(mt_peptide[th_id], core::scoring::fa_rep, true)*/;
+
+//		core::Real fa_nonbound = mt_score_fn[th_id]->score_by_scoretype(mt_peptide[th_id], core::scoring::rama, true);
+		std::vector<core::Real> criteria_value = {mt_peptide[th_id].energies().total_energy() - fa_elec, fa_elec};
+		res[0] = criteria_value[0];
+		res[1] = criteria_value[1];
+		res[2] = mt_peptide[th_id].energies().total_energy();
+		// linear
+		core::Real result = 0.0;
+		for(size_t i = 0; i != criteria_value.size(); i++)
+		{
+			result += weights[i]*criteria_value[i];
+		}
+		return result;
+//	// gre
+//		for(size_t i = 0; i != criteria_value.size(); i++)
+//		{
+//			criteria_value[i] = weights[i]*criteria_value[i];
+//		}
+//		return *std::max_element(criteria_value.begin(), criteria_value.end());
+	}
+
 	void PEPSGO::write(const std::vector<double> &x, std::string fname)
 	{
 		std::vector<double> vt(x.size());
@@ -262,6 +341,69 @@ namespace pepsgo
 		(*score_fn)(peptide);
 		std::cout << "peptide score: " << peptide.energies().total_energy() << std::endl;
 		peptide.dump_pdb(fname);
+	}
+
+	core::Real PEPSGO::optimize_lbfgs(const std::vector<double> &x)
+	{
+		std::vector<double> vt(x.size());
+		transform_vec01_to_vecrad(x, vt);
+		for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
+		{
+			peptide.set_dof(opt_vector[i].dofid, vt[i]);
+		}
+		(*score_fn)(peptide);
+
+		core::kinematics::MoveMapOP movemap_minimizer_ = core::kinematics::MoveMapOP(new core::kinematics::MoveMap());
+		for(const auto &i : opt_vector_native)
+			movemap_minimizer_->set(i.dofid, true);
+
+		protocols::minimization_packing::MinMover minimizer(movemap_minimizer_, score_fn, "lbfgs", 1e-20, true);
+		minimizer.max_iter(5000);
+		minimizer.apply(peptide);
+		(*score_fn)(peptide);
+		return peptide.energies().total_energy();
+	}
+
+	core::Real PEPSGO::get_CA_rmsd_lbfgs(const std::vector<double> &x)
+	{
+		std::vector<double> vt(x.size());
+		transform_vec01_to_vecrad(x, vt);
+		for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
+		{
+			peptide.set_dof(opt_vector[i].dofid, vt[i]);
+		}
+		(*score_fn)(peptide);
+
+		core::kinematics::MoveMapOP movemap_minimizer_ = core::kinematics::MoveMapOP(new core::kinematics::MoveMap());
+		for(const auto &i : opt_vector_native)
+			movemap_minimizer_->set(i.dofid, true);
+
+		protocols::minimization_packing::MinMover minimizer(movemap_minimizer_, score_fn, "lbfgs", 1e-20, true);
+		minimizer.max_iter(5000);
+		minimizer.apply(peptide);
+		(*score_fn)(peptide);
+		return core::scoring::CA_rmsd(peptide, peptide_native_ideal_optimized);
+	}
+
+	core::Real PEPSGO::get_AA_rmsd_lbfgs(const std::vector<double> &x)
+	{
+		std::vector<double> vt(x.size());
+		transform_vec01_to_vecrad(x, vt);
+		for(size_t i = 0, n = opt_vector.size(); i < n; ++i)
+		{
+			peptide.set_dof(opt_vector[i].dofid, vt[i]);
+		}
+		(*score_fn)(peptide);
+
+		core::kinematics::MoveMapOP movemap_minimizer_ = core::kinematics::MoveMapOP(new core::kinematics::MoveMap());
+		for(const auto &i : opt_vector_native)
+			movemap_minimizer_->set(i.dofid, true);
+
+		protocols::minimization_packing::MinMover minimizer(movemap_minimizer_, score_fn, "lbfgs", 1e-20, true);
+		minimizer.max_iter(5000);
+		minimizer.apply(peptide);
+		(*score_fn)(peptide);
+		return core::scoring::all_atom_rmsd(peptide, peptide_native_ideal_optimized);
 	}
 
 	void PEPSGO::write_lbfgs(const std::vector<double> &x, std::string fname)
@@ -467,6 +609,42 @@ namespace pepsgo
 		std::string arguments;
 		switch(task)
 		{
+			case 1:
+				arguments = "phipsi omega allchi";
+				pepsgo::insert_to_opt_vector(opt_vector, peptide, arguments, peptide_ranges);
+				std::cout << std::get<1>(peptide_ranges.phipsi) << ' ' << std::get<2>(peptide_ranges.phipsi) << '\t';
+				std::cout << std::get<1>(peptide_ranges.omega) << ' ' << std::get<2>(peptide_ranges.omega) << '\t';
+				std::cout << std::get<1>(peptide_ranges.chi) << ' ' << std::get<2>(peptide_ranges.chi) << std::endl;
+				peptide_ranges.do_chi = true;
+				// native
+				pepsgo::insert_to_opt_vector(opt_vector_native, peptide_native_ideal_optimized, arguments, peptide_ranges_native);
+				set_omega_quantile(72);
+				break;
+			case 2:
+				arguments = "phipsi omega allchi";
+				pepsgo::insert_to_opt_vector(opt_vector, peptide, arguments, peptide_ranges);
+				std::cout << std::get<1>(peptide_ranges.phipsi) << ' ' << std::get<2>(peptide_ranges.phipsi) << '\t';
+				std::cout << std::get<1>(peptide_ranges.omega) << ' ' << std::get<2>(peptide_ranges.omega) << '\t';
+				std::cout << std::get<1>(peptide_ranges.chi) << ' ' << std::get<2>(peptide_ranges.chi) << std::endl;
+				peptide_ranges.do_chi = true;
+				// native
+				pepsgo::insert_to_opt_vector(opt_vector_native, peptide_native_ideal_optimized, arguments, peptide_ranges_native);
+				fill_rama2_quantile(144);
+				set_omega_quantile(72);
+				break;
+			case 4:
+				arguments = "phipsi omega allchi";
+				pepsgo::insert_to_opt_vector(opt_vector, peptide, arguments, peptide_ranges);
+				std::cout << std::get<1>(peptide_ranges.phipsi) << ' ' << std::get<2>(peptide_ranges.phipsi) << '\t';
+				std::cout << std::get<1>(peptide_ranges.omega) << ' ' << std::get<2>(peptide_ranges.omega) << '\t';
+				std::cout << std::get<1>(peptide_ranges.chi) << ' ' << std::get<2>(peptide_ranges.chi) << std::endl;
+				peptide_ranges.do_chi = true;
+				// native
+				pepsgo::insert_to_opt_vector(opt_vector_native, peptide_native_ideal_optimized, arguments, peptide_ranges_native);
+				fill_rama2_quantile(144);
+				set_omega_quantile(72);
+				set_bbdep(144);
+				break;
 			case 5:
 				arguments = "phipsi omega allchi";
 				pepsgo::insert_to_opt_vector(opt_vector, peptide, arguments, peptide_ranges);
@@ -704,6 +882,15 @@ namespace pepsgo
 	{
 		switch(task)
 		{
+			case 1:
+				transform_simple_omega(x, out);
+				break;
+			case 2:
+				transform_simple_omega_rama2(x, out);
+				break;
+			case 4:
+				transform_simple_omega_rama2_dun(x, out);
+				break;
 			case 5:
 				transform_with_frags(x, out);
 				break;
@@ -719,6 +906,75 @@ namespace pepsgo
 		{
 			out[i] = -numeric::NumericTraits<core::Real>::pi()*(1.0 - 2.0*x[i]);
 		}
+	}
+
+	void PEPSGO::transform_simple_omega(const std::vector<double> &x, std::vector<double> &out) const
+	{
+		for(size_t i = std::get<1>(peptide_ranges.phipsi); i <= std::get<2>(peptide_ranges.phipsi); i++)
+		{
+			out[i] = -numeric::NumericTraits<core::Real>::pi()*(1.0 - 2.0*x[i]);
+		}
+		for(size_t i = std::get<1>(peptide_ranges.chi); i <= std::get<2>(peptide_ranges.chi); i++)
+		{
+			out[i] = -numeric::NumericTraits<core::Real>::pi()*(1.0 - 2.0*x[i]);
+		}
+		std::vector<double> values01_omg(1), sampled_omg(1);
+		for(size_t i = std::get<1>(peptide_ranges.omega); i <= std::get<2>(peptide_ranges.omega); i++)
+		{
+			values01_omg[0] = x[i];
+			omega_quantile.front()->transform(values01_omg, sampled_omg);
+			out[i] = sampled_omg.front();
+		}
+	}
+
+	void PEPSGO::transform_simple_omega_rama2(const std::vector<double> &x, std::vector<double> &out) const
+	{
+		out[std::get<1>(peptide_ranges.phipsi)] = -numeric::NumericTraits<core::Real>::pi()*(1.0 - 2.0*x[std::get<1>(peptide_ranges.phipsi)]);
+		out[std::get<2>(peptide_ranges.phipsi)] = -numeric::NumericTraits<core::Real>::pi()*(1.0 - 2.0*x[std::get<2>(peptide_ranges.phipsi)]);
+		std::vector<double> values01(2), sampled(2);
+		for(size_t c = std::get<1>(peptide_ranges.phipsi) + 1, pp = 0; pp != phipsi_rama2_quantile.size(); pp++, c += 2)
+		{
+			values01[0] = x[c];
+			values01[1] = x[c + 1];
+			phipsi_rama2_quantile[pp]->transform(values01, sampled);
+			out[c] = sampled[0];
+			out[c + 1] = sampled[1];
+		}
+
+		for(size_t i = std::get<1>(peptide_ranges.chi); i <= std::get<2>(peptide_ranges.chi); i++)
+		{
+			out[i] = -numeric::NumericTraits<core::Real>::pi()*(1.0 - 2.0*x[i]);
+		}
+		std::vector<double> values01_omg(1), sampled_omg(1);
+		for(size_t i = std::get<1>(peptide_ranges.omega); i <= std::get<2>(peptide_ranges.omega); i++)
+		{
+			values01_omg[0] = x[i];
+			omega_quantile.front()->transform(values01_omg, sampled_omg);
+			out[i] = sampled_omg.front();
+		}
+	}
+
+	void PEPSGO::transform_simple_omega_rama2_dun(const std::vector<double> &x, std::vector<double> &out) const
+	{
+		out[std::get<1>(peptide_ranges.phipsi)] = -numeric::NumericTraits<core::Real>::pi()*(1.0 - 2.0*x[std::get<1>(peptide_ranges.phipsi)]);
+		out[std::get<2>(peptide_ranges.phipsi)] = -numeric::NumericTraits<core::Real>::pi()*(1.0 - 2.0*x[std::get<2>(peptide_ranges.phipsi)]);
+		std::vector<double> values01(2), sampled(2);
+		for(size_t c = std::get<1>(peptide_ranges.phipsi) + 1, pp = 0; pp != phipsi_rama2_quantile.size(); pp++, c += 2)
+		{
+			values01[0] = x[c];
+			values01[1] = x[c + 1];
+			phipsi_rama2_quantile[pp]->transform(values01, sampled);
+			out[c] = sampled[0];
+			out[c + 1] = sampled[1];
+		}
+		std::vector<double> values01_omg(1), sampled_omg(1);
+		for(size_t i = std::get<1>(peptide_ranges.omega); i <= std::get<2>(peptide_ranges.omega); i++)
+		{
+			values01_omg[0] = x[i];
+			omega_quantile.front()->transform(values01_omg, sampled_omg);
+			out[i] = sampled_omg.front();
+		}
+		out = pepsgo::transform::bbdep_experiment_actual_states(x, opt_vector, peptide_ranges, bbdep_sm, phipsi_rama2_quantile.size());
 	}
 
 //void PEPSGO::set_extend_search_space(size_t c)

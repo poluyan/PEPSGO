@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 	pepsgo::PEPSGO obj;
 	obj.set_number_of_threads(thread_num);
 	obj.set_peptide_from_file();
-	obj.set_task(5);
+	obj.set_task(4);
 	obj.fill_opt_vector();
 	obj.optimize_native();
 	obj.set_multithread();

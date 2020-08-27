@@ -108,9 +108,14 @@ namespace pepsgo
 		void set_bbind(std::string _bbind_path);
 		void transform_with_frags(const std::vector<double> &x, std::vector<double> &out) const;
 		core::Real objective(const std::vector<double> &x);
+		core::Real objective_mo(const std::vector<double> &x, const std::vector<double> &weights, std::vector<double> &res);
 		core::Real objective_mt(const std::vector<double> &x, int th_id);
+		core::Real objective_mt_mo(const std::vector<double> &x, int th_id, const std::vector<double> &weights, std::vector<double> &res);
 		void write(const std::vector<double> &x, std::string fname);
 		void write_lbfgs(const std::vector<double> &x, std::string fname);
+		core::Real optimize_lbfgs(const std::vector<double> &x);
+		core::Real get_CA_rmsd_lbfgs(const std::vector<double> &x);
+		core::Real get_AA_rmsd_lbfgs(const std::vector<double> &x);
 
 		// creating rama2 from second to next-to-last residue
 		void fill_rama2_residue(core::pose::Pose &pep, core::scoring::ScoreFunctionOP &scorefn_rama2b, size_t ind, size_t step);
@@ -127,6 +132,9 @@ namespace pepsgo
 		void set_task(size_t choise);
 		void transform_vec01_to_vecrad(const std::vector<double> &x, std::vector<double> &out) const;
 		void transform_simple(const std::vector<double> &x, std::vector<double> &out) const;
+		void transform_simple_omega(const std::vector<double> &x, std::vector<double> &out) const;
+		void transform_simple_omega_rama2(const std::vector<double> &x, std::vector<double> &out) const;
+		void transform_simple_omega_rama2_dun(const std::vector<double> &x, std::vector<double> &out) const;
 
 		core::Real get_CA_rmsd(const std::vector<double> &x);
 		core::Real get_AA_rmsd(const std::vector<double> &x);
