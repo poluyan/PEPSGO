@@ -246,6 +246,24 @@ namespace pepsgo
 		return peptide.energies().total_energy();
 	}
 
+	core::Real PEPSGO::mo_scalarizing(std::vector<double> &criteria_values, const std::vector<double> &weights) const
+	{
+		/// linear
+//		core::Real result = 0.0;
+//		for(size_t i = 0; i != criteria_values.size(); i++)
+//		{
+//			result += weights[i]*criteria_values[i];
+//		}
+//		return result;
+		/// Germeier
+		core::Real make_positive = 1000.0*peptide.size();
+		for(size_t i = 0; i != criteria_values.size(); i++)
+		{
+			criteria_values[i] = weights[i]*(criteria_values[i] + make_positive);
+		}
+		return *std::max_element(criteria_values.begin(), criteria_values.end());
+	}
+
 	core::Real PEPSGO::objective_mo(const std::vector<double> &x, const std::vector<double> &weights, std::vector<double> &res)
 	{
 		std::vector<double> vt(x.size());
@@ -262,23 +280,11 @@ namespace pepsgo
 		                     score_fn->score_by_scoretype(peptide, core::scoring::fa_atr, true) +
 		                     score_fn->score_by_scoretype(peptide, core::scoring::fa_rep, true)*/;
 //		core::Real fa_nonbound = score_fn->score_by_scoretype(peptide, core::scoring::rama, true);
-		std::vector<core::Real> criteria_value = {peptide.energies().total_energy() - fa_elec, fa_elec};
-		res[0] = criteria_value[0];
-		res[1] = criteria_value[1];
+		std::vector<core::Real> criteria_values = {peptide.energies().total_energy() - fa_elec, fa_elec};
+		res[0] = criteria_values[0];
+		res[1] = criteria_values[1];
 		res[2] = peptide.energies().total_energy();
-		// linear
-		core::Real result = 0.0;
-		for(size_t i = 0; i != criteria_value.size(); i++)
-		{
-			result += weights[i]*criteria_value[i];
-		}
-		return result;
-//		// gre
-//		for(size_t i = 0; i != criteria_value.size(); i++)
-//		{
-//			criteria_value[i] = weights[i]*criteria_value[i];
-//		}
-//		return *std::max_element(criteria_value.begin(), criteria_value.end());
+		return mo_scalarizing(criteria_values, weights);
 	}
 
 	core::Real PEPSGO::objective_mt(const std::vector<double> &x, int th_id)
@@ -311,23 +317,11 @@ namespace pepsgo
 		                     mt_score_fn[th_id]->score_by_scoretype(mt_peptide[th_id], core::scoring::fa_rep, true)*/;
 
 //		core::Real fa_nonbound = mt_score_fn[th_id]->score_by_scoretype(mt_peptide[th_id], core::scoring::rama, true);
-		std::vector<core::Real> criteria_value = {mt_peptide[th_id].energies().total_energy() - fa_elec, fa_elec};
-		res[0] = criteria_value[0];
-		res[1] = criteria_value[1];
+		std::vector<core::Real> criteria_values = {mt_peptide[th_id].energies().total_energy() - fa_elec, fa_elec};
+		res[0] = criteria_values[0];
+		res[1] = criteria_values[1];
 		res[2] = mt_peptide[th_id].energies().total_energy();
-		// linear
-		core::Real result = 0.0;
-		for(size_t i = 0; i != criteria_value.size(); i++)
-		{
-			result += weights[i]*criteria_value[i];
-		}
-		return result;
-//	// gre
-//		for(size_t i = 0; i != criteria_value.size(); i++)
-//		{
-//			criteria_value[i] = weights[i]*criteria_value[i];
-//		}
-//		return *std::max_element(criteria_value.begin(), criteria_value.end());
+		return mo_scalarizing(criteria_values, weights);
 	}
 
 	void PEPSGO::write(const std::vector<double> &x, std::string fname)
@@ -690,7 +684,7 @@ namespace pepsgo
 		frags.make_permutations(1); // 0 - all, 1 - one chain, 2 - one chain Von Neumann, 3 - coil chain
 		peptide_ss_predicted = frags.get_ss_predicted();
 
-		structures_triebased->insert(native_state);
+//		structures_triebased->insert(native_state);
 
 		auto bonds = frags.get_bounds();
 		structures_quant = std::make_shared<mveqf::ImplicitQuantile<std::uint8_t, double>>(

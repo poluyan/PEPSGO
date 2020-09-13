@@ -117,6 +117,8 @@ namespace pepsgo
 		core::Real get_CA_rmsd_lbfgs(const std::vector<double> &x);
 		core::Real get_AA_rmsd_lbfgs(const std::vector<double> &x);
 
+		core::Real mo_scalarizing(std::vector<double> &criteria_values, const std::vector<double> &weights) const;
+
 		// creating rama2 from second to next-to-last residue
 		void fill_rama2_residue(core::pose::Pose &pep, core::scoring::ScoreFunctionOP &scorefn_rama2b, size_t ind, size_t step);
 		void fill_rama2_quantile(size_t step);
