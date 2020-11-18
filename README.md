@@ -11,6 +11,7 @@ Results using Adaptive Differential Evolution. Native (green) vs predicted (cyan
 To compile from source, you will need:
  * Some Linux distro (Ubuntu/Arch Linux/etc)
  * C++ compiler with C++11 support (current Makefile is GCC-based)
+ * [Header-only library mveqf](https://github.com/poluyan/mveqf)
  * OpenMP for multithreading
  * [The Rosetta software suite](https://www.rosettacommons.org/software)
 
@@ -22,15 +23,16 @@ To compile from source, you will need:
 git clone https://github.com/poluyan/PEPSGO
 cd PEPSGO/
 ```
- * Modify the Makefile. Set the path to the Rosetta build with the kernel and gcc versions which were used in Rosetta build:
+ * Modify the CMakeLists.txt. Set the path to the Rosetta build with the kernel and gcc versions which were used in Rosetta build:
 ```
-# 
-MAIN = /path_to_Rosetta_build/rosetta_src_2019.07.60616_bundle/main
-LINUXVER = 4.20
-GCCVER = 8.2
+set( ROSETTAMAINPATH "/ssdwork/psp_builds/rosetta_src_2020.37.61417_bundle/main" )
+set( ROSETTALINUXVER "5.8" )
+set( ROSETTACPPCOMP "clang" )
+set( ROSETTACPPVER "10.0" )
+set( MVEQFDIR "${CMAKE_SOURCE_DIR}" )
 ```
- * Then compile PEPSGO from source with `make` command. This will generate library file `libpepsgo.so` and a file named `run.sh`.
- * The file `run.sh` process the `input` directory and get the proper input for the program.
+ * Then compile PEPSGO from source with `cmake .` and `make` commands. This will generate library file `libpepsgo.so` and demos presented in `bin` directory.
+ * The file `run_testX.sh` in each test process the following `input` directory and get the proper input for the program.
 
 ## Input files
 
@@ -41,7 +43,7 @@ GCCVER = 8.2
 
 ## Usage
 
-The `src/main.cc` presents the example of using PEPSGO. The default `make` build contains `main.cc` compilation and linking, see `TARGET` generation in `Makefile`.
+The `demos/testX` presents the example of using PEPSGO. 
 
 ## License
 
