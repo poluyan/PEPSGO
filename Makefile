@@ -2,8 +2,8 @@ TARGET = main
 CPP = clang++
 
 # 
-MAIN = /ssdwork/psp_builds/rosetta_src_2020.28.61328_bundle/main
-LINUXVER = 5.7
+MAIN = /ssdwork/psp_builds/rosetta_src_2020.37.61417_bundle/main
+LINUXVER = 5.8
 CPPCOMP = clang
 CPPVER = 10.0
 
@@ -26,7 +26,7 @@ CPPFLAGSEXTRA = -pipe -pedantic -Wno-long-long -Wno-strict-aliasing -march=core2
 
 IS = -isystem $(MAIN)/source/external/boost_1_55_0/ -isystem $(MAIN)/source/external/ -isystem $(MAIN)/source/external/include/ -isystem $(MAIN)/source/external/dbio/
 
-INCLUDE = -Isrc -I$(MAIN)/source/src -I$(MAIN)/source/external/include -I$(MAIN)/source/src/platform/linux/64/$(CPPCOMP)/$(CPPVER) -I$(MAIN)/source/src/platform/linux/64/$(CPPCOMP) -I$(MAIN)/source/src/platform/linux/64 -I$(MAIN)/source/src/platform/linux -I$(MAIN)/source/external/boost_1_55_0 -I$(MAIN)/source/external/libxml2/include -I$(MAIN)/source/external -I$(MAIN)/source/external/dbio -I/usr/include -I/usr/local/include
+INCLUDE = -I./ -Isrc -I$(MAIN)/source/src -I$(MAIN)/source/external/include -I$(MAIN)/source/src/platform/linux/64/$(CPPCOMP)/$(CPPVER) -I$(MAIN)/source/src/platform/linux/64/$(CPPCOMP) -I$(MAIN)/source/src/platform/linux/64 -I$(MAIN)/source/src/platform/linux -I$(MAIN)/source/external/boost_1_55_0 -I$(MAIN)/source/external/libxml2/include -I$(MAIN)/source/external -I$(MAIN)/source/external/dbio -I/usr/include -I/usr/local/include
 
 LIBS1 = -L$(MAIN)/source/external/lib -L$(MAIN)/source/build/src/release/linux/$(LINUXVER)/64/x86/$(CPPCOMP)/$(CPPVER)/default -L$(MAIN)/source/build/src/release/linux/$(LINUXVER)/64/x86/$(CPPCOMP)/$(CPPVER)/default -L$(MAIN)/source/src -L$(MAIN)/source/build/external/release/linux/$(LINUXVER)/64/x86/$(CPPCOMP)/$(CPPVER)/default -L$(MAIN)/external
 LIBS2 = -L/usr/lib -L/usr/local/lib -fopenmp
@@ -59,8 +59,6 @@ HEADERS = \
 	$(SRCPATH)/linterp.hh \
 	$(SRCPATH)/bbind.hh \
 	$(SRCPATH)/pepsgo.hh \
-	$(SRCPATH)/quantile.hh \
-	$(SRCPATH)/trie_based.hh \
 	$(SRCPATH)/get_dof.hh \
 	$(SRCPATH)/transform.hh \
 	$(SRCPATH)/fragment.hh \

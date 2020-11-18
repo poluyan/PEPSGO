@@ -249,19 +249,19 @@ namespace pepsgo
 	core::Real PEPSGO::mo_scalarizing(std::vector<double> &criteria_values, const std::vector<double> &weights) const
 	{
 		/// linear
-//		core::Real result = 0.0;
-//		for(size_t i = 0; i != criteria_values.size(); i++)
-//		{
-//			result += weights[i]*criteria_values[i];
-//		}
-//		return result;
-		/// Germeier
-		core::Real make_positive = 1000.0*peptide.size();
+		core::Real result = 0.0;
 		for(size_t i = 0; i != criteria_values.size(); i++)
 		{
-			criteria_values[i] = weights[i]*(criteria_values[i] + make_positive);
+			result += weights[i]*criteria_values[i];
 		}
-		return *std::max_element(criteria_values.begin(), criteria_values.end());
+		return result;
+		/// Germeier
+//		core::Real make_positive = 1000.0*peptide.size();
+//		for(size_t i = 0; i != criteria_values.size(); i++)
+//		{
+//			criteria_values[i] = weights[i]*(criteria_values[i] + make_positive);
+//		}
+//		return *std::max_element(criteria_values.begin(), criteria_values.end());
 	}
 
 	core::Real PEPSGO::objective_mo(const std::vector<double> &x, const std::vector<double> &weights, std::vector<double> &res)

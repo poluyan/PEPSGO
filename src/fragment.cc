@@ -630,7 +630,7 @@ namespace pepsgo
 			std::cout << "it will be " << std::fixed <<
 			          n_frags << " ^ " << residues << " * " << how_much_will_be_iterate(for_selected) << " = "
 			          << size_t(std::pow(n_frags, residues)*how_much_will_be_iterate(for_selected)) << std::endl;
-			std::cin.get();
+			//std::cin.get();
 
 			std::vector<std::vector<int>> permut_for_selected = iterate(for_selected);
 
@@ -717,7 +717,7 @@ namespace pepsgo
 			std::cout << "it will be " << std::fixed <<
 			          n_frags << " ^ " << matrix_size << " * " << how_much_will_be_iterate(for_selected) << " = "
 			          << size_t(std::pow(n_frags, matrix_size)*how_much_will_be_iterate(for_selected)) << std::endl;
-			std::cin.get();
+			//std::cin.get();
 
 			std::vector<std::vector<int>> permut_for_selected = iterate(for_selected);
 
@@ -941,7 +941,7 @@ namespace pepsgo
 				j++;
 			}
 
-			std::cin.get();
+			//std::cin.get();
 
 //    std::cout << permut.size() << std::endl;
 //    std::cout << structures.size() << std::endl;
@@ -966,7 +966,7 @@ namespace pepsgo
 			std::cout << "it will be " << std::fixed <<
 			          n_frags << " ^ " << matrix_size << " * " << how_much_will_be_iterate(for_selected) << " = "
 			          << size_t(std::pow(n_frags, matrix_size)*how_much_will_be_iterate(for_selected)) << std::endl;
-			std::cin.get();
+			//std::cin.get();
 
 			std::vector<std::vector<int>> permut_for_selected = iterate(for_selected);
 
@@ -1163,7 +1163,7 @@ namespace pepsgo
 			std::cout << "it will be " << std::fixed <<
 			          n_frags << " ^ " << matrix_size << " * " << how_much_will_be_iterate(for_selected) << " = "
 			          << size_t(std::pow(n_frags, matrix_size)*how_much_will_be_iterate(for_selected)) << std::endl;
-			std::cin.get();
+			//std::cin.get();
 
 			std::vector<std::vector<int>> permut_for_selected = iterate(for_selected);
 
@@ -1368,7 +1368,7 @@ namespace pepsgo
 			std::cout << "it will be " << std::fixed <<
 			          n_frags << " ^ " << matrix_size << " * " << how_much_will_be_iterate(for_selected) << " = "
 			          << size_t(std::pow(n_frags, matrix_size)*how_much_will_be_iterate(for_selected)) << std::endl;
-			std::cin.get();
+			//std::cin.get();
 
 			std::vector<std::vector<int>> permut_for_selected = iterate(for_selected);
 

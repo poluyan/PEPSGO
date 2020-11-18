@@ -32,7 +32,7 @@
 #include <string>
 #include <vector>
 
-#include <quantile.hh>
+#include <mveqf/implicit.h>
 
 namespace pepsgo
 {

@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-#include <implicit.hh>
+#include <mveqf/implicit.h>
 #include <get_dof.hh>
 #include <transform.hh>
 #include <fragment.hh>
