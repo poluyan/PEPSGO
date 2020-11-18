@@ -23,6 +23,7 @@ endif()
 set( ROSETTALINUXVER "5.8" )
 set( ROSETTACPPCOMP "clang" )
 set( ROSETTACPPVER "10.0" )
+set( MVEQFDIR "${CMAKE_SOURCE_DIR}" )
 
 set( RUNLIBS1 ${ROSETTAMAINPATH}/source/build/src/release/linux/${ROSETTALINUXVER}/64/x86/${ROSETTACPPCOMP}/${ROSETTACPPVER}/default )
 
@@ -62,14 +63,14 @@ add_compile_options(-Isrc -I${ROSETTAMAINPATH}/source/src -I${ROSETTAMAINPATH}/s
 file(GLOB_RECURSE SOURCES "src/*")
 add_library(pepsgo SHARED ${SOURCES})
 set_property(TARGET pepsgo PROPERTY INCLUDE_DIRECTORIES ${CMAKE_SOURCE_DIR}/src)
-set_property(TARGET pepsgo PROPERTY INCLUDE_DIRECTORIES ${CMAKE_SOURCE_DIR}) # mveqf
+set_property(TARGET pepsgo PROPERTY INCLUDE_DIRECTORIES ${MVEQFDIR}) # mveqf
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # test0
 add_executable(test0 demos/test0/test0.cpp)
 set_property(TARGET test0 PROPERTY INCLUDE_DIRECTORIES ${CMAKE_SOURCE_DIR}/src)
-set_property(TARGET test0 PROPERTY INCLUDE_DIRECTORIES ${CMAKE_SOURCE_DIR}) # mveqf
+set_property(TARGET test0 PROPERTY INCLUDE_DIRECTORIES ${MVEQFDIR}) # mveqf
 
 target_link_libraries(test0 pepsgo)
 
@@ -78,10 +79,21 @@ target_link_libraries(test0 -ldevel -lprotocols.8 -lprotocols.7 -lprotocols_e.6 
 set_target_properties(test0 PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/test0)
 
 
+# test4
+add_executable(test4 demos/test4/test4.cpp)
+set_property(TARGET test4 PROPERTY INCLUDE_DIRECTORIES ${CMAKE_SOURCE_DIR}/src)
+set_property(TARGET test4 PROPERTY INCLUDE_DIRECTORIES ${MVEQFDIR}) # mveqf
+
+target_link_libraries(test4 pepsgo)
+
+target_link_libraries(test4 -ldevel -lprotocols.8 -lprotocols.7 -lprotocols_e.6 -lprotocols_d.6 -lprotocols_c.6 -lprotocols_b.6 -lprotocols_a.6 -lprotocols_h.5 -lprotocols_g.5 -lprotocols_f.5 -lprotocols_e.5 -lprotocols_d.5 -lprotocols_c.5 -lprotocols_b.5 -lprotocols_a.5 -lprotocols.4 -lprotocols.3 -lprotocols_b.2 -lprotocols_a.2 -lprotocols.1 -lcore.6 -lcore.5 -lcore.4 -lcore.3 -lcore.2 -lcore.1 -lbasic -lnumeric -lutility -lObjexxFCL -lz -lcppdb -lsqlite3 -lcifparse -lxml2 -lzmq)
+
+set_target_properties(test4 PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/test4)
+
 # test5
 add_executable(test5 demos/test5/test5.cpp)
 set_property(TARGET test5 PROPERTY INCLUDE_DIRECTORIES ${CMAKE_SOURCE_DIR}/src)
-set_property(TARGET test5 PROPERTY INCLUDE_DIRECTORIES ${CMAKE_SOURCE_DIR}) # mveqf
+set_property(TARGET test5 PROPERTY INCLUDE_DIRECTORIES ${MVEQFDIR}) # mveqf
 
 target_link_libraries(test5 pepsgo)
 
@@ -91,18 +103,17 @@ set_target_properties(test5 PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_D
 
 
 # test 0
-file(WRITE "${CMAKE_SOURCE_DIR}/test0.cmake" "file(COPY \"${CMAKE_SOURCE_DIR}/runtemplate1.dat\" DESTINATION \"${CMAKE_BINARY_DIR}/bin/\" FILE_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ)\nfile(COPY \"${CMAKE_SOURCE_DIR}/demos/test0/\" DESTINATION \"${CMAKE_BINARY_DIR}/bin/test0/\")\nfile(RENAME \"${CMAKE_BINARY_DIR}/bin/runtemplate1.dat\" \"${CMAKE_BINARY_DIR}/bin/test0/run_test0.sh\")\nfile(APPEND \"${CMAKE_BINARY_DIR}/bin/test0/run_test0.sh\" \"export LD_LIBRARY_PATH=${CMAKE_SOURCE_DIR}:${RUNLIBS1}:${RUNLIBS2}\n\")\nfile(APPEND \"${CMAKE_BINARY_DIR}/bin/test0/run_test0.sh\" \"./test0 -database ${ROSETTAMAINPATH}/database -in::file::fasta input/sequence.fasta -in::file::native $native -mute all\n\")")
+file(WRITE "${CMAKE_SOURCE_DIR}/test0.cmake" "file(COPY \"${CMAKE_SOURCE_DIR}/runtemplate1.dat\" DESTINATION \"${CMAKE_BINARY_DIR}/bin/\" FILE_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ)\nfile(COPY \"${CMAKE_SOURCE_DIR}/demos/test0/\" DESTINATION \"${CMAKE_BINARY_DIR}/bin/test0/\")\nfile(REMOVE \"${CMAKE_BINARY_DIR}/bin/test0/test0.cpp\")\nfile(RENAME \"${CMAKE_BINARY_DIR}/bin/runtemplate1.dat\" \"${CMAKE_BINARY_DIR}/bin/test0/run_test0.sh\")\nfile(APPEND \"${CMAKE_BINARY_DIR}/bin/test0/run_test0.sh\" \"export LD_LIBRARY_PATH=${CMAKE_SOURCE_DIR}:${RUNLIBS1}:${RUNLIBS2}\n\")\nfile(APPEND \"${CMAKE_BINARY_DIR}/bin/test0/run_test0.sh\" \"./test0 -database ${ROSETTAMAINPATH}/database -in::file::fasta input/sequence.fasta -in::file::native $native -mute all\n\")")
 
 add_custom_command(TARGET test0 POST_BUILD COMMAND ${CMAKE_COMMAND} -P "${CMAKE_BINARY_DIR}/test0.cmake")
 
+# test 4
+file(WRITE "${CMAKE_SOURCE_DIR}/test4.cmake" "file(COPY \"${CMAKE_SOURCE_DIR}/runtemplate1.dat\" DESTINATION \"${CMAKE_BINARY_DIR}/bin/\" FILE_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ)\nfile(COPY \"${CMAKE_SOURCE_DIR}/demos/test4/\" DESTINATION \"${CMAKE_BINARY_DIR}/bin/test4/\")\nfile(REMOVE \"${CMAKE_BINARY_DIR}/bin/test4/test4.cpp\")\nfile(RENAME \"${CMAKE_BINARY_DIR}/bin/runtemplate1.dat\" \"${CMAKE_BINARY_DIR}/bin/test4/run_test4.sh\")\nfile(APPEND \"${CMAKE_BINARY_DIR}/bin/test4/run_test4.sh\" \"export LD_LIBRARY_PATH=${CMAKE_SOURCE_DIR}:${RUNLIBS1}:${RUNLIBS2}\n\")\nfile(APPEND \"${CMAKE_BINARY_DIR}/bin/test4/run_test4.sh\" \"./test4 -database ${ROSETTAMAINPATH}/database -in::file::fasta input/sequence.fasta -in::file::native $native -mute all\n\")")
 
+add_custom_command(TARGET test4 POST_BUILD COMMAND ${CMAKE_COMMAND} -P "${CMAKE_BINARY_DIR}/test4.cmake")
 
 # test 5
-file(WRITE "${CMAKE_SOURCE_DIR}/test5.cmake" "file(COPY \"${CMAKE_SOURCE_DIR}/runtemplate2.dat\" DESTINATION \"${CMAKE_BINARY_DIR}/bin/\" FILE_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ)\nfile(COPY \"${CMAKE_SOURCE_DIR}/demos/test5/\" DESTINATION \"${CMAKE_BINARY_DIR}/bin/test5/\")\nfile(RENAME \"${CMAKE_BINARY_DIR}/bin/runtemplate2.dat\" \"${CMAKE_BINARY_DIR}/bin/test5/run_test5.sh\")\nfile(APPEND \"${CMAKE_BINARY_DIR}/bin/test5/run_test5.sh\" \"export LD_LIBRARY_PATH=${CMAKE_SOURCE_DIR}:${RUNLIBS1}:${RUNLIBS2}\n\")\nfile(APPEND \"${CMAKE_BINARY_DIR}/bin/test5/run_test5.sh\" \"./test5 -database ${ROSETTAMAINPATH}/database -in::file::fasta input/sequence.fasta -in::file::native $native -in::file::psipred_ss2 input/prediction.horiz -frags::frag_sizes $fragsize -in::file::frag_files input/fragments.Nmers -mute all\n\")")
+file(WRITE "${CMAKE_SOURCE_DIR}/test5.cmake" "file(COPY \"${CMAKE_SOURCE_DIR}/runtemplate2.dat\" DESTINATION \"${CMAKE_BINARY_DIR}/bin/\" FILE_PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ)\nfile(COPY \"${CMAKE_SOURCE_DIR}/demos/test5/\" DESTINATION \"${CMAKE_BINARY_DIR}/bin/test5/\")\nfile(REMOVE \"${CMAKE_BINARY_DIR}/bin/test5/test5.cpp\")\nfile(RENAME \"${CMAKE_BINARY_DIR}/bin/runtemplate2.dat\" \"${CMAKE_BINARY_DIR}/bin/test5/run_test5.sh\")\nfile(APPEND \"${CMAKE_BINARY_DIR}/bin/test5/run_test5.sh\" \"export LD_LIBRARY_PATH=${CMAKE_SOURCE_DIR}:${RUNLIBS1}:${RUNLIBS2}\n\")\nfile(APPEND \"${CMAKE_BINARY_DIR}/bin/test5/run_test5.sh\" \"./test5 -database ${ROSETTAMAINPATH}/database -in::file::fasta input/sequence.fasta -in::file::native $native -in::file::psipred_ss2 input/prediction.horiz -frags::frag_sizes $fragsize -in::file::frag_files input/fragments.Nmers -mute all\n\")")
 
 add_custom_command(TARGET test5 POST_BUILD COMMAND ${CMAKE_COMMAND} -P "${CMAKE_BINARY_DIR}/test5.cmake")
-
-
-
-
 

@@ -1,0 +1,2 @@
+#!/bin/sh
+native=$(head -n 1 input/native.data)
