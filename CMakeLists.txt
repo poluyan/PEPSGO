@@ -25,6 +25,12 @@ set( ROSETTACPPCOMP "clang" )
 set( ROSETTACPPVER "10.0" )
 set( MVEQFDIR "${CMAKE_SOURCE_DIR}" )
 
+if(IS_DIRECTORY ${MVEQFDIR}/mveqf)
+	message("-- Found MVEQFDIR: ${MVEQFDIR}/mveqf")
+else()
+	message( FATAL_ERROR "You must properly set MVEQFDIR varibale ${MVEQFDIR}/mveqf" )
+endif()
+
 set( RUNLIBS1 ${ROSETTAMAINPATH}/source/build/src/release/linux/${ROSETTALINUXVER}/64/x86/${ROSETTACPPCOMP}/${ROSETTACPPVER}/default )
 
 if(IS_DIRECTORY ${RUNLIBS1})
