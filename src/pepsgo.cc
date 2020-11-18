@@ -56,7 +56,29 @@ namespace pepsgo
 		std::cout << "score function: " << score_fn->get_name() << std::endl;
 
 		threads_number = 1;
+
+		if(!dir_exists("output"))
+		{
+			std::filesystem::create_directory("output");
+			std::filesystem::create_directory("output/pdb");
+		}
+		if(!dir_exists("output/pdb"))
+			std::filesystem::create_directory("output/pdb");
 	}
+
+	bool PEPSGO::dir_exists(const std::filesystem::path& p, std::filesystem::file_status s) const
+	{
+		if(std::filesystem::status_known(s) ? std::filesystem::exists(s) : std::filesystem::exists(p))
+		{
+			return true;
+		}
+		else
+		{
+			std::cout << "dir " << p << " does not exist. Creating\n";
+			return false;
+		}
+	}
+
 	void PEPSGO::set_number_of_threads(size_t n)
 	{
 		threads_number = n;

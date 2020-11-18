@@ -26,6 +26,7 @@
 
 #include <string>
 #include <vector>
+#include <filesystem>
 
 #include <mveqf/implicit.h>
 #include <get_dof.hh>
@@ -151,6 +152,7 @@ namespace pepsgo
 //    void set_extend_search_space(size_t c);
 //    void extend_search_space();
 //    core::Real objective_mt_extend(const std::vector<double> &x, int th_id);
+			bool dir_exists(const std::filesystem::path& p, std::filesystem::file_status s = std::filesystem::file_status{}) const;
 	};
 
 }
