@@ -43,7 +43,7 @@ set( MVEQFDIR "${CMAKE_SOURCE_DIR}" )
 
 ## Usage
 
-The `demos/testX` presents the example of using PEPSGO. 
+The `demos/testX` contains examples of using PEPSGO. 
 
 ## License
 

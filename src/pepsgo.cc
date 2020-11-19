@@ -659,7 +659,7 @@ namespace pepsgo
 				pepsgo::insert_to_opt_vector(opt_vector_native, peptide_native_ideal_optimized, arguments, peptide_ranges_native);
 				fill_rama2_quantile(144);
 				set_omega_quantile(72);
-				set_bbdep(144);
+				set_bbdep(360);
 				break;
 			case 5:
 				arguments = "phipsi omega allchi";
@@ -678,7 +678,7 @@ namespace pepsgo
 //    obj.create_space_frag(std::make_pair(250, 254), std::make_pair(250, 254));
 				fill_rama2_quantile(4);
 				set_omega_quantile(72);
-				set_bbdep(72);
+				set_bbdep(360);
 				break;
 			default:
 				arguments = "phipsi allchi";
