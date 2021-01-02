@@ -70,7 +70,7 @@ namespace pepsgo
 		std::vector<pepsgo::opt_element> opt_vector_native;
 		pepsgo::ranges peptide_ranges_native;
 		///
-		std::vector<std::shared_ptr<mveqf::trie_based::TrieBased<mveqf::trie_based::NodeCount<int>,int>>> phipsi_rama2_sample;
+		std::vector<std::shared_ptr<mveqf::TrieBased<mveqf::NodeCount<int>,int>>> phipsi_rama2_sample;
 		std::vector<std::shared_ptr<mveqf::ImplicitQuantile<int, double>>> phipsi_rama2_quantile;
 		std::vector<std::shared_ptr<mveqf::ImplicitQuantile<int, double>>> omega_quantile;
 
@@ -78,7 +78,7 @@ namespace pepsgo
 		int threads_number;
 
 		pepsgo::fragment::FragPick frags;
-		typedef mveqf::trie_based::TrieBased<mveqf::trie_based::NodeCount<std::uint8_t>,std::uint8_t> frag_type;
+		typedef mveqf::TrieBased<mveqf::NodeCount<std::uint8_t>,std::uint8_t> frag_type;
 		std::shared_ptr<frag_type> structures_triebased;
 		std::shared_ptr<mveqf::ImplicitQuantile<std::uint8_t, double>> structures_quant;
 

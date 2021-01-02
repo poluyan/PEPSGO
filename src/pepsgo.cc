@@ -543,7 +543,7 @@ namespace pepsgo
 			}
 		}
 
-		phipsi_rama2_sample[ind] = std::make_shared<mveqf::trie_based::TrieBased<mveqf::trie_based::NodeCount<int>,int>>();
+		phipsi_rama2_sample[ind] = std::make_shared<mveqf::TrieBased<mveqf::NodeCount<int>,int>>();
 		for(size_t i = 0; i != pdf.size(); i++)
 		{
 			for(size_t j = 0; j != pdf[i].size(); j++)

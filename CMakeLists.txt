@@ -12,7 +12,7 @@ IF(USE_OpenMP)
   ENDIF()
 ENDIF()
 
-set( ROSETTAMAINPATH "/ssdwork/psp_builds/rosetta_src_2020.37.61417_bundle/main" )
+set( ROSETTAMAINPATH "/ssdwork/psp_builds/rosetta_src_2020.50.61505_bundle/main" )
 
 if(IS_DIRECTORY ${ROSETTAMAINPATH})
 	message("-- Found ROSETTAMAINPATH: ${ROSETTAMAINPATH}")
@@ -21,8 +21,8 @@ else()
 endif()
 
 set( ROSETTALINUXVER "5.9" )
-set( ROSETTACPPCOMP "clang" )
-set( ROSETTACPPVER "10.0" )
+set( ROSETTACPPCOMP "gcc" )
+set( ROSETTACPPVER "10.2" )
 set( MVEQFDIR "${CMAKE_SOURCE_DIR}" )
 
 if(IS_DIRECTORY ${MVEQFDIR}/mveqf)
