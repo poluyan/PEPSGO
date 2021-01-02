@@ -9,11 +9,11 @@ Results using Adaptive Differential Evolution. Native (green) vs predicted (cyan
 ## Requirements
 
 To compile from source, you will need:
- * Some Linux distro (Ubuntu/Arch Linux/etc)
- * C++ compiler with C++11 support (current Makefile is GCC-based)
- * [Header-only library mveqf](https://github.com/poluyan/mveqf)
- * OpenMP for multithreading
- * [The Rosetta software suite](https://www.rosettacommons.org/software)
+ * Some Linux distro (Ubuntu/Arch Linux/etc).
+ * C++ compiler with C++17 support (gcc/clang).
+ * [The Rosetta software suite](https://www.rosettacommons.org/software).
+ * [Header-only library mveqf](https://github.com/poluyan/mveqf).
+ * OpenMP for multithreading.
 
 ## Installation
 
@@ -25,10 +25,10 @@ cd PEPSGO/
 ```
  * Modify the CMakeLists.txt. Set the path to the Rosetta build with the kernel and gcc versions which were used in Rosetta build:
 ```
-set( ROSETTAMAINPATH "/ssdwork/psp_builds/rosetta_src_2020.37.61417_bundle/main" )
-set( ROSETTALINUXVER "5.8" )
-set( ROSETTACPPCOMP "clang" )
-set( ROSETTACPPVER "10.0" )
+set( ROSETTAMAINPATH "/work/rosetta_src_2020.50.61505_bundle/main" )
+set( ROSETTALINUXVER "5.9" )
+set( ROSETTACPPCOMP "gcc" )
+set( ROSETTACPPVER "10.2" )
 set( MVEQFDIR "${CMAKE_SOURCE_DIR}" )
 ```
  * Then compile PEPSGO from source with `cmake .` and `make` commands. This will generate library file `libpepsgo.so` and demos presented in `bin` directory.
@@ -40,6 +40,8 @@ set( MVEQFDIR "${CMAKE_SOURCE_DIR}" )
  * `fragments.Nmers` Fragment file formatted in Rosetta-style (like the output from fragment picker). Fragments can be any length.
  * `native.data` File with a path to the native structure.
  * `prediction.horiz` Secondary structure prediction in PSIPRED HFORMAT.
+
+Only peptide sequence in FASTA format is requred for most examples presented in `demo`. 
 
 ## Usage
 

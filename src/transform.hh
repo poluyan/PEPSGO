@@ -40,8 +40,9 @@ namespace pepsgo
 //    bool do_chi;
 //};
 
-		std::vector<double> bbdep_experiment_actual_states(
-		  std::vector<double> x,
+		void bbdep_experiment_actual_states(
+		  const std::vector<double> &x,
+			std::vector<double> &out,
 		  const std::vector<pepsgo::opt_element> &opt_vect,
 		  const pepsgo::ranges &range,
 		  const pepsgo::bbdep::BBDEP_Dunbrack_sm &bbdep_obj_sm,

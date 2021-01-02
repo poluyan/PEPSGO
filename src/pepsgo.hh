@@ -64,6 +64,9 @@ namespace pepsgo
 		std::vector<pepsgo::opt_element> opt_vector;
 		pepsgo::ranges peptide_ranges;
 
+		std::vector<pepsgo::opt_element> opt_vector_spec;
+		pepsgo::ranges peptide_ranges_spec;
+
 		std::vector<pepsgo::opt_element> opt_vector_native;
 		pepsgo::ranges peptide_ranges_native;
 		///
@@ -90,7 +93,10 @@ namespace pepsgo
 //    core::Real best_state_value;
 //    std::vector<std::uint8_t> best_state;
 	public:
-		PEPSGO();
+		PEPSGO(int argc, char **argv);
+		
+		void set_task(size_t task_number);
+		
 		void set_number_of_threads(size_t n);
 		void set_multithread();
 
@@ -126,24 +132,29 @@ namespace pepsgo
 
 		void fill_opt_vector();
 
-		size_t get_opt_vector_size();
+		size_t get_problem_dimension();
 
 		void extend_peptide();
 
 		void set_quantile();
 
-		void set_task(size_t choise);
+		void get_native_bb_angles() const;
+
+		void set_task_settings(size_t choise);
 		void transform_vec01_to_vecrad(const std::vector<double> &x, std::vector<double> &out) const;
 		void transform_simple(const std::vector<double> &x, std::vector<double> &out) const;
 		void transform_simple_omega(const std::vector<double> &x, std::vector<double> &out) const;
 		void transform_simple_omega_rama2(const std::vector<double> &x, std::vector<double> &out) const;
 		void transform_simple_omega_rama2_dun(const std::vector<double> &x, std::vector<double> &out) const;
+		void transform_bbfixed_dun(const std::vector<double> &x, std::vector<double> &out) const;
+		void transform_bb_chifixed(const std::vector<double> &x, std::vector<double> &out) const;
+		void transform_bb_omegachifixed(const std::vector<double> &x, std::vector<double> &out) const;
 
 		core::Real get_CA_rmsd(const std::vector<double> &x);
 		core::Real get_AA_rmsd(const std::vector<double> &x);
 
-		void append_to_superposed_aa(const std::vector<double> &x);
-		void append_to_superposed_ca(const std::vector<double> &x);
+		void append_to_native_and_superpose_AA(const std::vector<double> &x);
+		void append_to_native_and_superpose_CA(const std::vector<double> &x);
 
 		void dumb_superposed();
 

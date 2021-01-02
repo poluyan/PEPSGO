@@ -55,8 +55,10 @@ namespace pepsgo
 			pepsgo::write_default2d("maps/bbdep/SVCT.dat", to_plot, 4);
 		}
 
-		BBDEP_Dunbrack_sm::BBDEP_Dunbrack_sm() {}
-
+		BBDEP_Dunbrack_sm::BBDEP_Dunbrack_sm()
+		{
+			uniform_peaks = true;
+		}
 
 		void BBDEP_Dunbrack_sm::set_path(std::string path_to_files)
 		{
@@ -1084,6 +1086,20 @@ namespace pepsgo
 				pdf.push_back(m);
 			}
 
+			if(uniform_peaks) // uniform in peaks
+			{
+				auto max = *std::max_element(pdf.begin(), pdf.end());
+				auto min = *std::min_element(pdf.begin(), pdf.end());
+				for(auto &i : pdf)
+				{
+					i = (i - min)/(max - min);
+					if(i < 0.1)
+						i = 0.0;
+					else
+						i = 1.0;
+				}
+			}
+
 			double S = std::accumulate(pdf.begin(), pdf.end(), 0.0);
 			for(auto &a : pdf)
 			{
@@ -1122,6 +1138,20 @@ namespace pepsgo
 					m += j->Probabil * pdf_normal_dst(x.back(), j->chi2Val - 360, j->chi2Sig);
 				// m = data.begin()->Probabil * pdf_normal_dst(x.back(), data.begin()->chi2Val, data.begin()->chi2Sig);
 				pdf.push_back(m);
+			}
+
+			if(uniform_peaks) // uniform in peaks
+			{
+				auto max = *std::max_element(pdf.begin(), pdf.end());
+				auto min = *std::min_element(pdf.begin(), pdf.end());
+				for(auto &i : pdf)
+				{
+					i = (i - min)/(max - min);
+					if(i < 0.1)
+						i = 0.0;
+					else
+						i = 1.0;
+				}
 			}
 
 			double S = std::accumulate(pdf.begin(), pdf.end(), 0.0);
@@ -1163,6 +1193,20 @@ namespace pepsgo
 				pdf.push_back(m);
 			}
 
+			if(uniform_peaks) // uniform in peaks
+			{
+				auto max = *std::max_element(pdf.begin(), pdf.end());
+				auto min = *std::min_element(pdf.begin(), pdf.end());
+				for(auto &i : pdf)
+				{
+					i = (i - min)/(max - min);
+					if(i < 0.1)
+						i = 0.0;
+					else
+						i = 1.0;
+				}
+			}
+
 			double S = std::accumulate(pdf.begin(), pdf.end(), 0.0);
 			for(auto &a : pdf)
 			{
@@ -1200,6 +1244,20 @@ namespace pepsgo
 					m += j->Probabil * pdf_normal_dst(x.back(), j->chi4Val - 360, j->chi4Sig);
 				// m = data.begin()->Probabil * pdf_normal_dst(x.back(), data.begin()->chi4Val, data.begin()->chi4Sig);
 				pdf.push_back(m);
+			}
+
+			if(uniform_peaks) // uniform in peaks
+			{
+				auto max = *std::max_element(pdf.begin(), pdf.end());
+				auto min = *std::min_element(pdf.begin(), pdf.end());
+				for(auto &i : pdf)
+				{
+					i = (i - min)/(max - min);
+					if(i < 0.1)
+						i = 0.0;
+					else
+						i = 1.0;
+				}
 			}
 
 			double S = std::accumulate(pdf.begin(), pdf.end(), 0.0);

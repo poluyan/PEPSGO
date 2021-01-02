@@ -15,6 +15,8 @@
    limitations under the License.
 
 **************************************************************************/
+#include <devel/init.hh>
+
 #include <core/conformation/Residue.hh>
 #include <core/scoring/ScoreFunctionFactory.hh>
 #include <core/scoring/Energies.hh>
@@ -49,8 +51,9 @@
 namespace pepsgo
 {
 
-	PEPSGO::PEPSGO()
+	PEPSGO::PEPSGO(int argc, char *argv[])
 	{
+		devel::init(argc, argv);
 //		score_fn = core::scoring::ScoreFunctionFactory::create_score_function("score12"); // score12 talaris2014 ref2015 talaris2013
 		score_fn = core::scoring::get_score_function();
 		std::cout << "score function: " << score_fn->get_name() << std::endl;
@@ -86,7 +89,8 @@ namespace pepsgo
 		{
 			threads_number = omp_get_num_procs();
 		}
-		std::cout << "number_of_threads: " << threads_number << std::endl;
+		std::cout << "number of threads: " << threads_number << std::endl;
+		set_multithread();
 	}
 	void PEPSGO::set_multithread()
 	{
@@ -140,7 +144,7 @@ namespace pepsgo
 			peptide_ss_predicted = std::string(peptide_sequence.size(), 'C');
 			unique_aa();
 			std::cout << "loaded sequence " << peptide_sequence << std::endl;
-			std::cout << "unique aa " << peptide_amino_acids << std::endl;
+			std::cout << "presented unique aa " << peptide_amino_acids << std::endl;
 		}
 		else
 		{
@@ -150,6 +154,11 @@ namespace pepsgo
 		if(peptide_sequence.find("X") != std::string::npos)
 		{
 			std::cout << "X in sequence!" << std::endl;
+		}
+		for(core::Size i = 1; i <= peptide.total_residue(); i++)
+		{
+			if(!peptide.residue(i).type().is_canonical_aa())
+				std::cout << "residue " << i << "is noncanonical!" << std::endl;
 		}
 
 		core::pose::make_pose_from_sequence(peptide, peptide_sequence,
@@ -161,6 +170,7 @@ namespace pepsgo
 			std::string fname = basic::options::option[basic::options::OptionKeys::in::file::native].value_string();
 			std::cout << "native peptide " << fname << std::endl;
 			core::import_pose::pose_from_file(peptide_native, fname);
+			//peptide = peptide_native;
 			peptide_native.dump_pdb("output/pdb/peptide_native.pdb");
 		}
 		else
@@ -176,6 +186,12 @@ namespace pepsgo
 		}
 
 		pepsgo::bbtools::make_ideal_peptide(peptide_native_ideal, peptide_native);
+
+//		for(core::Size i = 1; i <= peptide_native_ideal.total_residue(); i++)
+//		{
+//			peptide_native_ideal.set_omega(i, -179.8);
+//		}
+
 		peptide_native_ideal_optimized = peptide_native_ideal;
 
 		superposed_aa = peptide_native_ideal;
@@ -299,13 +315,18 @@ namespace pepsgo
 		                     score_fn->score_by_scoretype(peptide, core::scoring::lk_ball_wtd, true) +
 		                     score_fn->score_by_scoretype(peptide, core::scoring::fa_intra_sol, true) +
 		                     score_fn->score_by_scoretype(peptide, core::scoring::fa_sol, true)/* +
-		                     score_fn->score_by_scoretype(peptide, core::scoring::fa_atr, true) +
-		                     score_fn->score_by_scoretype(peptide, core::scoring::fa_rep, true)*/;
-//		core::Real fa_nonbound = score_fn->score_by_scoretype(peptide, core::scoring::rama, true);
-		std::vector<core::Real> criteria_values = {peptide.energies().total_energy() - fa_elec, fa_elec};
-		res[0] = criteria_values[0];
-		res[1] = criteria_values[1];
-		res[2] = peptide.energies().total_energy();
+		                     score_fn->score_by_scoretype(peptide, core::scoring::hbond_sr_bb, true) +
+		                     score_fn->score_by_scoretype(peptide, core::scoring::hbond_lr_bb, true) +
+		                     score_fn->score_by_scoretype(peptide, core::scoring::hbond_bb_sc, true) +
+		                     score_fn->score_by_scoretype(peptide, core::scoring::hbond_sc, true)*/;
+		//core::Real fa_atr = score_fn->score_by_scoretype(peptide, core::scoring::fa_atr, true);
+
+		std::vector<core::Real> criteria_values = {peptide.energies().total_energy() - fa_elec /*- fa_atr*/, fa_elec/*, fa_atr*/};
+		for(size_t i = 0; i != criteria_values.size(); i++)
+		{
+			res[i] = criteria_values[i];
+		}
+		res.back() = peptide.energies().total_energy();
 		return mo_scalarizing(criteria_values, weights);
 	}
 
@@ -331,18 +352,24 @@ namespace pepsgo
 			mt_peptide[th_id].set_dof(opt_vector[i].dofid, vt[i]);
 		}
 		(*mt_score_fn[th_id])(mt_peptide[th_id]);
+
 		core::Real fa_elec = mt_score_fn[th_id]->score_by_scoretype(mt_peptide[th_id], core::scoring::fa_elec, true) +
 		                     mt_score_fn[th_id]->score_by_scoretype(mt_peptide[th_id], core::scoring::lk_ball_wtd, true) +
 		                     mt_score_fn[th_id]->score_by_scoretype(mt_peptide[th_id], core::scoring::fa_intra_sol, true) +
 		                     mt_score_fn[th_id]->score_by_scoretype(mt_peptide[th_id], core::scoring::fa_sol, true)/* +
-		                     mt_score_fn[th_id]->score_by_scoretype(mt_peptide[th_id], core::scoring::fa_atr, true) +
-		                     mt_score_fn[th_id]->score_by_scoretype(mt_peptide[th_id], core::scoring::fa_rep, true)*/;
+		                     mt_score_fn[th_id]->score_by_scoretype(mt_peptide[th_id], core::scoring::hbond_sr_bb, true) +
+		                     mt_score_fn[th_id]->score_by_scoretype(mt_peptide[th_id], core::scoring::hbond_lr_bb, true) +
+		                     mt_score_fn[th_id]->score_by_scoretype(mt_peptide[th_id], core::scoring::hbond_bb_sc, true) +
+		                     mt_score_fn[th_id]->score_by_scoretype(mt_peptide[th_id], core::scoring::hbond_sc, true)*/;
 
-//		core::Real fa_nonbound = mt_score_fn[th_id]->score_by_scoretype(mt_peptide[th_id], core::scoring::rama, true);
-		std::vector<core::Real> criteria_values = {mt_peptide[th_id].energies().total_energy() - fa_elec, fa_elec};
-		res[0] = criteria_values[0];
-		res[1] = criteria_values[1];
-		res[2] = mt_peptide[th_id].energies().total_energy();
+		//core::Real fa_atr = mt_score_fn[th_id]->score_by_scoretype(mt_peptide[th_id], core::scoring::fa_atr, true);
+
+		std::vector<core::Real> criteria_values = {mt_peptide[th_id].energies().total_energy() - fa_elec/* - fa_atr*/, fa_elec/*, fa_atr*/};
+		for(size_t i = 0; i != criteria_values.size(); i++)
+		{
+			res[i] = criteria_values[i];
+		}
+		res.back() = mt_peptide[th_id].energies().total_energy();
 		return mo_scalarizing(criteria_values, weights);
 	}
 
@@ -594,26 +621,26 @@ namespace pepsgo
 			phipsi_rama2_quantile[i]->set_sample_shared_and_fill_count(phipsi_rama2_sample[std::distance(phipsi.begin(), lower)]);
 
 			// check
-//        std::mt19937_64 generator;
-//        generator.seed(1);
-//        std::uniform_real_distribution<double> ureal01(0.0,1.0);
+//			std::mt19937_64 generator;
+//			generator.seed(1);
+//			std::uniform_real_distribution<double> ureal01(0.0,1.0);
 //
-//        std::vector<std::vector<double> > values01;
-//        std::vector<std::vector<double> > sampled;
-//        std::vector<double> temp1(grid_number.size());
-//        std::vector<double> temp2(temp1.size());
-//        for(size_t i = 0; i != 1e+6; ++i)
-//        {
-//            for(size_t j = 0; j != temp1.size(); j++)
-//            {
-//                temp1[j] = ureal01(generator);
-//            }
-//            values01.push_back(temp1);
-//            sampled.push_back(temp2);
-//        }
-//        for(size_t j = 0; j != values01.size(); j++)
-//            phipsi_rama2_quantile[i]->transform(values01[j], sampled[j]);
-//        pepsgo::write_default2d("maps/" + std::to_string(i) + ".dat", sampled, 5);
+//			std::vector<std::vector<double> > values01;
+//			std::vector<std::vector<double> > sampled;
+//			std::vector<double> temp1(grid_number.size());
+//			std::vector<double> temp2(temp1.size());
+//			for(size_t i = 0; i != 1e+6; ++i)
+//			{
+//				for(size_t j = 0; j != temp1.size(); j++)
+//				{
+//					temp1[j] = ureal01(generator);
+//				}
+//				values01.push_back(temp1);
+//				sampled.push_back(temp2);
+//			}
+//			for(size_t j = 0; j != values01.size(); j++)
+//				phipsi_rama2_quantile[i]->transform(values01[j], sampled[j]);
+//			pepsgo::write_default2d("maps/" + std::to_string(i) + ".dat", sampled, 5);
 		}
 	}
 
@@ -626,7 +653,7 @@ namespace pepsgo
 		switch(task)
 		{
 			case 1:
-				arguments = "phipsi omega allchi";
+				arguments = "phipsi omega allchiexceptpro";
 				pepsgo::insert_to_opt_vector(opt_vector, peptide, arguments, peptide_ranges);
 				std::cout << std::get<1>(peptide_ranges.phipsi) << ' ' << std::get<2>(peptide_ranges.phipsi) << '\t';
 				std::cout << std::get<1>(peptide_ranges.omega) << ' ' << std::get<2>(peptide_ranges.omega) << '\t';
@@ -634,10 +661,10 @@ namespace pepsgo
 				peptide_ranges.do_chi = true;
 				// native
 				pepsgo::insert_to_opt_vector(opt_vector_native, peptide_native_ideal_optimized, arguments, peptide_ranges_native);
-				set_omega_quantile(72);
+				set_omega_quantile(36);
 				break;
 			case 2:
-				arguments = "phipsi omega allchi";
+				arguments = "phipsi omega allchiexceptpro";
 				pepsgo::insert_to_opt_vector(opt_vector, peptide, arguments, peptide_ranges);
 				std::cout << std::get<1>(peptide_ranges.phipsi) << ' ' << std::get<2>(peptide_ranges.phipsi) << '\t';
 				std::cout << std::get<1>(peptide_ranges.omega) << ' ' << std::get<2>(peptide_ranges.omega) << '\t';
@@ -645,8 +672,8 @@ namespace pepsgo
 				peptide_ranges.do_chi = true;
 				// native
 				pepsgo::insert_to_opt_vector(opt_vector_native, peptide_native_ideal_optimized, arguments, peptide_ranges_native);
-				fill_rama2_quantile(144);
-				set_omega_quantile(72);
+				fill_rama2_quantile(360);
+				set_omega_quantile(36);
 				break;
 			case 4:
 				arguments = "phipsi omega allchi";
@@ -657,8 +684,8 @@ namespace pepsgo
 				peptide_ranges.do_chi = true;
 				// native
 				pepsgo::insert_to_opt_vector(opt_vector_native, peptide_native_ideal_optimized, arguments, peptide_ranges_native);
-				fill_rama2_quantile(144);
-				set_omega_quantile(72);
+				fill_rama2_quantile(360);
+				set_omega_quantile(36);
 				set_bbdep(360);
 				break;
 			case 5:
@@ -676,12 +703,49 @@ namespace pepsgo
 //    obj.create_space_frag(std::make_pair(8, 12), std::make_pair(36, 72));
 //    obj.create_space_frag(std::make_pair(6, 12), std::make_pair(72, 120));
 //    obj.create_space_frag(std::make_pair(250, 254), std::make_pair(250, 254));
-				fill_rama2_quantile(4);
-				set_omega_quantile(72);
+//				fill_rama2_quantile(4);
+//				set_omega_quantile(36);
 				set_bbdep(360);
 				break;
+			case 6:
+				arguments = "allchiexceptpro";
+				pepsgo::insert_to_opt_vector(opt_vector, peptide, arguments, peptide_ranges);
+				std::cout << std::get<1>(peptide_ranges.phipsi) << ' ' << std::get<2>(peptide_ranges.phipsi) << '\t';
+				std::cout << std::get<1>(peptide_ranges.omega) << ' ' << std::get<2>(peptide_ranges.omega) << '\t';
+				std::cout << std::get<1>(peptide_ranges.chi) << ' ' << std::get<2>(peptide_ranges.chi) << std::endl;
+				peptide_ranges.do_chi = true;
+				// native
+				pepsgo::insert_to_opt_vector(opt_vector_native, peptide_native_ideal_optimized, arguments, peptide_ranges_native);
+				// for phi/psi angles in transform
+				pepsgo::insert_to_opt_vector(opt_vector_spec, peptide, "phipsi allchi", peptide_ranges_spec);
+				peptide_ranges_spec.do_chi = true;
+				set_bbdep(360);
+				break;
+			case 7:
+				arguments = "phipsi omega";
+				pepsgo::insert_to_opt_vector(opt_vector, peptide, arguments, peptide_ranges);
+				std::cout << std::get<1>(peptide_ranges.phipsi) << ' ' << std::get<2>(peptide_ranges.phipsi) << '\t';
+				std::cout << std::get<1>(peptide_ranges.omega) << ' ' << std::get<2>(peptide_ranges.omega) << '\t';
+				std::cout << std::get<1>(peptide_ranges.chi) << ' ' << std::get<2>(peptide_ranges.chi) << std::endl;
+				peptide_ranges.do_chi = false;
+				// native
+				pepsgo::insert_to_opt_vector(opt_vector_native, peptide_native_ideal_optimized, arguments, peptide_ranges_native);
+				fill_rama2_quantile(360);
+				set_omega_quantile(36);
+				break;
+			case 8:
+				arguments = "phipsi";
+				pepsgo::insert_to_opt_vector(opt_vector, peptide, arguments, peptide_ranges);
+				std::cout << std::get<1>(peptide_ranges.phipsi) << ' ' << std::get<2>(peptide_ranges.phipsi) << '\t';
+				std::cout << std::get<1>(peptide_ranges.omega) << ' ' << std::get<2>(peptide_ranges.omega) << '\t';
+				std::cout << std::get<1>(peptide_ranges.chi) << ' ' << std::get<2>(peptide_ranges.chi) << std::endl;
+				peptide_ranges.do_chi = false;
+				// native
+				pepsgo::insert_to_opt_vector(opt_vector_native, peptide_native_ideal_optimized, arguments, peptide_ranges_native);
+				fill_rama2_quantile(360);
+				break;
 			default:
-				arguments = "phipsi allchi";
+				arguments = "phipsi allchiexceptpro"; // allchi
 				pepsgo::insert_to_opt_vector(opt_vector, peptide, arguments, peptide_ranges);
 				std::cout << std::get<1>(peptide_ranges.phipsi) << ' ' << std::get<2>(peptide_ranges.phipsi) << '\t';
 				std::cout << std::get<1>(peptide_ranges.chi) << ' ' << std::get<2>(peptide_ranges.chi) << std::endl;
@@ -732,9 +796,21 @@ namespace pepsgo
 		std::cout << "sum = " << sum << std::endl;
 	}
 
-	size_t PEPSGO::get_opt_vector_size()
+	size_t PEPSGO::get_problem_dimension()
 	{
 		return opt_vector.size();
+	}
+
+	void PEPSGO::get_native_bb_angles() const
+	{
+		std::cout << "phi/psi/omega" << std::endl;
+		for(core::Size i = 1; i <= peptide_native.total_residue(); i++)
+		{
+
+			std::cout << std::fixed << peptide_native.phi(i) << "\t(" << numeric::conversions::radians(peptide_native.phi(i)) << ")\t"
+			          << peptide_native.psi(i) << "\t(" << numeric::conversions::radians(peptide_native.psi(i)) << ")\t"
+			          << peptide_native.omega(i) << "\t(" << numeric::conversions::radians(peptide_native.omega(i)) << ")\t" << std::endl;
+		}
 	}
 
 	void PEPSGO::unique_aa()
@@ -762,7 +838,7 @@ namespace pepsgo
 		return core::scoring::all_atom_rmsd(peptide, peptide_native_ideal_optimized);
 	}
 
-	void PEPSGO::append_to_superposed_aa(const std::vector<double> &x)
+	void PEPSGO::append_to_native_and_superpose_AA(const std::vector<double> &x)
 	{
 		objective(x);
 		core::pose::Pose temp_pose = peptide;
@@ -774,7 +850,7 @@ namespace pepsgo
 		superposed_aa.append_pose_by_jump(temp_pose, superposed_aa.total_residue());
 	}
 
-	void PEPSGO::append_to_superposed_ca(const std::vector<double> &x)
+	void PEPSGO::append_to_native_and_superpose_CA(const std::vector<double> &x)
 	{
 		objective(x);
 		core::pose::Pose temp_pose = peptide;
@@ -791,11 +867,20 @@ namespace pepsgo
 		superposed_aa.dump_pdb("output/pdb/superposed_aa.pdb");
 		superposed_ca.dump_pdb("output/pdb/superposed_ca.pdb");
 	}
-
-	void PEPSGO::set_task(const size_t choise)
+	
+	void PEPSGO::set_task(size_t task_number)
 	{
-		task = choise > 5 ? 0 : choise;
-		std::cout << "Optimization task is " << task << ", ";
+		set_peptide_from_file();
+		set_task_settings(task_number);
+		get_native_bb_angles();
+		fill_opt_vector();
+		optimize_native();
+	}
+
+	void PEPSGO::set_task_settings(const size_t choise)
+	{
+		task = choise > 8 ? 0 : choise;
+		std::cout << "optimization task is " << task << ", ";
 		switch(task)
 		{
 			case 1:
@@ -818,6 +903,27 @@ namespace pepsgo
 				// phi/psi from fragments (quantile), omega with delta, chi from Dunbrack (quantile)
 				std::cout << "phi/psi/omega from fragments (quantile), chi from Dunbrack (quantile)" << std::endl;
 				break;
+			case 6:
+				// only for presented native pose, phi/psi/omega fiexd, chi from Dunbrack (quantile)
+				std::cout << "phi/psi/omega fixed from native, chi from Dunbrack (quantile)" << std::endl;
+//				for(core::Size i = 1; i <= peptide_native_ideal_optimized.total_residue(); i++)
+//				{
+//					peptide.set_phi(i, peptide_native_ideal_optimized.phi(i));
+//					peptide.set_psi(i, peptide_native_ideal_optimized.psi(i));
+//					peptide.set_omega(i, peptide_native_ideal_optimized.omega(i));
+//				}
+				peptide = peptide_native_ideal_optimized;
+				break;
+			case 7:
+				// only for presented native pose, phi/psi/omega fiexd, chi from Dunbrack (quantile)
+				std::cout << "phi/psi from rama2 (quantile), omega with delta, all chi fixed" << std::endl;
+				peptide = peptide_native_ideal_optimized;
+				break;
+			case 8:
+				// only for presented native pose, phi/psi/omega fiexd, chi from Dunbrack (quantile)
+				std::cout << "phi/psi from rama2 (quantile), omega fixed, all chi fixed" << std::endl;
+				peptide = peptide_native_ideal_optimized;
+				break;
 			default:
 				std::cout << "only phi/psi/chi angles as rotamers" << std::endl;
 				break;
@@ -831,8 +937,7 @@ namespace pepsgo
 		omega_quantile.front() = std::make_shared<mveqf::ImplicitQuantileSorted<int, double>>(
 		                           std::vector<double>(grid_number.size(), -numeric::NumericTraits<core::Real>::pi()),
 		                           std::vector<double>(grid_number.size(), numeric::NumericTraits<core::Real>::pi()),
-		                           grid_number
-		                         );
+		                           grid_number);
 		std::vector<std::vector<int>> in_sample = {{0}, {int(step) - 1}};
 		omega_quantile.front()->set_sample_and_fill_count(in_sample);
 	}
@@ -856,8 +961,9 @@ namespace pepsgo
 			xx[i] = frag_vector[i];
 		}
 
-		out = pepsgo::transform::bbdep_experiment_actual_states(
-		        xx, opt_vector, peptide_ranges, bbdep_sm, phipsi_rama2_quantile.size());
+		//out = pepsgo::transform::bbdep_experiment_actual_states(xx, opt_vector, peptide_ranges, bbdep_sm, phipsi_rama2_quantile.size());
+		pepsgo::transform::bbdep_experiment_actual_states(xx, out, opt_vector, peptide_ranges, bbdep_sm, phipsi_rama2_quantile.size());
+
 
 //    ///  C -> transform
 //    // phi/psi
@@ -909,6 +1015,15 @@ namespace pepsgo
 				break;
 			case 5:
 				transform_with_frags(x, out);
+				break;
+			case 6:
+				transform_bbfixed_dun(x, out);
+				break;
+			case 7:
+				transform_bb_chifixed(x, out);
+				break;
+			case 8:
+				transform_bb_omegachifixed(x, out);
 				break;
 			default:
 				transform_simple(x, out);
@@ -990,7 +1105,90 @@ namespace pepsgo
 			omega_quantile.front()->transform(values01_omg, sampled_omg);
 			out[i] = sampled_omg.front();
 		}
-		out = pepsgo::transform::bbdep_experiment_actual_states(x, opt_vector, peptide_ranges, bbdep_sm, phipsi_rama2_quantile.size());
+
+
+//		std::cout << std::get<0>(peptide_ranges.chi) << std::endl;
+//		std::cout << std::get<1>(peptide_ranges.chi) << std::endl;
+//		std::cout << std::get<2>(peptide_ranges.chi) << std::endl;
+
+//		auto t = out;
+//
+//		for(size_t i = 0; i != out.size(); i++)
+//		{
+//			std::cout << std::fixed << t[i] << '\t' << out[i] << std::endl;
+//		}
+//		std::cout << std::endl;
+
+		//out = pepsgo::transform::bbdep_experiment_actual_states(x, out, opt_vector, peptide_ranges, bbdep_sm, phipsi_rama2_quantile.size());
+		pepsgo::transform::bbdep_experiment_actual_states(x, out, opt_vector, peptide_ranges, bbdep_sm, peptide.total_residue() - 2);
+
+//		for(size_t i = 0; i != out.size(); i++)
+//		{
+//			std::cout << std::fixed << t[i] << '\t' << out[i] << std::endl;
+//		}
+//		std::cin.get();
+	}
+
+
+	void PEPSGO::transform_bbfixed_dun(const std::vector<double> &x, std::vector<double> &out) const
+	{
+		//out = pepsgo::transform::bbdep_experiment_actual_states(x, opt_vector, peptide_ranges, bbdep_sm, phipsi_rama2_quantile.size());
+		//pepsgo::transform::bbdep_experiment_actual_states(x, out, opt_vector, peptide_ranges, bbdep_sm, peptide.total_residue() - 2);
+
+		size_t phi_psi_vect_size = 2*peptide.total_residue() - 2;
+		std::vector<double> tx(phi_psi_vect_size);
+		tx.insert(tx.end(), x.begin(), x.end());
+
+		std::vector<double> tout(phi_psi_vect_size);
+		tout.insert(tout.end(), out.begin(), out.end());
+
+		for(size_t i = 0; i != phi_psi_vect_size; i++)
+		{
+			tout[i] = peptide.dof(opt_vector_spec[i].dofid);
+		}
+		pepsgo::transform::bbdep_experiment_actual_states(tx, tout, opt_vector_spec, peptide_ranges_spec, bbdep_sm, peptide.total_residue() - 2);
+		for(size_t i = std::get<1>(peptide_ranges_spec.chi), j = 0; j != out.size(); i++, j++)
+		{
+			out[j] = tout[i];
+		}
+	}
+
+
+	void PEPSGO::transform_bb_chifixed(const std::vector<double> &x, std::vector<double> &out) const
+	{
+		out[std::get<1>(peptide_ranges.phipsi)] = -numeric::NumericTraits<core::Real>::pi()*(1.0 - 2.0*x[std::get<1>(peptide_ranges.phipsi)]);
+		out[std::get<2>(peptide_ranges.phipsi)] = -numeric::NumericTraits<core::Real>::pi()*(1.0 - 2.0*x[std::get<2>(peptide_ranges.phipsi)]);
+		std::vector<double> values01(2), sampled(2);
+		for(size_t c = std::get<1>(peptide_ranges.phipsi) + 1, pp = 0; pp != phipsi_rama2_quantile.size(); pp++, c += 2)
+		{
+			values01[0] = x[c];
+			values01[1] = x[c + 1];
+			phipsi_rama2_quantile[pp]->transform(values01, sampled);
+			out[c] = sampled[0];
+			out[c + 1] = sampled[1];
+		}
+		std::vector<double> values01_omg(1), sampled_omg(1);
+		for(size_t i = std::get<1>(peptide_ranges.omega); i <= std::get<2>(peptide_ranges.omega); i++)
+		{
+			values01_omg[0] = x[i];
+			omega_quantile.front()->transform(values01_omg, sampled_omg);
+			out[i] = sampled_omg.front();
+		}
+	}
+
+	void PEPSGO::transform_bb_omegachifixed(const std::vector<double> &x, std::vector<double> &out) const
+	{
+		out[std::get<1>(peptide_ranges.phipsi)] = -numeric::NumericTraits<core::Real>::pi()*(1.0 - 2.0*x[std::get<1>(peptide_ranges.phipsi)]);
+		out[std::get<2>(peptide_ranges.phipsi)] = -numeric::NumericTraits<core::Real>::pi()*(1.0 - 2.0*x[std::get<2>(peptide_ranges.phipsi)]);
+		std::vector<double> values01(2), sampled(2);
+		for(size_t c = std::get<1>(peptide_ranges.phipsi) + 1, pp = 0; pp != phipsi_rama2_quantile.size(); pp++, c += 2)
+		{
+			values01[0] = x[c];
+			values01[1] = x[c + 1];
+			phipsi_rama2_quantile[pp]->transform(values01, sampled);
+			out[c] = sampled[0];
+			out[c + 1] = sampled[1];
+		}
 	}
 
 //void PEPSGO::set_extend_search_space(size_t c)

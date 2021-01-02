@@ -20,7 +20,7 @@ else()
 	message( FATAL_ERROR "You must properly set ROSETTAMAINPATH varibale ${ROSETTAMAINPATH}" )
 endif()
 
-set( ROSETTALINUXVER "5.8" )
+set( ROSETTALINUXVER "5.9" )
 set( ROSETTACPPCOMP "clang" )
 set( ROSETTACPPVER "10.0" )
 set( MVEQFDIR "${CMAKE_SOURCE_DIR}" )

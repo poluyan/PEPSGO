@@ -86,7 +86,8 @@ namespace pepsgo
 		private:
 			std::string path;
 			size_t cdf_grid_step;
-
+			bool uniform_peaks;
+			
 		public:
 			std::vector<sm_1d> aa_sm_1d; // 0 ser, 1 val, 2 cys, 3 thr
 			std::vector<sm_2d> aa_sm_2d; // 0 trp, 1 his, 2 asn, 3 asp, 4 phe, 5 tyr, 6 ile, 7 leu
